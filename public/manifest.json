@@ -1,0 +1,28 @@
+{
+  "id": "/",
+  "scope": "/",
+  "name": "CodeMaster — Guia Prático de Programação",
+  "short_name": "CodeMaster",
+  "description": "Guia completo de programação mobile-first com cursos de HTML, CSS, JavaScript, React e Python.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0D0D0F",
+  "theme_color": "#0D0D0F",
+  "lang": "pt-BR",
+  "categories": ["education", "developer tools"],
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

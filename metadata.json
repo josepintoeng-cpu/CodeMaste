@@ -1,0 +1,6 @@
+{
+  "name": "CodeMaster - Plataforma de Programação",
+  "description": "Plataforma interativa de ensino de programação estilo Duolingo com 9 tecnologias, exercicios com execução real e simulada, e sistema de XP.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
