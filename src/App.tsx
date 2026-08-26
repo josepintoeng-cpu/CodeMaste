@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { UserProgress, TechId, LevelId, Lesson, SyncStatus } from './types';
 import { storageService } from './services/storageService';
+import { useI18n } from './i18n';
 import { Header } from './components/Header';
 import { BottomNav, TabType } from './components/BottomNav';
 import { HomeScreen } from './screens/HomeScreen';
@@ -20,6 +21,7 @@ import { getLessonsForTechAndLevel, getQuizForTechAndLevel } from './content';
 import { fadeInUp } from './utils/animations';
 
 export default function App() {
+  const { t } = useI18n();
   const [progress, setProgress] = useState<UserProgress>(() =>
     storageService.getUserProgress()
   );
@@ -155,13 +157,52 @@ export default function App() {
     return ok;
   };
 
+  // Compute Header Back Button action and label dynamically
+  const { headerBackAction, headerBackLabel } = useMemo(() => {
+    if (activeLesson) {
+      return {
+        headerBackAction: () => setActiveLesson(null),
+        headerBackLabel: t('nav.backToCourse') || 'Voltar',
+      };
+    }
+    if (activeQuizLevel) {
+      return {
+        headerBackAction: () => setActiveQuizLevel(null),
+        headerBackLabel: t('nav.backToCourse') || 'Voltar',
+      };
+    }
+    if (selectedTechId) {
+      return {
+        headerBackAction: () => setSelectedTechId(null),
+        headerBackLabel: t('nav.backToCourses') || 'Cursos',
+      };
+    }
+    if (activeTab !== 'home') {
+      return {
+        headerBackAction: () => {
+          setSelectedTechId(null);
+          setActiveLesson(null);
+          setActiveQuizLevel(null);
+          setActiveTab('home');
+        },
+        headerBackLabel: t('nav.home') || 'Início',
+      };
+    }
+    return {
+      headerBackAction: undefined,
+      headerBackLabel: undefined,
+    };
+  }, [activeLesson, activeQuizLevel, selectedTechId, activeTab, t]);
+
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased transition-colors duration-250 selection:bg-orange-500 selection:text-black">
-      {/* Header Fixo no Topo */}
+      {/* Header Fixo no Topo com Botão Dinâmico de Voltar */}
       <Header
         progress={progress}
         syncStatus={syncStatus}
         onToggleTheme={handleToggleTheme}
+        onBack={headerBackAction}
+        backLabel={headerBackLabel}
         onProfileClick={() => {
           setSelectedTechId(null);
           setActiveLesson(null);

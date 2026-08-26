@@ -392,19 +392,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </motion.button>
         </div>
 
-        {/* Editorial Action Button */}
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={onExportData}
-          className="w-full py-3.5 border border-white/20 font-bold text-xs uppercase tracking-widest text-[var(--text-primary)] hover:bg-white hover:text-black transition-colors rounded-xl shadow-sm touch-btn"
-        >
-          {t('profile.exportCertReport')}
-        </motion.button>
-
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={() => setShowResetModal(true)}
-          className="w-full mt-2 flex items-center justify-center gap-2 p-3 bg-red-950/30 hover:bg-red-900/40 border border-red-500/30 rounded-xl text-xs font-bold text-red-400 transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
+          className="w-full flex items-center justify-center gap-2 p-3 bg-red-950/30 hover:bg-red-900/40 border border-red-500/30 rounded-xl text-xs font-bold text-red-400 transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
         >
           <RotateCcw className="w-4 h-4" />
           <span>{t('profile.resetAllProgress')}</span>

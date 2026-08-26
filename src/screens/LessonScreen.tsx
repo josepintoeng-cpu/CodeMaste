@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
-import { ArrowLeft, BookOpen, Code, Terminal, CheckCircle2, HelpCircle, Lightbulb, Sparkles, AlertCircle, ArrowRight } from 'lucide-react';
+import { ArrowLeft, BookOpen, Code, Terminal, CheckCircle2, HelpCircle, Lightbulb, Sparkles, AlertCircle, ArrowRight, RefreshCw } from 'lucide-react';
 import { Lesson } from '../types';
 import { CodeBlock } from '../components/CodeBlock';
 import { CodeEditor } from '../components/CodeEditor';
@@ -8,6 +8,7 @@ import { CodeSimulator } from '../components/CodeSimulator';
 import { ConfettiEffect } from '../components/ConfettiEffect';
 import { FooterStamp } from '../components/FooterStamp';
 import { validationService } from '../services/validationService';
+import { codeRunnerService } from '../services/codeRunnerService';
 import { fadeInUp } from '../utils/animations';
 import { useI18n } from '../i18n';
 
@@ -24,7 +25,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
   onComplete,
   onNextLesson,
 }) => {
-  const { t, language } = useI18n();
+  const { t } = useI18n();
   const [userAnswer, setUserAnswer] = useState<string>(
     lesson.exercise.initialCode || ''
   );
@@ -33,6 +34,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
   const [attempts, setAttempts] = useState(0);
   const [feedback, setFeedback] = useState<{ isValid: boolean; message: string } | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
 
   // Extração inteligente de palavras-chave esperadas para feedback de validação em tempo real
@@ -44,7 +46,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
       return ans.split('|').map(s => s.trim()).filter(Boolean);
     }
     const tokens = ans.match(/[a-zA-Z_$#][a-zA-Z0-9_$#-]*|[=><!+*/]{1,3}/g) || [];
-    const unique = Array.from(new Set<string>(tokens)).filter((t: string) => t.length >= 2 && !['para', 'com', 'que', 'uma', 'como'].includes(t.toLowerCase()));
+    const unique = Array.from(new Set<string>(tokens)).filter((tk: string) => tk.length >= 2 && !['para', 'com', 'que', 'uma', 'como'].includes(tk.toLowerCase()));
     return unique.slice(0, 4);
   }, [lesson.exercise.correctAnswer]);
 
@@ -52,16 +54,35 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
     return lesson.codeExample?.language || lesson.techId || 'javascript';
   }, [lesson.codeExample?.language, lesson.techId]);
 
-  const handleCheckAnswer = () => {
+  const handleCheckAnswer = async () => {
+    setIsValidating(true);
     setAttempts(prev => prev + 1);
+
+    let actualOutput = '';
+    if (lesson.exercise.type !== 'multiple_choice') {
+      try {
+        const execResult = await codeRunnerService.runCode(
+          userAnswer,
+          lesson.simulation,
+          exerciseLanguage
+        );
+        if (!execResult.error && execResult.output) {
+          actualOutput = execResult.output;
+        }
+      } catch {
+        // Ignored
+      }
+    }
 
     const result = validationService.validateExercise(
       lesson.exercise,
       userAnswer,
-      ''
+      actualOutput,
+      exerciseLanguage
     );
 
     setFeedback({ isValid: result.isValid, message: result.message });
+    setIsValidating(false);
 
     if (result.isValid) {
       setIsCompleted(true);
@@ -228,11 +249,20 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
           <motion.button
             whileTap={{ scale: 0.98 }}
             onClick={handleCheckAnswer}
-            disabled={isCompleted}
+            disabled={isCompleted || isValidating}
             className="w-full py-3 bg-orange-500 hover:bg-orange-400 active:bg-orange-600 disabled:opacity-60 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 min-h-[48px] touch-btn"
           >
-            <CheckCircle2 className="w-4 h-4 text-black" />
-            <span>{isCompleted ? t('lesson.lessonCompleted') : t('lesson.checkAnswer')}</span>
+            {isValidating ? (
+              <>
+                <RefreshCw className="w-4 h-4 text-black animate-spin" />
+                <span>{t('lesson.checking') || 'Verificando...'}</span>
+              </>
+            ) : (
+              <>
+                <CheckCircle2 className="w-4 h-4 text-black" />
+                <span>{isCompleted ? t('lesson.lessonCompleted') : t('lesson.checkAnswer')}</span>
+              </>
+            )}
           </motion.button>
         </div>
       </motion.section>

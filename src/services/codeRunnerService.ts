@@ -233,25 +233,58 @@ sys.stdout = io.StringIO()
    * Retorna simulação de execução com delay e visual realista
    */
   runSimulatedCode(code: string, defaultOutput: string, startTime: number): ExecutionResult {
-    // Análise básica do código para extrair strings dentro de print/System.out/echo/console se possível
     let output = defaultOutput;
 
-    // Tenta extrair print(...) em Python/PHP/Java simples
-    const printMatches = code.match(/(?:print|echo|System\.out\.println)\s*\(\s*["']([^"']+)["']\s*\)/g);
-    if (printMatches && printMatches.length > 0) {
-      const extracted = printMatches.map(m => {
-        const strMatch = m.match(/["']([^"']+)["']/);
-        return strMatch ? strMatch[1] : '';
-      }).filter(Boolean);
+    try {
+      const vars: Record<string, string> = {};
+      const lines = code.split('\n');
+      const outputs: string[] = [];
 
-      if (extracted.length > 0) {
-        output = extracted.join('\n');
+      for (const line of lines) {
+        const clean = line.trim();
+        // Ignora comentários
+        if (clean.startsWith('#') || clean.startsWith('//') || clean.startsWith('--')) continue;
+
+        // Match declaração/atribuição: let/const/var/nome = "valor" ou número ou booleano
+        const assignMatch = clean.match(/^(?:(?:let|const|var)\s+)?([a-zA-Z_$][a-zA-Z0-9_$]*)\s*=\s*(?:["'](.*?)["']|(\d+(?:\.\d+)?)|(True|False|true|false));?$/);
+        if (assignMatch) {
+          const varName = assignMatch[1];
+          const strVal = assignMatch[2];
+          const numVal = assignMatch[3];
+          const boolVal = assignMatch[4];
+          vars[varName] = strVal !== undefined ? strVal : (numVal !== undefined ? numVal : (boolVal || ''));
+        }
+
+        // Match print(var) ou print("texto") ou console.log(...) ou echo ...
+        const printMatch = clean.match(/(?:print|console\.log|echo|System\.out\.println)\s*\(\s*(.*?)\s*\)/i);
+        if (printMatch) {
+          const rawArg = printMatch[1].trim();
+          // Separar múltiplos argumentos separados por vírgula se houver
+          const parts = rawArg.split(',').map(p => p.trim());
+          const lineOut = parts.map(p => {
+            if ((p.startsWith('"') && p.endsWith('"')) || (p.startsWith("'") && p.endsWith("'"))) {
+              return p.slice(1, -1);
+            }
+            if (vars[p] !== undefined) {
+              return vars[p];
+            }
+            return p;
+          }).join(' ');
+
+          outputs.push(lineOut);
+        }
       }
+
+      if (outputs.length > 0) {
+        output = outputs.join('\n');
+      }
+    } catch {
+      // Fallback para defaultOutput se der algum erro
     }
 
     return {
       output: output,
-      executionTimeMs: Math.round(performance.now() - startTime) + 120,
+      executionTimeMs: Math.round(performance.now() - startTime) + 60,
       isSimulated: true,
     };
   },

@@ -44,51 +44,83 @@ const translations: Record<AppLanguage, Record<string, string>> = {
     'sync.pendingDesc': '{count} alterações pendentes para envio',
     'sync.syncedDesc': 'Dados 100% sincronizados na nuvem',
 
-    // Bottom Navigation
+    // Bottom Navigation & Global Navigation
     'nav.home': 'Início',
     'nav.courses': 'Cursos',
     'nav.progress': 'Status',
     'nav.profile': 'Perfil',
+    'nav.back': 'Voltar',
+    'nav.backToHome': 'Voltar ao Início',
+    'nav.backToCourses': 'Voltar aos Cursos',
+    'nav.selectOther': 'Escolher Outra Opção',
+    'nav.selectOtherTech': 'Selecionar Outra Tecnologia',
 
     // Home Screen
     'home.welcome': 'BEM-VINDO DE VOLTA',
+    'home.welcomeBack': 'BEM-VINDO DE VOLTA',
     'home.streakCount_one': '{count} dia',
     'home.streakCount_other': '{count} dias',
     'home.streakBannerTitle': 'SEQUÊNCIA & META DIÁRIA',
     'home.dailyGoalCompleted': 'Meta diária concluída! 🔥',
     'home.dailyGoalPending': 'Mantenha sua sequência ativa',
+    'home.goalDone': 'Meta diária concluída! 🔥',
+    'home.goalPending': 'Mantenha sua sequência ativa',
     'home.dailyGoalDescDone': 'Você manteve seu fogo aceso por {streak} {streakDays}!',
     'home.dailyGoalDescKeep': 'Complete 1 aula hoje para não perder sua sequência de {streak} dias!',
     'home.dailyGoalDescStart': 'Complete sua 1ª aula hoje para acender seu fogo de sequência diária!',
+    'home.streakKept_one': 'Você manteve seu fogo aceso por {count} dia!',
+    'home.streakKept_other': 'Você manteve seu fogo aceso por {count} dias!',
+    'home.completeOne': 'Complete 1 aula hoje para não perder sua sequência de {count} dias!',
+    'home.completeFirst': 'Complete sua 1ª aula hoje para acender seu fogo de sequência diária!',
     'home.continueLearning': 'CONTINUAR APRENDENDO',
     'home.defaultLessonTitle': 'Python: 1. Olá Mundo e Variáveis',
-    'home.techCatalogTitle': 'TECNOLOGIAS ({count} CURSOS)',
+    'home.techCatalogTitle': 'TECNOLOGIAS (9 CURSOS)',
     'home.techCatalogSubtitle': 'Aprenda interativamente do zero ao avançado.',
+    'home.technologies': 'TECNOLOGIAS (9 CURSOS)',
+    'home.techSubtitle': 'Aprenda interativamente do zero ao avançado.',
     'home.viewAll': 'Ver Todos',
     'home.lessonProgress': '{count}/20 aulas',
+    'home.lessonsCount': 'aulas',
     'home.statCompletedLessons': 'Aulas Feitas',
+    'home.lessonsDone': 'Aulas Feitas',
     'home.statTotalXp': 'XP Total',
+    'home.totalXp': 'XP Total',
     'home.statStreak': 'Sequência',
+    'home.streakStat': 'Sequência',
 
     // Courses Screen
     'courses.tag': 'CATÁLOGO OFICIAL & DOMÍNIO',
-    'courses.title': 'Cursos & Mestria ({count} Stacks)',
+    'courses.badge': 'CATÁLOGO OFICIAL & DOMÍNIO',
+    'courses.title': 'Cursos & Mestria (9 Stacks)',
     'courses.subtitle': 'Acompanhe sua porcentagem de domínio em cada tecnologia com base em aulas e quizzes.',
     'courses.globalProgress': 'Progresso Global',
     'courses.catalogMastery': 'Domínio Geral do Catálogo',
+    'courses.overallMastery': 'Domínio Geral do Catálogo',
     'courses.averageMastery': 'Média Geral',
+    'courses.overallAvg': 'Média Geral',
     'courses.lessons': 'Aulas',
     'courses.quizzes': 'Quizzes',
     'courses.masteries': 'Mestrias',
     'courses.searchPlaceholder': 'Buscar tecnologia (ex: Python, MySQL, Flutter)...',
-    'courses.statusFilter': 'Status:',
+    'courses.statusFilter': 'Status',
     'courses.statusAll': 'Todas',
+    'courses.filterAll': 'Todas',
     'courses.statusInProgress': '⚡ Em Curso',
+    'courses.filterInProgress': '⚡ Em Curso',
     'courses.statusMastered': '👑 Mestres (100%)',
+    'courses.filterMastered': '👑 Mestres (100%)',
     'courses.statusUnstarted': '⚪ Não Iniciadas',
+    'courses.filterUnstarted': '⚪ Não Iniciadas',
     'courses.noTechFound': 'Nenhuma tecnologia encontrada',
     'courses.noTechFoundDesc': 'Tente ajustar os filtros de categoria ou termo de busca.',
+    'courses.notFound': 'Nenhuma tecnologia encontrada',
+    'courses.notFoundDesc': 'Tente ajustar os filtros de categoria ou termo de busca.',
     'courses.catAll': 'Todos',
+    'courses.catFrontend': 'Frontend',
+    'courses.catBackend': 'Backend',
+    'courses.catMobile': 'Mobile',
+    'courses.catDatabase': 'Banco de Dados',
+    'courses.catLanguages': 'Linguagens',
 
     // Categories
     'cat.Frontend': 'Frontend',
@@ -124,18 +156,28 @@ const translations: Record<AppLanguage, Record<string, string>> = {
 
     // Lesson Screen
     'lesson.section1': '1. TEORIA E CONCEITO',
+    'lesson.section1Theory': '1. TEORIA E CONCEITO',
     'lesson.section2': '2. CÓDIGO COMENTADO',
+    'lesson.section2Code': '2. CÓDIGO COMENTADO',
     'lesson.section3': '3. SIMULAÇÃO DE CÓDIGO',
+    'lesson.section3Simulation': '3. SIMULAÇÃO DE CÓDIGO',
     'lesson.section4': '4. EXERCÍCIO PRÁTICO',
+    'lesson.section4Exercise': '4. EXERCÍCIO PRÁTICO',
     'lesson.section5': '5. SUA RESPOSTA:',
+    'lesson.section5Answer': '5. SUA RESPOSTA:',
     'lesson.section6Correct': '6. Resposta Correta (+{xp} XP)',
     'lesson.section6TryAgain': '6. Tente Novamente (Tentativa {attempt})',
+    'lesson.correctAnswer': 'Resposta Correta! (+{xp} XP)',
+    'lesson.tryAgain': 'Tente Novamente (Tentativa {attempts})',
     'lesson.showHint': 'Ver Dica',
     'lesson.hideHint': 'Ocultar Dica',
-    'lesson.hint': 'Dica:',
+    'lesson.hint': 'Dica',
     'lesson.codePlaceholder': 'Digite sua solução em código aqui...',
+    'lesson.editorPlaceholder': 'Digite sua solução em código aqui...',
     'lesson.checkAnswer': 'Verificar Resposta',
+    'lesson.checking': 'Executando e Verificando...',
     'lesson.completed': 'Aula Concluída!',
+    'lesson.lessonCompleted': 'Aula Concluída! 🎉',
     'lesson.recommendedSolution': 'Solução Recomendada:',
     'lesson.nextLesson': 'Ir para a Próxima Aula',
     'lesson.confettiTitle': 'Lição Concluída!',
@@ -157,20 +199,27 @@ const translations: Record<AppLanguage, Record<string, string>> = {
 
     // Progress Screen
     'progress.tag': 'ESTATÍSTICAS ATUAIS',
+    'progress.badge': 'ESTATÍSTICAS ATUAIS',
     'progress.title': 'Status & Conquistas',
     'progress.subtitle': 'Acompanhe o seu desempenho diário e sequência de estudos consecutivos.',
     'progress.dailyActivity': 'ATIVIDADE DIÁRIA',
+    'progress.dailyActivityBadge': 'ATIVIDADE DIÁRIA',
+    'progress.dailyActivityTitle': 'XP nos Últimos 7 Dias',
     'progress.xpLast7Days': 'XP ganho nos últimos 7 dias',
     'progress.dailyAverage': 'Média Diária',
+    'progress.dailyAvg': 'Média Diária',
     'progress.bestDay': 'Melhor Dia',
     'progress.inProgress': 'Em progresso',
     'progress.today': 'Hoje',
     'progress.xpEarned': '+{xp} XP ganho',
     'progress.dailyInsightTag': 'INSIGHT DIÁRIO',
+    'progress.dailyInsightBadge': 'INSIGHT DIÁRIO',
     'progress.dailyQuote': '"A persistência na prática de código transforma sintaxe em maestria. Mantenha sua sequência ativa hoje."',
     'progress.techProgress': 'Progresso por Tecnologia',
+    'progress.techProgressTitle': 'Progresso por Tecnologia',
     'progress.lessonsDone': '{count} aulas ({pct}%)',
     'progress.unlockedAchievements': 'CONQUISTAS DESBLOQUEADAS',
+    'progress.unlockedBadges': 'CONQUISTAS DESBLOQUEADAS',
 
     // Study Time Estimator
     'time.tag': 'ESTATÍSTICA DE DEDICAÇÃO',
@@ -230,18 +279,27 @@ const translations: Record<AppLanguage, Record<string, string>> = {
 
     // Profile Screen
     'profile.settings': 'CONFIGURAÇÕES DA PLATAFORMA',
+    'profile.platformSettings': 'CONFIGURAÇÕES DA PLATAFORMA',
     'profile.language': 'Idioma da Interface',
+    'profile.languageOption': 'Idioma do Aplicativo',
     'profile.languageDesc': 'Selecione entre Português e Inglês',
     'profile.pt': 'Português (BR)',
     'profile.en': 'English (US)',
     'profile.darkMode': 'Tema Escuro (Dark Mode)',
+    'profile.darkModeOn': 'Ativado — Estética escura editorial',
+    'profile.darkModeOff': 'Desativado — Modo Claro ativo',
     'profile.darkActive': 'Ativado — Estética escura editorial',
     'profile.lightActive': 'Desativado — Modo Claro ativo',
     'profile.activated': 'Ativado',
     'profile.deactivated': 'Desativado',
+    'profile.enabled': 'Ativado',
+    'profile.disabled': 'Desativado',
     'profile.mobileExport': 'Exportar para App Mobile (Capacitor)',
+    'profile.exportMobile': 'Exportar para App Mobile (Capacitor)',
+    'profile.exportMobileSubtitle': 'Gerar APK Android / App iOS nativo via Capacitor',
     'profile.mobileExportDesc': 'Instruções para gerar APK Android / iOS',
     'profile.bgSync': 'SINCRONIZAÇÃO EM SEGUNDO PLANO',
+    'profile.backgroundSync': 'SINCRONIZAÇÃO EM SEGUNDO PLANO',
     'profile.cloudStatus': 'Status da Nuvem:',
     'profile.syncingQueue': 'Sincronizando fila...',
     'profile.pendingActions': '{count} ação(ões) pendente(s)',
@@ -259,7 +317,9 @@ const translations: Record<AppLanguage, Record<string, string>> = {
     'profile.exportCertReport': 'Exportar Relatório de Certificados',
     'profile.resetAllProgress': 'Resetar Todo o Progresso',
     'profile.saveName': 'Salvar',
+    'profile.save': 'Salvar',
     'profile.editName': 'Editar',
+    'profile.edit': 'Editar',
     'profile.nameUpdated': 'Nome atualizado com sucesso!',
     'profile.importSuccess': 'Dados de progresso importados com êxito!',
     'profile.importInvalid': 'Arquivo ou formato JSON inválido.',
@@ -342,51 +402,83 @@ const translations: Record<AppLanguage, Record<string, string>> = {
     'sync.pendingDesc': '{count} changes pending upload',
     'sync.syncedDesc': 'Data 100% synchronized in cloud',
 
-    // Bottom Navigation
+    // Bottom Navigation & Global Navigation
     'nav.home': 'Home',
     'nav.courses': 'Courses',
     'nav.progress': 'Progress',
     'nav.profile': 'Profile',
+    'nav.back': 'Back',
+    'nav.backToHome': 'Back to Home',
+    'nav.backToCourses': 'Back to Courses',
+    'nav.selectOther': 'Choose Another Option',
+    'nav.selectOtherTech': 'Select Another Technology',
 
     // Home Screen
     'home.welcome': 'WELCOME BACK',
+    'home.welcomeBack': 'WELCOME BACK',
     'home.streakCount_one': '{count} day',
     'home.streakCount_other': '{count} days',
     'home.streakBannerTitle': 'STREAK & DAILY GOAL',
     'home.dailyGoalCompleted': 'Daily goal completed! 🔥',
     'home.dailyGoalPending': 'Keep your daily streak alive',
+    'home.goalDone': 'Daily goal completed! 🔥',
+    'home.goalPending': 'Keep your daily streak alive',
     'home.dailyGoalDescDone': 'You kept your flame burning for {streak} {streakDays}!',
     'home.dailyGoalDescKeep': 'Complete 1 lesson today to protect your {streak}-day streak!',
     'home.dailyGoalDescStart': 'Complete your 1st lesson today to ignite your daily streak flame!',
+    'home.streakKept_one': 'You kept your flame burning for {count} day!',
+    'home.streakKept_other': 'You kept your flame burning for {count} days!',
+    'home.completeOne': 'Complete 1 lesson today to protect your {count}-day streak!',
+    'home.completeFirst': 'Complete your 1st lesson today to ignite your daily streak flame!',
     'home.continueLearning': 'CONTINUE LEARNING',
     'home.defaultLessonTitle': 'Python: 1. Hello World & Variables',
-    'home.techCatalogTitle': 'TECHNOLOGIES ({count} COURSES)',
+    'home.techCatalogTitle': 'TECHNOLOGIES (9 COURSES)',
     'home.techCatalogSubtitle': 'Learn interactively from zero to advanced.',
+    'home.technologies': 'TECHNOLOGIES (9 COURSES)',
+    'home.techSubtitle': 'Learn interactively from zero to advanced.',
     'home.viewAll': 'View All',
     'home.lessonProgress': '{count}/20 lessons',
+    'home.lessonsCount': 'lessons',
     'home.statCompletedLessons': 'Lessons Done',
+    'home.lessonsDone': 'Lessons Done',
     'home.statTotalXp': 'Total XP',
+    'home.totalXp': 'Total XP',
     'home.statStreak': 'Streak',
+    'home.streakStat': 'Streak',
 
     // Courses Screen
     'courses.tag': 'OFFICIAL CATALOG & MASTERY',
-    'courses.title': 'Courses & Mastery ({count} Stacks)',
+    'courses.badge': 'OFFICIAL CATALOG & MASTERY',
+    'courses.title': 'Courses & Mastery (9 Stacks)',
     'courses.subtitle': 'Track your mastery percentage across all technologies based on lessons and quizzes.',
     'courses.globalProgress': 'Global Progress',
     'courses.catalogMastery': 'Overall Catalog Mastery',
+    'courses.overallMastery': 'Overall Catalog Mastery',
     'courses.averageMastery': 'Overall Average',
+    'courses.overallAvg': 'Overall Average',
     'courses.lessons': 'Lessons',
     'courses.quizzes': 'Quizzes',
     'courses.masteries': 'Masteries',
     'courses.searchPlaceholder': 'Search technology (e.g. Python, MySQL, Flutter)...',
-    'courses.statusFilter': 'Status:',
+    'courses.statusFilter': 'Status',
     'courses.statusAll': 'All',
+    'courses.filterAll': 'All',
     'courses.statusInProgress': '⚡ In Progress',
+    'courses.filterInProgress': '⚡ In Progress',
     'courses.statusMastered': '👑 Mastered (100%)',
+    'courses.filterMastered': '👑 Mastered (100%)',
     'courses.statusUnstarted': '⚪ Unstarted',
+    'courses.filterUnstarted': '⚪ Unstarted',
     'courses.noTechFound': 'No technology found',
     'courses.noTechFoundDesc': 'Try adjusting your category filters or search query.',
+    'courses.notFound': 'No technology found',
+    'courses.notFoundDesc': 'Try adjusting your category filters or search query.',
     'courses.catAll': 'All',
+    'courses.catFrontend': 'Frontend',
+    'courses.catBackend': 'Backend',
+    'courses.catMobile': 'Mobile',
+    'courses.catDatabase': 'Databases',
+    'courses.catLanguages': 'Languages',
 
     // Categories
     'cat.Frontend': 'Frontend',
@@ -422,18 +514,28 @@ const translations: Record<AppLanguage, Record<string, string>> = {
 
     // Lesson Screen
     'lesson.section1': '1. THEORY & CONCEPTS',
+    'lesson.section1Theory': '1. THEORY & CONCEPTS',
     'lesson.section2': '2. COMMENTED CODE',
+    'lesson.section2Code': '2. COMMENTED CODE',
     'lesson.section3': '3. CODE SIMULATION',
+    'lesson.section3Simulation': '3. CODE SIMULATION',
     'lesson.section4': '4. PRACTICAL EXERCISE',
+    'lesson.section4Exercise': '4. PRACTICAL EXERCISE',
     'lesson.section5': '5. YOUR ANSWER:',
+    'lesson.section5Answer': '5. YOUR ANSWER:',
     'lesson.section6Correct': '6. Correct Answer (+{xp} XP)',
     'lesson.section6TryAgain': '6. Try Again (Attempt {attempt})',
+    'lesson.correctAnswer': 'Correct Answer! (+{xp} XP)',
+    'lesson.tryAgain': 'Try Again (Attempt {attempts})',
     'lesson.showHint': 'Show Hint',
     'lesson.hideHint': 'Hide Hint',
-    'lesson.hint': 'Hint:',
+    'lesson.hint': 'Hint',
     'lesson.codePlaceholder': 'Type your code solution here...',
+    'lesson.editorPlaceholder': 'Type your code solution here...',
     'lesson.checkAnswer': 'Check Answer',
+    'lesson.checking': 'Running & Verifying...',
     'lesson.completed': 'Lesson Completed!',
+    'lesson.lessonCompleted': 'Lesson Completed! 🎉',
     'lesson.recommendedSolution': 'Recommended Solution:',
     'lesson.nextLesson': 'Go to Next Lesson',
     'lesson.confettiTitle': 'Lesson Completed!',
@@ -455,20 +557,27 @@ const translations: Record<AppLanguage, Record<string, string>> = {
 
     // Progress Screen
     'progress.tag': 'CURRENT PERFORMANCE',
+    'progress.badge': 'CURRENT PERFORMANCE',
     'progress.title': 'Stats & Achievements',
     'progress.subtitle': 'Track your daily study routine, XP history and consecutive streaks.',
     'progress.dailyActivity': 'DAILY ACTIVITY',
+    'progress.dailyActivityBadge': 'DAILY ACTIVITY',
+    'progress.dailyActivityTitle': 'XP Over the Last 7 Days',
     'progress.xpLast7Days': 'XP earned over the last 7 days',
     'progress.dailyAverage': 'Daily Average',
+    'progress.dailyAvg': 'Daily Average',
     'progress.bestDay': 'Best Day',
     'progress.inProgress': 'In progress',
     'progress.today': 'Today',
     'progress.xpEarned': '+{xp} XP earned',
     'progress.dailyInsightTag': 'DAILY INSIGHT',
+    'progress.dailyInsightBadge': 'DAILY INSIGHT',
     'progress.dailyQuote': '"Persistence in code practice transforms syntax into craftsmanship. Keep your active streak today."',
     'progress.techProgress': 'Progress by Technology',
+    'progress.techProgressTitle': 'Progress by Technology',
     'progress.lessonsDone': '{count} lessons ({pct}%)',
     'progress.unlockedAchievements': 'UNLOCKED ACHIEVEMENTS',
+    'progress.unlockedBadges': 'UNLOCKED ACHIEVEMENTS',
 
     // Study Time Estimator
     'time.tag': 'DEDICATION METRICS',
@@ -528,18 +637,27 @@ const translations: Record<AppLanguage, Record<string, string>> = {
 
     // Profile Screen
     'profile.settings': 'PLATFORM SETTINGS',
+    'profile.platformSettings': 'PLATFORM SETTINGS',
     'profile.language': 'Interface Language',
+    'profile.languageOption': 'Application Language',
     'profile.languageDesc': 'Select between Portuguese and English',
     'profile.pt': 'Portuguese (BR)',
     'profile.en': 'English (US)',
     'profile.darkMode': 'Dark Mode Theme',
+    'profile.darkModeOn': 'Active — Editorial dark aesthetics',
+    'profile.darkModeOff': 'Inactive — Clean Light mode',
     'profile.darkActive': 'Active — Editorial dark aesthetics',
     'profile.lightActive': 'Inactive — Clean Light mode',
     'profile.activated': 'Active',
     'profile.deactivated': 'Inactive',
+    'profile.enabled': 'Active',
+    'profile.disabled': 'Inactive',
     'profile.mobileExport': 'Export to Mobile App (Capacitor)',
+    'profile.exportMobile': 'Export to Mobile App (Capacitor)',
+    'profile.exportMobileSubtitle': 'Build Android APK / Native iOS app via Capacitor',
     'profile.mobileExportDesc': 'Instructions to build Android APK / iOS app',
     'profile.bgSync': 'BACKGROUND SYNCHRONIZATION',
+    'profile.backgroundSync': 'BACKGROUND SYNCHRONIZATION',
     'profile.cloudStatus': 'Cloud Status:',
     'profile.syncingQueue': 'Syncing queue...',
     'profile.pendingActions': '{count} pending change(s)',
@@ -557,7 +675,9 @@ const translations: Record<AppLanguage, Record<string, string>> = {
     'profile.exportCertReport': 'Export Certificate Report',
     'profile.resetAllProgress': 'Reset All Progress',
     'profile.saveName': 'Save',
+    'profile.save': 'Save',
     'profile.editName': 'Edit',
+    'profile.edit': 'Edit',
     'profile.nameUpdated': 'Name updated successfully!',
     'profile.importSuccess': 'Progress backup imported successfully!',
     'profile.importInvalid': 'Invalid JSON file or format.',
@@ -764,7 +884,39 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
   };
 
   const t = (key: string, params?: Record<string, string | number>): string => {
-    let str = translations[language]?.[key] || translations['pt']?.[key] || key;
+    if (!key) return '';
+
+    const langDict = translations[language] || {};
+    const fallbackDict = translations['pt'] || {};
+
+    let str = langDict[key] || fallbackDict[key];
+
+    // Case-insensitive fallback
+    if (!str) {
+      const lowerKey = key.toLowerCase();
+      const matchInLang = Object.keys(langDict).find(k => k.toLowerCase() === lowerKey);
+      if (matchInLang) {
+        str = langDict[matchInLang];
+      } else {
+        const matchInFallback = Object.keys(fallbackDict).find(k => k.toLowerCase() === lowerKey);
+        if (matchInFallback) {
+          str = fallbackDict[matchInFallback];
+        }
+      }
+    }
+
+    // Clean fallback if key is completely unknown
+    if (!str) {
+      if (key.includes('.')) {
+        const parts = key.split('.');
+        const lastPart = parts[parts.length - 1];
+        // Convert camelCase to Space Case
+        str = lastPart.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase()).trim();
+      } else {
+        str = key;
+      }
+    }
+
     if (params) {
       Object.entries(params).forEach(([paramKey, paramVal]) => {
         str = str.replace(new RegExp(`\\{${paramKey}\\}`, 'g'), String(paramVal));
