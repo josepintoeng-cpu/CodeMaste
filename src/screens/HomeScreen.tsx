@@ -4,6 +4,7 @@ import { Play, ChevronRight, Terminal, Code, Layout, Palette, Server, Coffee, Sm
 import { UserProgress, TechId, LevelId } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { FooterStamp } from '../components/FooterStamp';
+import { StreakCounter } from '../components/StreakCounter';
 import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
 import { useI18n } from '../i18n';
 
@@ -94,32 +95,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         </div>
 
-        {/* Daily Progress Banner (Matching Editorial Theme) */}
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          transition={{ duration: 0.2 }}
-          className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 p-5 rounded-2xl flex justify-between items-center shadow-xl relative overflow-hidden text-white"
-        >
-          <div className="space-y-1 z-10">
-            <div className="text-[10px] uppercase font-bold text-white/80 tracking-widest">
-              {t('home.streakBannerTitle')}
-            </div>
-            <div className="text-base font-bold text-white">
-              {completedToday ? t('home.goalDone') : t('home.goalPending')}
-            </div>
-            <p className="text-[11px] text-white/90 leading-tight">
-              {completedToday
-                ? (streak === 1 ? t('home.streakKept_one', { count: streak }) : t('home.streakKept_other', { count: streak }))
-                : streak > 0
-                ? t('home.completeOne', { count: streak })
-                : t('home.completeFirst')}
-            </p>
-          </div>
-          <div className="w-12 h-12 border-4 border-white/30 rounded-full flex flex-col items-center justify-center text-[10px] font-black text-white relative shrink-0 z-10 bg-black/25 backdrop-blur-sm">
-            <span>{completedToday ? '100%' : '0%'}</span>
-          </div>
-          <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
-        </motion.div>
+        {/* Componente de Streak Diário (Sequência de Estudos) */}
+        <StreakCounter
+          progress={progress}
+          variant="card"
+          onNavigateToStudy={() => onSelectTech('python', 'iniciante')}
+        />
 
         {/* Quick Resume Card */}
         <motion.button

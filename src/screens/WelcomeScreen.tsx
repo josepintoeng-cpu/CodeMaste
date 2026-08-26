@@ -19,7 +19,7 @@ import {
   Cpu,
   Layers,
   Flame,
-  WifiOff,
+  Cloud,
   ExternalLink,
   Laptop
 } from 'lucide-react';
@@ -86,7 +86,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       desc: t('welcome.feat1Desc'),
     },
     {
-      icon: WifiOff,
+      icon: Cloud,
       title: t('welcome.feat2Title'),
       desc: t('welcome.feat2Desc'),
     },
