@@ -4,7 +4,8 @@
  */
 
 import { useState, useEffect } from 'react';
-import { UserProgress, TechId, LevelId, Lesson } from './types';
+import { AnimatePresence, motion } from 'motion/react';
+import { UserProgress, TechId, LevelId, Lesson, SyncStatus } from './types';
 import { storageService } from './services/storageService';
 import { Header } from './components/Header';
 import { BottomNav, TabType } from './components/BottomNav';
@@ -16,11 +17,32 @@ import { QuizScreen } from './screens/QuizScreen';
 import { ProgressScreen } from './screens/ProgressScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { getLessonsForTechAndLevel, getQuizForTechAndLevel } from './content';
+import { fadeInUp } from './utils/animations';
 
 export default function App() {
   const [progress, setProgress] = useState<UserProgress>(() =>
     storageService.getUserProgress()
   );
+
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>(() =>
+    storageService.getSyncStatus()
+  );
+
+  // Inscrição em tempo real para sincronização e progresso em segundo plano
+  useEffect(() => {
+    const unsubSync = storageService.subscribeSync(status => {
+      setSyncStatus({ ...status });
+    });
+
+    const unsubProgress = storageService.subscribeProgress(newProg => {
+      setProgress({ ...newProg });
+    });
+
+    return () => {
+      unsubSync();
+      unsubProgress();
+    };
+  }, []);
 
   // Tab Navegação Principal
   const [activeTab, setActiveTab] = useState<TabType>('home');
@@ -138,6 +160,7 @@ export default function App() {
       {/* Header Fixo no Topo */}
       <Header
         progress={progress}
+        syncStatus={syncStatus}
         onToggleTheme={handleToggleTheme}
         onProfileClick={() => {
           setSelectedTechId(null);
@@ -145,72 +168,119 @@ export default function App() {
           setActiveQuizLevel(null);
           setActiveTab('profile');
         }}
+        onNavigateToStudy={() => {
+          setSelectedTechId(null);
+          setActiveLesson(null);
+          setActiveQuizLevel(null);
+          setActiveTab('courses');
+        }}
       />
 
-      {/* Renderização de Conteúdo Principal / Telas */}
+      {/* Renderização de Conteúdo Principal / Telas com Animação Suave */}
       <main>
-        {/* Se uma aula estiver ativa */}
-        {activeLesson ? (
-          <LessonScreen
-            lesson={activeLesson}
-            onBack={() => setActiveLesson(null)}
-            onComplete={handleCompleteLesson}
-            onNextLesson={handleNextLesson}
-          />
-        ) : activeQuizLevel && selectedTechId ? (
-          /* Se um quiz estiver ativo */
-          <QuizScreen
-            quiz={getQuizForTechAndLevel(selectedTechId, activeQuizLevel)}
-            onBack={() => setActiveQuizLevel(null)}
-            onCompleteQuiz={handleCompleteQuiz}
-          />
-        ) : selectedTechId ? (
-          /* Submenu da tecnologia selecionada */
-          <TechDetailScreen
-            techId={selectedTechId}
-            initialLevelId={selectedLevelId}
-            progress={progress}
-            onBack={() => setSelectedTechId(null)}
-            onStartLesson={handleStartLesson}
-            onStartQuiz={handleStartQuiz}
-          />
-        ) : (
-          /* Navegação por Tab */
-          <>
-            {activeTab === 'home' && (
-              <HomeScreen
-                progress={progress}
-                onSelectTech={handleSelectTech}
-                onNavigateTab={tab => setActiveTab(tab)}
+        <AnimatePresence mode="wait">
+          {/* Se uma aula estiver ativa */}
+          {activeLesson ? (
+            <motion.div
+              key={`lesson-${activeLesson.id}`}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <LessonScreen
+                lesson={activeLesson}
+                onBack={() => setActiveLesson(null)}
+                onComplete={handleCompleteLesson}
+                onNextLesson={handleNextLesson}
               />
-            )}
-
-            {activeTab === 'courses' && (
-              <CursosScreen
-                progress={progress}
-                onSelectTech={handleSelectTech}
+            </motion.div>
+          ) : activeQuizLevel && selectedTechId ? (
+            /* Se um quiz estiver ativo */
+            <motion.div
+              key={`quiz-${selectedTechId}-${activeQuizLevel}`}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <QuizScreen
+                quiz={getQuizForTechAndLevel(selectedTechId, activeQuizLevel)}
+                onBack={() => setActiveQuizLevel(null)}
+                onCompleteQuiz={handleCompleteQuiz}
               />
-            )}
-
-            {activeTab === 'progress' && (
-              <ProgressScreen progress={progress} />
-            )}
-
-            {activeTab === 'profile' && (
-              <ProfileScreen
+            </motion.div>
+          ) : selectedTechId ? (
+            /* Submenu da tecnologia selecionada */
+            <motion.div
+              key={`tech-${selectedTechId}`}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <TechDetailScreen
+                techId={selectedTechId}
+                initialLevelId={selectedLevelId}
                 progress={progress}
-                onUpdateName={name => {
-                  const updated = storageService.updateUserName(name);
-                  setProgress({ ...updated });
-                }}
-                onToggleTheme={handleToggleTheme}
-                onExportData={handleExportData}
-                onImportData={handleImportData}
-                onResetProgress={handleResetProgress}
+                onBack={() => setSelectedTechId(null)}
+                onStartLesson={handleStartLesson}
+                onStartQuiz={handleStartQuiz}
               />
-            )}
-          </>
-        )}
+            </motion.div>
+          ) : (
+            /* Navegação por Tab */
+            <motion.div
+              key={`tab-${activeTab}`}
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              {activeTab === 'home' && (
+                <HomeScreen
+                  progress={progress}
+                  onSelectTech={handleSelectTech}
+                  onNavigateTab={tab => setActiveTab(tab)}
+                />
+              )}
+
+              {activeTab === 'courses' && (
+                <CursosScreen
+                  progress={progress}
+                  onSelectTech={handleSelectTech}
+                />
+              )}
+
+              {activeTab === 'progress' && (
+                <ProgressScreen
+                  progress={progress}
+                  onNavigateToStudy={() => {
+                    setSelectedTechId(null);
+                    setActiveLesson(null);
+                    setActiveQuizLevel(null);
+                    setActiveTab('courses');
+                  }}
+                />
+              )}
+
+              {activeTab === 'profile' && (
+                <ProfileScreen
+                  progress={progress}
+                  syncStatus={syncStatus}
+                  onUpdateName={name => {
+                    const updated = storageService.updateUserName(name);
+                    setProgress({ ...updated });
+                  }}
+                  onToggleTheme={handleToggleTheme}
+                  onExportData={handleExportData}
+                  onImportData={handleImportData}
+                  onResetProgress={handleResetProgress}
+                />
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Bottom Navigation Fixo (Início, Cursos, Progresso, Perfil) */}

@@ -12,7 +12,31 @@ export type TechId =
   | 'html'
   | 'php'
   | 'nodejs'
-  | 'mysql';
+  | 'mysql'
+  | 'react'
+  | 'typescript'
+  | 'nextjs'
+  | 'git'
+  | 'linux_cyber'
+  | 'apis'
+  | 'postgresql'
+  | 'python_fastapi'
+  | 'ai_apps'
+  | 'c_sys_cyber'
+  | 'cloud_devops'
+  | 'english_tech';
+
+export type TechCategory =
+  | 'Frontend'
+  | 'Backend'
+  | 'Mobile'
+  | 'Banco de Dados'
+  | 'Linguagens'
+  | 'Cybersecurity'
+  | 'DevOps & Cloud'
+  | 'IA & Dados'
+  | 'Ferramentas'
+  | 'Carreira & Inglês';
 
 export type LevelId = 'iniciante' | 'intermediario' | 'avancado' | 'projetos';
 
@@ -92,7 +116,22 @@ export interface Technology {
   color: string;
   bgGradient: string;
   badge: string;
-  category: 'Frontend' | 'Backend' | 'Mobile' | 'Banco de Dados' | 'Linguagens';
+  category: TechCategory;
+}
+
+export interface SyncStatus {
+  isOnline: boolean;
+  isSyncing: boolean;
+  pendingCount: number;
+  lastSyncedAt: string | null;
+  status: 'synced' | 'syncing' | 'offline' | 'pending';
+}
+
+export interface SyncQueueItem {
+  id: string;
+  type: 'COMPLETE_LESSON' | 'COMPLETE_QUIZ' | 'UPDATE_PROFILE' | 'THEME_CHANGE' | 'RESET_PROGRESS';
+  payload: Record<string, unknown>;
+  timestamp: string;
 }
 
 export interface UserProgress {
@@ -102,10 +141,15 @@ export interface UserProgress {
   completedQuizzes: Record<string, { score: number; passed: boolean }>; // quizId -> stats
   xp: number;
   streak: number;
+  longestStreak?: number;
   lastAccess: string; // ISO String
+  lastLessonDate?: string; // YYYY-MM-DD
+  lessonDates?: string[]; // YYYY-MM-DD array of days with at least 1 completed lesson
   theme: 'dark' | 'light';
   favoriteTechs: TechId[];
   unlockedBadges: string[];
+  dailyXpHistory?: Record<string, number>; // date YYYY-MM-DD -> XP ganho
+  lastSyncedAt?: string;
 }
 
 export interface AchievementBadge {

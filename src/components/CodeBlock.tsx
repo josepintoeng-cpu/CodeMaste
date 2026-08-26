@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Check, Copy } from 'lucide-react';
+import { tokenizeCode, TOKEN_COLOR_CLASSES } from '../utils/codeTokenizer';
 
 interface CodeBlockProps {
   code: string;
@@ -7,7 +8,7 @@ interface CodeBlockProps {
   title?: string;
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'code', title }) => {
+export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'javascript', title }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -52,20 +53,31 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'code', t
         </button>
       </div>
 
-      {/* Code body with line numbers */}
+      {/* Code body with line numbers & syntax highlighting */}
       <div className="p-4 font-mono text-xs sm:text-sm overflow-x-auto leading-relaxed">
         <table className="w-full border-collapse">
           <tbody>
-            {lines.map((line, idx) => (
-              <tr key={idx} className="hover:bg-slate-900/50">
-                <td className="pr-4 select-none text-right text-slate-600 w-8 text-xs align-top">
-                  {idx + 1}
-                </td>
-                <td className="whitespace-pre font-mono text-slate-200 align-top">
-                  {line || ' '}
-                </td>
-              </tr>
-            ))}
+            {lines.map((line, idx) => {
+              const tokens = tokenizeCode(line, language);
+              return (
+                <tr key={idx} className="hover:bg-slate-900/50">
+                  <td className="pr-4 select-none text-right text-slate-600 w-8 text-xs align-top">
+                    {idx + 1}
+                  </td>
+                  <td className="whitespace-pre font-mono align-top">
+                    {tokens.length === 0 ? (
+                      <span className="text-slate-500">&nbsp;</span>
+                    ) : (
+                      tokens.map((tok, tIdx) => (
+                        <span key={tIdx} className={TOKEN_COLOR_CLASSES[tok.type] || 'text-slate-200'}>
+                          {tok.value}
+                        </span>
+                      ))
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

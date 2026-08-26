@@ -1,17 +1,22 @@
 import React from 'react';
-import { Flame, Zap, Moon, Sun, ShieldCheck } from 'lucide-react';
-import { UserProgress } from '../types';
+import { Zap, Moon, Sun, ShieldCheck, Cloud, CloudOff, RefreshCw } from 'lucide-react';
+import { UserProgress, SyncStatus } from '../types';
+import { StreakCounter } from './StreakCounter';
 
 interface HeaderProps {
   progress: UserProgress;
+  syncStatus?: SyncStatus;
   onToggleTheme: () => void;
   onProfileClick: () => void;
+  onNavigateToStudy?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   progress,
+  syncStatus,
   onToggleTheme,
   onProfileClick,
+  onNavigateToStudy,
 }) => {
   const isDark = progress.theme === 'dark';
 
@@ -24,8 +29,48 @@ export const Header: React.FC<HeaderProps> = ({
             <ShieldCheck className="w-4 h-4 text-orange-500" />
           </div>
           <div>
-            <div className="text-[10px] uppercase font-bold text-orange-500 tracking-wider leading-tight">
-              CODEMASTER v1.0
+            <div className="text-[10px] uppercase font-bold text-orange-500 tracking-wider leading-tight flex items-center gap-1.5">
+              <span>CODEMASTER v1.0</span>
+              {/* Status de Sincronização Inteligente */}
+              {syncStatus && (
+                <span
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[9px] font-bold ${
+                    !syncStatus.isOnline
+                      ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      : syncStatus.isSyncing
+                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                      : syncStatus.pendingCount > 0
+                      ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30'
+                      : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                  }`}
+                  title={
+                    !syncStatus.isOnline
+                      ? 'Modo Offline: lições salvas localmente e sincronizadas quando reconectar'
+                      : syncStatus.isSyncing
+                      ? 'Sincronizando dados em segundo plano...'
+                      : syncStatus.pendingCount > 0
+                      ? `${syncStatus.pendingCount} alterações pendentes para envio`
+                      : 'Dados 100% sincronizados na nuvem'
+                  }
+                >
+                  {!syncStatus.isOnline ? (
+                    <>
+                      <CloudOff className="w-2.5 h-2.5" />
+                      <span className="hidden sm:inline">Offline</span>
+                    </>
+                  ) : syncStatus.isSyncing ? (
+                    <>
+                      <RefreshCw className="w-2.5 h-2.5 animate-spin" />
+                      <span className="hidden sm:inline">Sincronizando</span>
+                    </>
+                  ) : (
+                    <>
+                      <Cloud className="w-2.5 h-2.5" />
+                      <span className="hidden sm:inline">Sincronizado</span>
+                    </>
+                  )}
+                </span>
+              )}
             </div>
             <h1 className="text-sm font-bold tracking-tight text-[var(--text-primary)] leading-tight flex items-center gap-1.5">
               <span>{progress.userName}</span>
@@ -35,14 +80,12 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Gamification Stats: Streak & XP & Theme Toggle */}
         <div className="flex items-center gap-2">
-          {/* Sequência / Streak */}
-          <div
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)]"
-            title="Sequência de Dias Ativos"
-          >
-            <Flame className="w-3.5 h-3.5 fill-orange-500 text-orange-500 animate-pulse" />
-            <span>🔥 {progress.streak}</span>
-          </div>
+          {/* Elemento Streak Counter Diário */}
+          <StreakCounter
+            progress={progress}
+            variant="compact"
+            onNavigateToStudy={onNavigateToStudy}
+          />
 
           {/* Pontos de Experiência / XP */}
           <div
@@ -76,5 +119,4 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
-
 

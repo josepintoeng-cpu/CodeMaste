@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ArrowLeft, CheckCircle2, Lock, Play, HelpCircle, Clock, Zap } from 'lucide-react';
 import { TechId, LevelId, UserProgress } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { getLessonsForTechAndLevel } from '../content';
 import { FooterStamp } from '../components/FooterStamp';
+import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
 
 interface TechDetailScreenProps {
   techId: TechId;
@@ -43,10 +45,10 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
   return (
     <div className="pb-24 pt-4 px-4 max-w-md md:max-w-2xl mx-auto space-y-5">
       {/* Top bar de navegação */}
-      <div className="flex items-center gap-3">
+      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="p-2.5 rounded-xl bg-[#1A1A1C] border border-white/10 text-white/70 hover:text-white transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center"
+          className="p-2.5 rounded-xl bg-[#1A1A1C] border border-white/10 text-white/70 hover:text-white transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -67,30 +69,41 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
             </h2>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Submenu Tabs de Níveis */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-[#1A1A1C] p-1.5 rounded-2xl border border-white/10">
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-[#1A1A1C] p-1.5 rounded-2xl border border-white/10"
+      >
         {levels.map(lvl => {
           const isActive = activeLevel === lvl.id;
           return (
-            <button
+            <motion.button
               key={lvl.id}
+              whileTap={{ scale: 0.96 }}
               onClick={() => setActiveLevel(lvl.id)}
-              className={`py-2 px-2 rounded-xl text-[10px] font-bold tracking-wider transition-all text-center min-h-[38px] flex items-center justify-center uppercase ${
+              className={`py-2 px-2 rounded-xl text-[10px] font-bold tracking-wider transition-all text-center min-h-[38px] flex items-center justify-center uppercase touch-btn ${
                 isActive
                   ? 'bg-orange-500 text-black font-black shadow-md'
                   : 'text-white/50 hover:text-white hover:bg-white/5'
               }`}
             >
               {lvl.title}
-            </button>
+            </motion.button>
           );
         })}
-      </div>
+      </motion.div>
 
       {/* Resumo do Nível Ativo */}
-      <div className="p-4 rounded-2xl bg-[#1A1A1C] border border-white/10 flex items-center justify-between">
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className="p-4 rounded-2xl bg-[#1A1A1C] border border-white/10 flex items-center justify-between"
+      >
         <div>
           <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest block">
             PROGRESSO DO NÍVEL
@@ -108,76 +121,95 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
           </div>
           <span className="text-xs font-bold text-orange-400">{levelPct}%</span>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Trilha de Aulas do Nível */}
+      {/* Trilha de Aulas do Nível com Stagger */}
       <div className="space-y-2.5">
         <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
           AULAS DISPONÍVEIS
         </h3>
 
-        {lessons.map((lesson, index) => {
-          const isDone = Boolean(progress.completedLessons[lesson.id]);
-          const isUnlocked = index === 0 || Boolean(progress.completedLessons[lessons[index - 1]?.id]);
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeLevel}
+            variants={staggerContainer}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            className="space-y-2.5"
+          >
+            {lessons.map((lesson, index) => {
+              const isDone = Boolean(progress.completedLessons[lesson.id]);
+              const isUnlocked = index === 0 || Boolean(progress.completedLessons[lessons[index - 1]?.id]);
 
-          return (
-            <div
-              key={lesson.id}
-              onClick={() => isUnlocked && onStartLesson(lesson.id, activeLevel)}
-              className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                isDone
-                  ? 'bg-[#1A1A1C] border-orange-500/40'
-                  : isUnlocked
-                  ? 'bg-[#1A1A1C] hover:bg-[#222226] border-white/10 hover:border-white/20 cursor-pointer active:scale-[0.99]'
-                  : 'bg-[#121214] border-white/5 opacity-50 cursor-not-allowed'
-              }`}
-            >
-              <div className="flex items-center gap-3.5 min-w-0">
-                {/* Ícone de Status */}
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs ${
+              return (
+                <motion.div
+                  key={lesson.id}
+                  variants={cardVariant}
+                  whileHover={isUnlocked ? { y: -2, transition: { duration: 0.15 } } : {}}
+                  whileTap={isUnlocked ? { scale: 0.98 } : {}}
+                  onClick={() => isUnlocked && onStartLesson(lesson.id, activeLevel)}
+                  className={`p-4 rounded-2xl border transition-colors flex items-center justify-between gap-3 ${
                     isDone
-                      ? 'bg-orange-500 text-black shadow-md'
+                      ? 'bg-[#1A1A1C] border-orange-500/40'
                       : isUnlocked
-                      ? 'bg-orange-500/10 text-orange-400 border border-orange-500/30'
-                      : 'bg-white/5 text-white/30 border border-white/5'
+                      ? 'bg-[#1A1A1C] hover:bg-[#222226] border-white/10 hover:border-white/20 cursor-pointer'
+                      : 'bg-[#121214] border-white/5 opacity-50 cursor-not-allowed'
                   }`}
                 >
-                  {isDone ? (
-                    <CheckCircle2 className="w-5 h-5 text-black" />
-                  ) : isUnlocked ? (
-                    <Play className="w-3.5 h-3.5 fill-orange-400 ml-0.5" />
-                  ) : (
-                    <Lock className="w-3.5 h-3.5" />
-                  )}
-                </div>
+                  <div className="flex items-center gap-3.5 min-w-0">
+                    {/* Ícone de Status */}
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs ${
+                        isDone
+                          ? 'bg-orange-500 text-black shadow-md'
+                          : isUnlocked
+                          ? 'bg-orange-500/10 text-orange-400 border border-orange-500/30'
+                          : 'bg-white/5 text-white/30 border border-white/5'
+                      }`}
+                    >
+                      {isDone ? (
+                        <CheckCircle2 className="w-5 h-5 text-black" />
+                      ) : isUnlocked ? (
+                        <Play className="w-3.5 h-3.5 fill-orange-400 ml-0.5" />
+                      ) : (
+                        <Lock className="w-3.5 h-3.5" />
+                      )}
+                    </div>
 
-                <div className="min-w-0">
-                  <h4 className="text-xs sm:text-sm font-bold text-white truncate">
-                    {lesson.title}
-                  </h4>
-                  <p className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
-                    {lesson.description}
-                  </p>
-                  <div className="flex items-center gap-3 mt-1 text-[10px] text-white/40 font-medium">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-white/30" />
-                      {lesson.estimatedMinutes} min
-                    </span>
-                    <span className="flex items-center gap-1 text-orange-400 font-bold">
-                      <Zap className="w-3 h-3 text-orange-400" />
-                      +{lesson.xpReward} XP
-                    </span>
+                    <div className="min-w-0">
+                      <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                        {lesson.title}
+                      </h4>
+                      <p className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
+                        {lesson.description}
+                      </p>
+                      <div className="flex items-center gap-3 mt-1 text-[10px] text-white/40 font-medium">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-white/30" />
+                          {lesson.estimatedMinutes} min
+                        </span>
+                        <span className="flex items-center gap-1 text-orange-400 font-bold">
+                          <Zap className="w-3 h-3 text-orange-400" />
+                          +{lesson.xpReward} XP
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+                </motion.div>
+              );
+            })}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Banner de Quiz do Nível */}
-      <div className="p-4 rounded-2xl bg-[#1A1A1C] border border-orange-500/30 flex items-center justify-between gap-3 mt-6 shadow-md">
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className="p-4 rounded-2xl bg-[#1A1A1C] border border-orange-500/30 flex items-center justify-between gap-3 mt-6 shadow-md"
+      >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/30">
             <HelpCircle className="w-4 h-4" />
@@ -192,13 +224,15 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
           </div>
         </div>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.03 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => onStartQuiz(activeLevel)}
-          className="px-3 py-2 bg-orange-500 hover:bg-orange-400 text-black font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-colors shrink-0 shadow-md min-h-[36px]"
+          className="px-3 py-2 bg-orange-500 hover:bg-orange-400 text-black font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-colors shrink-0 shadow-md min-h-[36px] touch-btn"
         >
           Iniciar Quiz
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       <FooterStamp />
     </div>

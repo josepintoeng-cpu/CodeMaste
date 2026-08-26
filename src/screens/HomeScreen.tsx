@@ -1,8 +1,10 @@
 import React from 'react';
-import { Play, Sparkles, ChevronRight, Terminal, Code, Layout, Palette, Server, Coffee, Smartphone, Globe, Database } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Play, ChevronRight, Terminal, Code, Layout, Palette, Server, Coffee, Smartphone, Globe, Database } from 'lucide-react';
 import { UserProgress, TechId, LevelId } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { FooterStamp } from '../components/FooterStamp';
+import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
 
 interface HomeScreenProps {
   progress: UserProgress;
@@ -48,8 +50,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
   // Calcula progresso total e por tecnologia
   const totalCompleted = Object.keys(progress.completedLessons).length;
-  // Meta diária baseada em aulas concluídas (ex: 3 aulas/dia = 100%)
-  const dailyMetaPct = Math.min(Math.round((totalCompleted % 4) * 33.3) || 25, 100);
+  const todayKey = new Date().toISOString().split('T')[0];
+  const completedToday = (progress.lessonDates || []).includes(todayKey);
+  const streak = progress.streak || 0;
 
   const getTechProgress = (techId: TechId) => {
     const completedForTech = Object.keys(progress.completedLessons).filter(id =>
@@ -63,44 +66,64 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <div className="pb-24 pt-4 px-4 max-w-md md:max-w-2xl mx-auto space-y-6">
       {/* Editorial Header Greeting & Meta Banner */}
-      <div className="space-y-4">
+      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="space-y-4">
         <div className="flex justify-between items-center">
           <div>
-            <div className="text-white/40 text-[10px] uppercase tracking-widest font-bold">
+            <div className="text-[var(--text-muted)] text-[10px] uppercase tracking-widest font-bold">
               BEM-VINDO DE VOLTA
             </div>
-            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <h2 className="text-2xl font-bold tracking-tight text-[var(--text-primary)] flex items-center gap-2">
               <span>{progress.userName}</span>
             </h2>
           </div>
-          <div className="bg-white/10 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-2 border border-white/10 text-white">
-            <span>🔥 {progress.streak} dias</span>
+          <div
+            onClick={() => onNavigateTab('progress')}
+            className={`px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 border cursor-pointer transition-all touch-btn ${
+              completedToday
+                ? 'bg-orange-500/20 text-orange-400 border-orange-500/30'
+                : streak > 0
+                ? 'bg-[var(--bg-surface)] text-orange-400 border-[var(--border-subtle)]'
+                : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border-[var(--border-subtle)]'
+            }`}
+            title="Ver detalhes da Sequência Diária no Progresso"
+          >
+            <span>🔥 {streak} {streak === 1 ? 'dia' : 'dias'}</span>
           </div>
         </div>
 
         {/* Daily Progress Banner (Matching Editorial Theme) */}
-        <div className="bg-gradient-to-r from-orange-600 via-orange-500 to-red-600 p-5 rounded-2xl flex justify-between items-center shadow-xl relative overflow-hidden">
+        <motion.div
+          whileHover={{ scale: 1.01 }}
+          transition={{ duration: 0.2 }}
+          className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 p-5 rounded-2xl flex justify-between items-center shadow-xl relative overflow-hidden text-white"
+        >
           <div className="space-y-1 z-10">
             <div className="text-[10px] uppercase font-bold text-white/80 tracking-widest">
-              META DIÁRIA DE APRENDIZADO
+              SEQUÊNCIA & META DIÁRIA
             </div>
             <div className="text-base font-bold text-white">
-              {dailyMetaPct}% concluído hoje
+              {completedToday ? 'Meta diária concluída! 🔥' : 'Mantenha sua sequência ativa'}
             </div>
-            <p className="text-[11px] text-white/80 leading-tight">
-              Apenas 1 aula restante para manter seu ritmo perfeito!
+            <p className="text-[11px] text-white/90 leading-tight">
+              {completedToday
+                ? `Você manteve seu fogo aceso por ${streak} ${streak === 1 ? 'dia consecutivo' : 'dias consecutivos'}!`
+                : streak > 0
+                ? `Complete 1 aula hoje para não perder sua sequência de ${streak} dias!`
+                : 'Complete sua 1ª aula hoje para acender seu fogo de sequência diária!'}
             </p>
           </div>
-          <div className="w-12 h-12 border-4 border-white/20 rounded-full flex items-center justify-center text-xs font-bold text-white relative shrink-0 z-10 bg-black/20 backdrop-blur-sm">
-            {dailyMetaPct}%
+          <div className="w-12 h-12 border-4 border-white/30 rounded-full flex flex-col items-center justify-center text-[10px] font-black text-white relative shrink-0 z-10 bg-black/25 backdrop-blur-sm">
+            <span>{completedToday ? '100%' : '0%'}</span>
           </div>
           <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
-        </div>
+        </motion.div>
 
         {/* Quick Resume Card */}
-        <button
+        <motion.button
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.98 }}
           onClick={() => onSelectTech('python', 'iniciante')}
-          className="w-full bg-[#1A1A1C] hover:bg-[#222226] text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 transition-all active:scale-[0.99]"
+          className="w-full bg-[#1A1A1C] hover:bg-[#222226] text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 transition-colors shadow-sm"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-orange-500/20 border border-orange-500/30 text-orange-500 flex items-center justify-center shrink-0">
@@ -116,8 +139,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-white/40 shrink-0" />
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Grid das 9 Tecnologias */}
       <div>
@@ -132,23 +155,31 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
           <button
             onClick={() => onNavigateTab('courses')}
-            className="text-xs text-orange-400 font-bold hover:underline flex items-center uppercase tracking-wider"
+            className="text-xs text-orange-400 font-bold hover:underline flex items-center uppercase tracking-wider touch-btn"
           >
             Ver Todos
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="grid grid-cols-2 gap-3"
+        >
           {TECHNOLOGIES.map(tech => {
             const Icon = getTechIcon(tech.iconName);
             const abbrev = getTechAbbrev(tech.id);
             const { count, pct } = getTechProgress(tech.id);
 
             return (
-              <div
+              <motion.div
                 key={tech.id}
+                variants={cardVariant}
+                whileHover={{ y: -3, transition: { duration: 0.18 } }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => onSelectTech(tech.id)}
-                className="bg-[#1A1A1C] hover:bg-[#222226] p-4 rounded-2xl border border-white/10 hover:border-white/25 transition-all cursor-pointer relative overflow-hidden group shadow-md"
+                className="bg-[#1A1A1C] hover:bg-[#222226] p-4 rounded-2xl border border-white/10 hover:border-white/25 transition-colors cursor-pointer relative overflow-hidden group shadow-md"
               >
                 {/* Tech Header Icon + Badge */}
                 <div className="flex justify-between items-start mb-3">
@@ -180,14 +211,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   <span>{count}/20 aulas</span>
                   <span style={{ color: tech.color }}>{pct}%</span>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
 
       {/* Editorial Stats Resumo */}
-      <div className="bg-[#1A1A1C] border border-white/10 rounded-2xl p-5 grid grid-cols-3 gap-2 text-center shadow-lg">
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className="bg-[#1A1A1C] border border-white/10 rounded-2xl p-5 grid grid-cols-3 gap-2 text-center shadow-lg"
+      >
         <div>
           <div className="text-3xl font-serif-italic text-white font-light">{totalCompleted}</div>
           <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">Aulas Feitas</div>
@@ -200,7 +236,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="text-3xl font-serif-italic text-white font-light">{progress.streak}d</div>
           <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">Sequência</div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Signature Stamp */}
       <FooterStamp />

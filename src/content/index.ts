@@ -1,11 +1,42 @@
 import { Lesson, Quiz, TechId, LevelId } from '../types';
 import { TECHNOLOGIES } from './technologies';
+import { TECH_CURRICULUM } from './techCurriculum';
 import { pythonInicianteLessons, pythonInicianteQuiz } from './python/iniciante';
 
 /**
  * Retorna as aulas para uma dada tecnologia e nível.
  */
 export function getLessonsForTechAndLevel(techId: TechId, levelId: LevelId): Lesson[] {
+  // Se houver currículo rico estruturado no TECH_CURRICULUM
+  const curriculum = TECH_CURRICULUM[techId];
+  if (curriculum && curriculum.topicsByLevel && curriculum.topicsByLevel[levelId]) {
+    const topics = curriculum.topicsByLevel[levelId];
+    if (topics.length > 0) {
+      return topics.map((t, idx) => ({
+        id: `${techId}-${levelId}-${idx + 1}`,
+        techId,
+        levelId,
+        order: idx + 1,
+        title: t.title,
+        description: t.desc,
+        estimatedMinutes: 10 + idx * 2,
+        xpReward: 25 + idx * 5,
+        theory: t.theory,
+        codeExample: {
+          language: t.lang,
+          code: t.code,
+          explanation: `Exemplo prático de código para ${t.title}`,
+        },
+        simulation: {
+          type: getSimulationType(techId),
+          defaultOutput: t.output,
+          description: `Simulador e executor de ambiente para ${techId}`,
+        },
+        exercise: t.exercise,
+      }));
+    }
+  }
+
   if (techId === 'python' && levelId === 'iniciante') {
     return pythonInicianteLessons;
   }
@@ -18,12 +49,28 @@ export function getLessonsForTechAndLevel(techId: TechId, levelId: LevelId): Les
  * Retorna o Quiz final para o nível/tecnologia
  */
 export function getQuizForTechAndLevel(techId: TechId, levelId: LevelId): Quiz {
+  const tech = TECHNOLOGIES.find(t => t.id === techId);
+  const techName = tech ? tech.name : techId;
+
+  // Se houver perguntas no TECH_CURRICULUM
+  const curriculum = TECH_CURRICULUM[techId];
+  if (curriculum && curriculum.quizzesByLevel && curriculum.quizzesByLevel[levelId]) {
+    const customQuestions = curriculum.quizzesByLevel[levelId];
+    if (customQuestions && customQuestions.length > 0) {
+      return {
+        id: `quiz-${techId}-${levelId}`,
+        techId,
+        levelId,
+        title: `Quiz Avaliativo: ${techName} (${levelId.toUpperCase()})`,
+        xpReward: 50,
+        questions: customQuestions,
+      };
+    }
+  }
+
   if (techId === 'python' && levelId === 'iniciante') {
     return pythonInicianteQuiz;
   }
-
-  const tech = TECHNOLOGIES.find(t => t.id === techId);
-  const techName = tech ? tech.name : techId;
 
   return {
     id: `quiz-${techId}-${levelId}`,
@@ -269,7 +316,7 @@ function generateFallbackLessons(techId: TechId, levelId: LevelId): Lesson[] {
 }
 
 function getLanguageKey(techId: TechId): string {
-  const map: Record<TechId, string> = {
+  const map: Partial<Record<TechId, string>> = {
     python: 'python',
     javascript: 'javascript',
     html: 'html',
@@ -279,6 +326,18 @@ function getLanguageKey(techId: TechId): string {
     flutter: 'dart',
     php: 'php',
     mysql: 'sql',
+    react: 'javascript',
+    english_tech: 'text',
+    typescript: 'typescript',
+    git: 'bash',
+    linux_cyber: 'bash',
+    nextjs: 'typescript',
+    apis: 'typescript',
+    postgresql: 'sql',
+    python_fastapi: 'python',
+    ai_apps: 'typescript',
+    c_sys_cyber: 'c',
+    cloud_devops: 'yaml',
   };
   return map[techId] || 'javascript';
 }

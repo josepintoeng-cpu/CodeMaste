@@ -1,6 +1,6 @@
 {
   "name": "CodeMaster - Plataforma de Programação",
-  "description": "Plataforma interativa de ensino de programação estilo Duolingo com 9 tecnologias, exercicios com execução real e simulada, e sistema de XP.",
+  "description": "Plataforma interativa e profissional de ensino de programação com 21 tecnologias completas (React, Next.js, TypeScript, Git, Linux/Cybersecurity, PostgreSQL, Python FastAPI, IA & APIs, C/Sistemas, Cloud & DevOps, Inglês Técnico), sistema de Streak diário e cálculo de maestria visual.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
