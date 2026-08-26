@@ -3,6 +3,7 @@ import { UserProgress, TechId, SyncStatus, SyncQueueItem } from '../types';
 const STORAGE_KEY = 'codemaster_user_progress_v1';
 const SYNC_QUEUE_KEY = 'codemaster_sync_queue_v1';
 const REMOTE_SNAPSHOT_KEY = 'codemaster_remote_cloud_snapshot_v1';
+const INTRO_SEEN_KEY = 'codemaster_has_seen_intro_v1';
 
 const getTodayKey = () => new Date().toISOString().split('T')[0];
 
@@ -540,6 +541,28 @@ class StorageEngine {
     if (progress.streak >= 7) badges.add('streak_7');
 
     return Array.from(badges);
+  }
+
+  /**
+   * Verifica se o usuário já visualizou a tela de introdução
+   */
+  public hasSeenIntro(): boolean {
+    try {
+      return localStorage.getItem(INTRO_SEEN_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Salva o status de visualização da introdução
+   */
+  public setSeenIntro(seen: boolean): void {
+    try {
+      localStorage.setItem(INTRO_SEEN_KEY, seen ? 'true' : 'false');
+    } catch (e) {
+      console.error('Erro ao salvar status de introdução:', e);
+    }
   }
 }
 

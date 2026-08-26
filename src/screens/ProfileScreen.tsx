@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, Shield, Moon, Sun, Download, Upload, RotateCcw, Smartphone, Check, AlertTriangle, X, Cloud, CloudOff, RefreshCw, Wifi, WifiOff, CheckCircle2, Globe } from 'lucide-react';
+import { User, Shield, Moon, Sun, Download, Upload, RotateCcw, Smartphone, Check, AlertTriangle, X, Cloud, CloudOff, RefreshCw, Wifi, WifiOff, CheckCircle2, Globe, Info, Sparkles, ChevronRight } from 'lucide-react';
 import { UserProgress, SyncStatus } from '../types';
 import { storageService } from '../services/storageService';
 import { FooterStamp } from '../components/FooterStamp';
@@ -15,6 +15,7 @@ interface ProfileScreenProps {
   onExportData: () => void;
   onImportData: (jsonStr: string) => boolean;
   onResetProgress: () => void;
+  onOpenWelcome?: () => void;
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
@@ -25,6 +26,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onExportData,
   onImportData,
   onResetProgress,
+  onOpenWelcome,
 }) => {
   const { t, language, setLanguage } = useI18n();
   const [isEditingName, setIsEditingName] = useState(false);
@@ -272,6 +274,27 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Apresentação do Projeto & Desenvolvedor */}
+        {onOpenWelcome && (
+          <div
+            onClick={onOpenWelcome}
+            className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent border border-orange-500/30 cursor-pointer hover:border-orange-500/50 transition-all touch-btn"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="text-xs font-bold text-orange-400 block">{t('welcome.navAbout')}</span>
+                <span className="text-[10px] text-[var(--text-muted)]">
+                  {language === 'pt' ? 'Finalidade, metodologia e criador' : 'Purpose, methodology & developer'}
+                </span>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-orange-400" />
+          </div>
+        )}
       </motion.div>
 
       {/* Sincronização Inteligente & Persistência Offline */}

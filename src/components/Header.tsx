@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Zap, Moon, Sun, ShieldCheck, Cloud, CloudOff, RefreshCw, Globe } from 'lucide-react';
+import { ArrowLeft, Zap, Moon, Sun, ShieldCheck, Cloud, CloudOff, RefreshCw, Globe, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
 import { UserProgress, SyncStatus } from '../types';
 import { StreakCounter } from './StreakCounter';
@@ -10,6 +10,7 @@ interface HeaderProps {
   syncStatus?: SyncStatus;
   onToggleTheme: () => void;
   onProfileClick: () => void;
+  onOpenWelcome?: () => void;
   onNavigateToStudy?: () => void;
   onBack?: () => void;
   backLabel?: string;
@@ -20,6 +21,7 @@ export const Header: React.FC<HeaderProps> = ({
   syncStatus,
   onToggleTheme,
   onProfileClick,
+  onOpenWelcome,
   onNavigateToStudy,
   onBack,
   backLabel,
@@ -123,6 +125,17 @@ export const Header: React.FC<HeaderProps> = ({
             <Zap className="w-3.5 h-3.5 fill-orange-400 text-orange-400 shrink-0" />
             <span className="text-[11px] sm:text-xs">{progress.xp}</span>
           </div>
+
+          {/* Apresentação & Sobre o Projeto */}
+          {onOpenWelcome && (
+            <button
+              onClick={onOpenWelcome}
+              className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
+              title={t('welcome.navAbout')}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+            </button>
+          )}
 
           {/* Quick Language Toggle */}
           <button

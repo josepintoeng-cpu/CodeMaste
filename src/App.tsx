@@ -17,6 +17,7 @@ import { LessonScreen } from './screens/LessonScreen';
 import { QuizScreen } from './screens/QuizScreen';
 import { ProgressScreen } from './screens/ProgressScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
+import { WelcomeScreen } from './screens/WelcomeScreen';
 import { getLessonsForTechAndLevel, getQuizForTechAndLevel } from './content';
 import { fadeInUp } from './utils/animations';
 
@@ -28,6 +29,11 @@ export default function App() {
 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(() =>
     storageService.getSyncStatus()
+  );
+
+  // Estado da Página de Apresentação / Introdução (Welcome Screen)
+  const [showWelcome, setShowWelcome] = useState<boolean>(() =>
+    !storageService.hasSeenIntro()
   );
 
   // Inscrição em tempo real para sincronização e progresso em segundo plano
@@ -127,13 +133,21 @@ export default function App() {
     setProgress({ ...updated });
   };
 
+  // Handler para entrar no aplicativo a partir da tela de boas-vindas / introdução
+  const handleEnterApp = () => {
+    storageService.setSeenIntro(true);
+    setShowWelcome(false);
+  };
+
   // Handler para resetar progresso
   const handleResetProgress = () => {
     const reset = storageService.resetProgress();
+    storageService.setSeenIntro(false);
     setProgress({ ...reset });
     setSelectedTechId(null);
     setActiveLesson(null);
     setActiveQuizLevel(null);
+    setShowWelcome(true);
   };
 
   // Handler para exportar JSON
@@ -194,6 +208,17 @@ export default function App() {
     };
   }, [activeLesson, activeQuizLevel, selectedTechId, activeTab, t]);
 
+  // Se a tela de boas-vindas / introdução estiver ativa, exibe a página de introdução
+  if (showWelcome) {
+    return (
+      <WelcomeScreen
+        onEnterApp={handleEnterApp}
+        onToggleTheme={handleToggleTheme}
+        isDark={progress.theme === 'dark'}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased transition-colors duration-250 selection:bg-orange-500 selection:text-black">
       {/* Header Fixo no Topo com Botão Dinâmico de Voltar */}
@@ -203,6 +228,7 @@ export default function App() {
         onToggleTheme={handleToggleTheme}
         onBack={headerBackAction}
         backLabel={headerBackLabel}
+        onOpenWelcome={() => setShowWelcome(true)}
         onProfileClick={() => {
           setSelectedTechId(null);
           setActiveLesson(null);
@@ -317,6 +343,7 @@ export default function App() {
                   onExportData={handleExportData}
                   onImportData={handleImportData}
                   onResetProgress={handleResetProgress}
+                  onOpenWelcome={() => setShowWelcome(true)}
                 />
               )}
             </motion.div>
