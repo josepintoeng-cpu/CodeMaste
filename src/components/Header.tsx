@@ -1,7 +1,8 @@
 import React from 'react';
-import { Zap, Moon, Sun, ShieldCheck, Cloud, CloudOff, RefreshCw } from 'lucide-react';
+import { Zap, Moon, Sun, ShieldCheck, Cloud, CloudOff, RefreshCw, Globe } from 'lucide-react';
 import { UserProgress, SyncStatus } from '../types';
 import { StreakCounter } from './StreakCounter';
+import { useI18n } from '../i18n';
 
 interface HeaderProps {
   progress: UserProgress;
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   onNavigateToStudy,
 }) => {
   const isDark = progress.theme === 'dark';
+  const { t, language, toggleLanguage } = useI18n();
 
   return (
     <header className="sticky top-0 z-40 bg-[var(--header-bg)] backdrop-blur-md border-b border-[var(--border-subtle)] text-[var(--text-primary)] px-4 py-3 shadow-sm transition-colors duration-200">
@@ -30,7 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
           <div>
             <div className="text-[10px] uppercase font-bold text-orange-500 tracking-wider leading-tight flex items-center gap-1.5">
-              <span>CODEMASTER v1.0</span>
+              <span>{t('app.name')} {t('app.version')}</span>
               {/* Status de Sincronização Inteligente */}
               {syncStatus && (
                 <span
@@ -45,28 +47,28 @@ export const Header: React.FC<HeaderProps> = ({
                   }`}
                   title={
                     !syncStatus.isOnline
-                      ? 'Modo Offline: lições salvas localmente e sincronizadas quando reconectar'
+                      ? t('sync.offlineDesc')
                       : syncStatus.isSyncing
-                      ? 'Sincronizando dados em segundo plano...'
+                      ? t('sync.syncingDesc')
                       : syncStatus.pendingCount > 0
-                      ? `${syncStatus.pendingCount} alterações pendentes para envio`
-                      : 'Dados 100% sincronizados na nuvem'
+                      ? t('sync.pendingDesc', { count: syncStatus.pendingCount })
+                      : t('sync.syncedDesc')
                   }
                 >
                   {!syncStatus.isOnline ? (
                     <>
                       <CloudOff className="w-2.5 h-2.5" />
-                      <span className="hidden sm:inline">Offline</span>
+                      <span className="hidden sm:inline">{t('sync.offline')}</span>
                     </>
                   ) : syncStatus.isSyncing ? (
                     <>
                       <RefreshCw className="w-2.5 h-2.5 animate-spin" />
-                      <span className="hidden sm:inline">Sincronizando</span>
+                      <span className="hidden sm:inline">{t('sync.syncing')}</span>
                     </>
                   ) : (
                     <>
                       <Cloud className="w-2.5 h-2.5" />
-                      <span className="hidden sm:inline">Sincronizado</span>
+                      <span className="hidden sm:inline">{t('sync.synced')}</span>
                     </>
                   )}
                 </span>
@@ -78,7 +80,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
         </div>
 
-        {/* Gamification Stats: Streak & XP & Theme Toggle */}
+        {/* Gamification Stats: Streak & XP & Language & Theme Toggle */}
         <div className="flex items-center gap-2">
           {/* Elemento Streak Counter Diário */}
           <StreakCounter
@@ -90,27 +92,39 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Pontos de Experiência / XP */}
           <div
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-xs font-bold"
-            title="Pontos de Experiência"
+            title={t('header.xpTitle')}
           >
             <Zap className="w-3.5 h-3.5 fill-orange-500 text-orange-500" />
-            <span>{progress.xp} XP</span>
+            <span>{progress.xp} {t('header.xp')}</span>
           </div>
+
+          {/* Quick Language Toggle */}
+          <button
+            onClick={toggleLanguage}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] transition-all touch-btn"
+            title={language === 'pt' ? 'Switch to English' : 'Mudar para Português'}
+          >
+            <Globe className="w-3.5 h-3.5 text-orange-400" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              {language === 'pt' ? 'PT' : 'EN'}
+            </span>
+          </button>
 
           {/* Theme Toggle Button */}
           <button
             onClick={onToggleTheme}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn"
-            title={`Tema: ${isDark ? 'Escuro (Ativado)' : 'Claro (Ativado)'}`}
+            title={isDark ? t('header.themeDarkActive') : t('header.themeLightActive')}
           >
             {isDark ? (
               <>
                 <Moon className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
-                <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">Escuro</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">{t('header.dark')}</span>
               </>
             ) : (
               <>
                 <Sun className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
-                <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">Claro</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">{t('header.light')}</span>
               </>
             )}
           </button>
@@ -119,4 +133,5 @@ export const Header: React.FC<HeaderProps> = ({
     </header>
   );
 };
+
 

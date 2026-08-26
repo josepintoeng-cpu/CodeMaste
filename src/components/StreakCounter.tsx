@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Flame, CheckCircle2, AlertCircle, Trophy, Calendar, Sparkles, X } from 'lucide-react';
 import { UserProgress } from '../types';
+import { useI18n } from '../i18n';
 
 interface StreakCounterProps {
   progress: UserProgress;
@@ -14,6 +15,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
   variant = 'compact',
   onNavigateToStudy,
 }) => {
+  const { t, language } = useI18n();
   const [showTooltip, setShowTooltip] = useState(false);
 
   const streak = progress.streak || 0;
@@ -24,13 +26,15 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
   const todayKey = today.toISOString().split('T')[0];
   const isCompletedToday = lessonDates.has(todayKey);
 
+  const dateLocale = language === 'pt' ? 'pt-BR' : 'en-US';
+
   // Calcula os últimos 7 dias para o calendário semanal
   const weekDays = Array.from({ length: 7 }).map((_, i) => {
     const d = new Date(today);
     // Dias de 6 dias atrás até hoje (ou semana atual de Seg a Dom)
     d.setDate(today.getDate() - (6 - i));
     const key = d.toISOString().split('T')[0];
-    const dayName = d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '').toUpperCase();
+    const dayName = d.toLocaleDateString(dateLocale, { weekday: 'short' }).replace('.', '').toUpperCase();
     const isToday = key === todayKey;
     const isPast = d < today && !isToday;
     const hasCompleted = lessonDates.has(key);
@@ -47,11 +51,19 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
 
   // Próximo marco de conquista de streak
   const getNextMilestone = (current: number) => {
-    if (current < 3) return { target: 3, label: '3 dias seguidos (Faísca Inicial)' };
-    if (current < 7) return { target: 7, label: '7 dias seguidos (Chama Ardente)' };
-    if (current < 14) return { target: 14, label: '14 dias seguidos (Mestre Constante)' };
-    if (current < 30) return { target: 30, label: '30 dias seguidos (Lenda do Código)' };
-    return { target: current + 10, label: `${current + 10} dias seguidos` };
+    if (language === 'pt') {
+      if (current < 3) return { target: 3, label: '3 dias seguidos (Faísca Inicial)' };
+      if (current < 7) return { target: 7, label: '7 dias seguidos (Chama Ardente)' };
+      if (current < 14) return { target: 14, label: '14 dias seguidos (Mestre Constante)' };
+      if (current < 30) return { target: 30, label: '30 dias seguidos (Lenda do Código)' };
+      return { target: current + 10, label: `${current + 10} dias seguidos` };
+    } else {
+      if (current < 3) return { target: 3, label: '3 days streak (Initial Spark)' };
+      if (current < 7) return { target: 7, label: '7 days streak (Blazing Flame)' };
+      if (current < 14) return { target: 14, label: '14 days streak (Constant Master)' };
+      if (current < 30) return { target: 30, label: '30 days streak (Code Legend)' };
+      return { target: current + 10, label: `${current + 10} days streak` };
+    }
   };
 
   const nextMilestone = getNextMilestone(streak);
@@ -69,7 +81,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
               ? 'bg-[var(--bg-surface)] text-orange-400 border-orange-500/30'
               : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border-[var(--border-subtle)]'
           }`}
-          title="Sequência Diária de Estudos"
+          title={t('streak.tooltipTitle')}
         >
           <motion.div
             animate={
@@ -91,7 +103,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
               }`}
             />
           </motion.div>
-          <span>{streak} {streak === 1 ? 'dia' : 'dias'}</span>
+          <span>{streak} {streak === 1 ? (language === 'pt' ? 'dia' : 'day') : (language === 'pt' ? 'dias' : 'days')}</span>
           {isCompletedToday ? (
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           ) : (
@@ -119,8 +131,8 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
                       <Flame className="w-4 h-4 fill-orange-500 text-orange-500" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider">Sequência Diária</h4>
-                      <p className="text-[10px] text-[var(--text-muted)]">Aulas consecutivas</p>
+                      <h4 className="text-xs font-bold uppercase tracking-wider">{t('streak.tooltipTitle')}</h4>
+                      <p className="text-[10px] text-[var(--text-muted)]">{t('streak.consecutiveDays')}</p>
                     </div>
                   </div>
                   <button
@@ -133,24 +145,24 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
 
                 <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[var(--text-muted)]">Fogo Atual:</span>
+                    <span className="text-[var(--text-muted)]">{t('streak.currentFlame')}:</span>
                     <span className="font-extrabold text-orange-400 flex items-center gap-1">
                       <Flame className="w-3 h-3 fill-orange-500" />
-                      {streak} {streak === 1 ? 'dia consecutivo' : 'dias consecutivos'}
+                      {streak} {streak === 1 ? (language === 'pt' ? 'dia consecutivo' : 'consecutive day') : (language === 'pt' ? 'dias consecutivos' : 'consecutive days')}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-[var(--text-muted)]">Status de Hoje:</span>
+                    <span className="text-[var(--text-muted)]">{t('streak.todayStatus')}:</span>
                     {isCompletedToday ? (
                       <span className="text-emerald-400 font-bold flex items-center gap-1 text-[11px]">
                         <CheckCircle2 className="w-3 h-3" />
-                        Concluído!
+                        {t('streak.completedBadge')}
                       </span>
                     ) : (
                       <span className="text-amber-400 font-bold flex items-center gap-1 text-[11px]">
                         <AlertCircle className="w-3 h-3" />
-                        Pendente
+                        {t('streak.pendingBadge')}
                       </span>
                     )}
                   </div>
@@ -158,8 +170,8 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
 
                 <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">
                   {isCompletedToday
-                    ? 'Ótimo trabalho! Você concluiu lições hoje e manteve seu fogo aceso.'
-                    : 'Complete pelo menos 1 aula hoje para manter sua sequência e ganhar bônus de XP!'}
+                    ? t('streak.completedDesc')
+                    : t('streak.pendingDesc')}
                 </p>
 
                 {onNavigateToStudy && !isCompletedToday && (
@@ -170,7 +182,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
                     }}
                     className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-black font-bold text-xs rounded-xl uppercase tracking-wider transition-colors touch-btn"
                   >
-                    Estudar Agora
+                    {t('streak.studyNow')}
                   </button>
                 )}
               </motion.div>
@@ -207,7 +219,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
           </div>
           <div>
             <div className="text-[10px] font-bold uppercase tracking-widest text-orange-500 flex items-center gap-1.5">
-              <span>SEQUÊNCIA DE ESTUDOS</span>
+              <span>{t('streak.cardTitle')}</span>
               <Sparkles className="w-3 h-3 text-amber-400" />
             </div>
             <div className="flex items-baseline gap-2">
@@ -215,7 +227,7 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
                 {streak}
               </span>
               <span className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider">
-                {streak === 1 ? 'Dia Consecutivo' : 'Dias Consecutivos'}
+                {streak === 1 ? t('streak.consecutiveDays_one') : t('streak.consecutiveDays')}
               </span>
             </div>
           </div>
@@ -224,11 +236,11 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
         {/* Badge Recorde */}
         <div className="text-right">
           <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-            Recorde
+            {t('streak.record')}
           </div>
           <div className="flex items-center gap-1 text-xs font-bold text-amber-400">
             <Trophy className="w-3.5 h-3.5" />
-            <span>{longestStreak} {longestStreak === 1 ? 'dia' : 'dias'}</span>
+            <span>{longestStreak} {longestStreak === 1 ? (language === 'pt' ? 'dia' : 'day') : (language === 'pt' ? 'dias' : 'days')}</span>
           </div>
         </div>
       </div>
@@ -249,13 +261,13 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
           )}
           <span className="font-semibold text-[11px] sm:text-xs">
             {isCompletedToday
-              ? 'Meta de hoje cumprida! Fogo aceso 🔥'
-              : 'Complete pelo menos 1 aula hoje para manter a sequência!'}
+              ? t('streak.todayGoalDone')
+              : t('streak.todayGoalPending')}
           </span>
         </div>
 
         <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-black/20 shrink-0 ml-2">
-          {isCompletedToday ? 'Ativo' : 'Pendente'}
+          {isCompletedToday ? t('streak.active') : t('streak.pending')}
         </span>
       </div>
 
@@ -264,9 +276,9 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
         <div className="flex items-center justify-between text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
           <span className="flex items-center gap-1">
             <Calendar className="w-3 h-3 text-orange-500" />
-            Atividade nos últimos 7 dias
+            {t('streak.last7days')}
           </span>
-          <span>{lessonDates.size} dia(s) no total</span>
+          <span>{t('streak.activeDays', { count: lessonDates.size })}</span>
         </div>
 
         <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
@@ -302,12 +314,13 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
       {/* Próxima Conquista de Streak */}
       <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs">
         <span className="text-[11px] text-[var(--text-muted)]">
-          Próximo marco: <strong className="text-[var(--text-primary)]">{nextMilestone.label}</strong>
+          {t('streak.nextMilestone')}: <strong className="text-[var(--text-primary)]">{nextMilestone.label}</strong>
         </span>
         <span className="text-[10px] font-bold text-orange-400 bg-orange-500/10 px-2 py-0.5 rounded-full border border-orange-500/20">
-          {Math.max(0, nextMilestone.target - streak)} dia(s) restantes
+          {t('streak.daysRemaining', { count: Math.max(0, nextMilestone.target - streak) })}
         </span>
       </div>
     </motion.div>
   );
 };
+

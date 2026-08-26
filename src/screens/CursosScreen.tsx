@@ -7,6 +7,7 @@ import { calculateTechMastery, calculateOverallCatalogMastery } from '../utils/m
 import { TechMasteryIndicator } from '../components/TechMasteryIndicator';
 import { FooterStamp } from '../components/FooterStamp';
 import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
+import { useI18n } from '../i18n';
 
 interface CursosScreenProps {
   progress: UserProgress;
@@ -14,11 +15,19 @@ interface CursosScreenProps {
 }
 
 export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTech }) => {
+  const { t, language } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'in_progress' | 'mastered' | 'unstarted'>('all');
 
-  const categories = ['Todos', 'Frontend', 'Backend', 'Mobile', 'Banco de Dados', 'Linguagens'];
+  const categoryOptions = [
+    { key: 'all', label: t('courses.catAll'), rawCat: 'Todos' },
+    { key: 'frontend', label: t('courses.catFrontend'), rawCat: 'Frontend' },
+    { key: 'backend', label: t('courses.catBackend'), rawCat: 'Backend' },
+    { key: 'mobile', label: t('courses.catMobile'), rawCat: 'Mobile' },
+    { key: 'database', label: t('courses.catDatabase'), rawCat: 'Banco de Dados' },
+    { key: 'languages', label: t('courses.catLanguages'), rawCat: 'Linguagens' },
+  ];
 
   const getTechAbbrev = (techId: TechId) => {
     switch (techId) {
@@ -49,11 +58,13 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
     return map;
   }, [progress]);
 
+  const activeCategory = categoryOptions.find(c => c.key === selectedCategoryKey) || categoryOptions[0];
+
   const filteredTechs = TECHNOLOGIES.filter(tech => {
     const matchesSearch =
       tech.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       tech.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCat = selectedCategory === 'Todos' || tech.category === selectedCategory;
+    const matchesCat = activeCategory.rawCat === 'Todos' || tech.category === activeCategory.rawCat;
 
     const mastery = techMasteryMap.get(tech.id);
     const pct = mastery?.percentage || 0;
@@ -75,13 +86,13 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
       {/* Editorial Header */}
       <motion.div variants={fadeInUp} initial="initial" animate="animate">
         <div className="text-[10px] uppercase font-bold text-orange-500 tracking-widest">
-          CATÁLOGO OFICIAL & DOMÍNIO
+          {t('courses.badge')}
         </div>
         <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
-          Cursos & Mestria (9 Stacks)
+          {t('courses.title')}
         </h2>
         <p className="text-xs text-[var(--text-muted)]">
-          Acompanhe sua porcentagem de domínio em cada tecnologia com base em aulas e quizzes.
+          {t('courses.subtitle')}
         </p>
       </motion.div>
 
@@ -102,10 +113,10 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
             </div>
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] block">
-                Progresso Global
+                {t('courses.globalProgress')}
               </span>
               <h3 className="text-sm font-extrabold text-[var(--text-primary)]">
-                Domínio Geral do Catálogo
+                {t('courses.overallMastery')}
               </h3>
             </div>
           </div>
@@ -115,7 +126,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
               {catalogStats.averageMastery}%
             </span>
             <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">
-              Média Geral
+              {t('courses.overallAvg')}
             </span>
           </div>
         </div>
@@ -133,21 +144,21 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
         {/* Estatísticas resumidas em 3 colunas */}
         <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border-subtle)] text-center">
           <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">Aulas</span>
+            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.lessons')}</span>
             <span className="text-xs font-black text-[var(--text-primary)]">
               {catalogStats.totalCompletedLessons}/180
             </span>
           </div>
 
           <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">Quizzes</span>
+            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.quizzes')}</span>
             <span className="text-xs font-black text-[var(--text-primary)]">
               {catalogStats.totalPassedQuizzes}/36
             </span>
           </div>
 
           <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">Mestrias</span>
+            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.masteries')}</span>
             <span className="text-xs font-black text-amber-400 flex items-center justify-center gap-1">
               <Trophy className="w-3 h-3" />
               {catalogStats.masteredCount}/9
@@ -164,7 +175,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
             type="text"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            placeholder="Buscar tecnologia (ex: Python, MySQL, Flutter)..."
+            placeholder={t('courses.searchPlaceholder')}
             className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-xs focus:outline-none focus:border-orange-500/80 transition-colors"
           />
         </div>
@@ -172,7 +183,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
         {/* Filtro Rápido por Status de Domínio */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar text-[11px]">
           <span className="text-[10px] uppercase font-bold text-[var(--text-muted)] flex items-center gap-1 pl-1 shrink-0">
-            <Filter className="w-3 h-3" /> Status:
+            <Filter className="w-3 h-3" /> {t('courses.statusFilter')}:
           </span>
           <button
             onClick={() => setStatusFilter('all')}
@@ -182,7 +193,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                 : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-subtle)]'
             }`}
           >
-            Todas ({TECHNOLOGIES.length})
+            {t('courses.filterAll')} ({TECHNOLOGIES.length})
           </button>
 
           <button
@@ -193,7 +204,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                 : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-subtle)]'
             }`}
           >
-            ⚡ Em Curso
+            {t('courses.filterInProgress')}
           </button>
 
           <button
@@ -204,7 +215,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                 : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-subtle)]'
             }`}
           >
-            👑 Mestres (100%)
+            {t('courses.filterMastered')}
           </button>
 
           <button
@@ -215,24 +226,24 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                 : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-subtle)]'
             }`}
           >
-            ⚪ Não Iniciadas
+            {t('courses.filterUnstarted')}
           </button>
         </div>
 
         {/* Categorias Filtro */}
         <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-          {categories.map(cat => (
+          {categoryOptions.map(cat => (
             <motion.button
-              key={cat}
+              key={cat.key}
               whileTap={{ scale: 0.96 }}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => setSelectedCategoryKey(cat.key)}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors min-h-[36px] touch-btn ${
-                selectedCategory === cat
+                selectedCategoryKey === cat.key
                   ? 'bg-orange-500 text-black font-extrabold shadow-sm'
                   : 'bg-[var(--bg-card)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-subtle)]'
               }`}
             >
-              {cat}
+              {cat.label}
             </motion.button>
           ))}
         </div>
@@ -328,9 +339,9 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
             animate="animate"
             className="text-center py-10 bg-[var(--bg-card)] rounded-2xl border border-[var(--border-subtle)] p-6"
           >
-            <p className="text-sm font-bold text-[var(--text-primary)]">Nenhuma tecnologia encontrada</p>
+            <p className="text-sm font-bold text-[var(--text-primary)]">{t('courses.notFound')}</p>
             <p className="text-xs text-[var(--text-muted)] mt-1">
-              Tente ajustar os filtros de categoria ou termo de busca.
+              {t('courses.notFoundDesc')}
             </p>
           </motion.div>
         )}
@@ -340,3 +351,4 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
     </div>
   );
 };
+

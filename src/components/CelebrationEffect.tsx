@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Zap, Sparkles, Trophy, CheckCircle2, ArrowRight, Star } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface Particle {
   id: number;
@@ -34,11 +35,16 @@ interface CelebrationEffectProps {
 export const CelebrationEffect: React.FC<CelebrationEffectProps> = ({
   show,
   xpEarned,
-  title = 'Excelente Trabalho!',
-  subtitle = 'Você completou esta etapa com sucesso!',
+  title,
+  subtitle,
   onClose,
   autoClose = false,
 }) => {
+  const { t } = useI18n();
+
+  const displayTitle = title || t('celebration.defaultTitle');
+  const displaySubtitle = subtitle || t('celebration.defaultSubtitle');
+
   // Efeito sonoro sintetizado via Web Audio API (agradável e sem dependência externa)
   useEffect(() => {
     if (!show) return;
@@ -270,7 +276,7 @@ export const CelebrationEffect: React.FC<CelebrationEffectProps> = ({
                 className="text-[10px] uppercase font-black text-orange-400 tracking-widest flex items-center justify-center gap-1"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                CONQUISTA DESBLOQUEADA
+                {t('celebration.unlocked')}
                 <Sparkles className="w-3.5 h-3.5" />
               </motion.div>
 
@@ -280,7 +286,7 @@ export const CelebrationEffect: React.FC<CelebrationEffectProps> = ({
                 transition={{ delay: 0.25 }}
                 className="text-xl font-extrabold text-white tracking-tight font-serif-italic"
               >
-                {title}
+                {displayTitle}
               </motion.h3>
 
               <motion.p
@@ -289,7 +295,7 @@ export const CelebrationEffect: React.FC<CelebrationEffectProps> = ({
                 transition={{ delay: 0.3 }}
                 className="text-xs text-white/60 leading-relaxed px-2"
               >
-                {subtitle}
+                {displaySubtitle}
               </motion.p>
             </div>
 
@@ -323,12 +329,12 @@ export const CelebrationEffect: React.FC<CelebrationEffectProps> = ({
 
                 <div className="text-left">
                   <div className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
-                    Recompensa Adquirida
+                    {t('celebration.rewardAcquired')}
                   </div>
                   <div className="text-lg font-black text-orange-400 tracking-tight flex items-center gap-1.5">
-                    <span>+{xpEarned} XP</span>
+                    <span>+{xpEarned} {t('header.xp')}</span>
                     <span className="text-[10px] font-normal text-white/60 bg-white/10 px-2 py-0.5 rounded-full">
-                      Creditado
+                      {t('celebration.credited')}
                     </span>
                   </div>
                 </div>
@@ -349,7 +355,7 @@ export const CelebrationEffect: React.FC<CelebrationEffectProps> = ({
                 className="w-full py-3.5 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-black font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer touch-btn"
               >
                 <CheckCircle2 className="w-4 h-4 text-black" />
-                <span>Continuar Aprendizado</span>
+                <span>{t('celebration.continue')}</span>
                 <ArrowRight className="w-4 h-4 text-black" />
               </motion.button>
             </motion.div>

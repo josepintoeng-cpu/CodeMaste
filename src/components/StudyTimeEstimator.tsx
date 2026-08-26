@@ -16,6 +16,7 @@ import {
 import { UserProgress, LevelId, TechId } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { getLessonsForTechAndLevel } from '../content';
+import { useI18n } from '../i18n';
 
 interface StudyTimeEstimatorProps {
   progress: UserProgress;
@@ -24,65 +25,80 @@ interface StudyTimeEstimatorProps {
 
 interface LevelDifficultyData {
   id: LevelId;
-  label: string;
-  badge: string;
+  labelPt: string;
+  labelEn: string;
+  badgePt: string;
+  badgeEn: string;
   baseMinutes: number;
   dots: number; // 1 to 4 dots
   color: string;
   bgRgba: string;
   borderRgba: string;
   textClass: string;
-  description: string;
+  descriptionPt: string;
+  descriptionEn: string;
 }
 
 const DIFFICULTY_CONFIG: Record<LevelId, LevelDifficultyData> = {
   iniciante: {
     id: 'iniciante',
-    label: 'Iniciante',
-    badge: 'Fundamentos',
+    labelPt: 'Iniciante',
+    labelEn: 'Beginner',
+    badgePt: 'Fundamentos',
+    badgeEn: 'Fundamentals',
     baseMinutes: 10,
     dots: 1,
     color: '#22c55e',
     bgRgba: 'rgba(34, 197, 94, 0.12)',
     borderRgba: 'rgba(34, 197, 94, 0.35)',
     textClass: 'text-emerald-400',
-    description: 'Conceitos base, sintaxe essencial e primeiros scripts guiados (~10 min/aula).',
+    descriptionPt: 'Conceitos base, sintaxe essencial e primeiros scripts guiados (~10 min/aula).',
+    descriptionEn: 'Core concepts, essential syntax and first guided scripts (~10 min/lesson).',
   },
   intermediario: {
     id: 'intermediario',
-    label: 'Intermediário',
-    badge: 'Prática Aplicada',
+    labelPt: 'Intermediário',
+    labelEn: 'Intermediate',
+    badgePt: 'Prática Aplicada',
+    badgeEn: 'Applied Practice',
     baseMinutes: 18,
     dots: 2,
     color: '#eab308',
     bgRgba: 'rgba(234, 179, 8, 0.12)',
     borderRgba: 'rgba(234, 179, 8, 0.35)',
     textClass: 'text-amber-400',
-    description: 'Padrões de projeto, consumo de APIs, I/O e lógica estruturada (~18 min/aula).',
+    descriptionPt: 'Padrões de projeto, consumo de APIs, I/O e lógica estruturada (~18 min/aula).',
+    descriptionEn: 'Design patterns, API consumption, I/O and structured logic (~18 min/lesson).',
   },
   avancado: {
     id: 'avancado',
-    label: 'Avançado',
-    badge: 'Arquitetura',
+    labelPt: 'Avançado',
+    labelEn: 'Advanced',
+    badgePt: 'Arquitetura',
+    badgeEn: 'Architecture',
     baseMinutes: 30,
     dots: 3,
     color: '#f97316',
     bgRgba: 'rgba(249, 115, 22, 0.12)',
     borderRgba: 'rgba(249, 115, 22, 0.35)',
     textClass: 'text-orange-400',
-    description: 'Arquitetura limpa, segurança, concorrência e engenharia profunda (~30 min/aula).',
+    descriptionPt: 'Arquitetura limpa, segurança, concorrência e engenharia profunda (~30 min/aula).',
+    descriptionEn: 'Clean architecture, security, concurrency and deep engineering (~30 min/lesson).',
   },
   projetos: {
     id: 'projetos',
-    label: 'Projetos',
-    badge: 'Mão na Massa',
+    labelPt: 'Projetos',
+    labelEn: 'Projects',
+    badgePt: 'Mão na Massa',
+    badgeEn: 'Hands-on',
     baseMinutes: 60,
     dots: 4,
     color: '#a855f7',
     bgRgba: 'rgba(168, 85, 247, 0.12)',
     borderRgba: 'rgba(168, 85, 247, 0.35)',
     textClass: 'text-purple-400',
-    description: 'Aplicações completas de ponta a ponta com simulação de produção (~60 min/projeto).',
+    descriptionPt: 'Aplicações completas de ponta a ponta com simulação de produção (~60 min/projeto).',
+    descriptionEn: 'Full end-to-end applications simulating production environments (~60 min/project).',
   },
 };
 
@@ -90,6 +106,7 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
   progress,
   onNavigateToStudy,
 }) => {
+  const { t, language } = useI18n();
   const [showExplanation, setShowExplanation] = useState(false);
 
   // Mapa com todas as lições registradas no currículo para lookup com alta precisão
@@ -177,25 +194,44 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
     // Próximo marco de horas
     const getNextMilestoneHours = (mins: number) => {
       const hrs = mins / 60;
-      if (hrs < 1) return { targetHours: 1, remainingMins: 60 - mins, label: '1ª Hora de Código' };
-      if (hrs < 3) return { targetHours: 3, remainingMins: 180 - mins, label: '3 Horas de Dedicação' };
-      if (hrs < 5) return { targetHours: 5, remainingMins: 300 - mins, label: '5 Horas de Estudo' };
-      if (hrs < 10) return { targetHours: 10, remainingMins: 600 - mins, label: '10 Horas (Foco Sólido)' };
-      if (hrs < 25) return { targetHours: 25, remainingMins: 1500 - mins, label: '25 Horas (Imersão Pro)' };
-      if (hrs < 50) return { targetHours: 50, remainingMins: 3000 - mins, label: '50 Horas (Alta Maestria)' };
-      return { targetHours: Math.ceil(hrs / 25) * 25, remainingMins: (Math.ceil(hrs / 25) * 25 * 60) - mins, label: 'Super Especialista' };
+      if (language === 'pt') {
+        if (hrs < 1) return { targetHours: 1, remainingMins: 60 - mins, label: '1ª Hora de Código' };
+        if (hrs < 3) return { targetHours: 3, remainingMins: 180 - mins, label: '3 Horas de Dedicação' };
+        if (hrs < 5) return { targetHours: 5, remainingMins: 300 - mins, label: '5 Horas de Estudo' };
+        if (hrs < 10) return { targetHours: 10, remainingMins: 600 - mins, label: '10 Horas (Foco Sólido)' };
+        if (hrs < 25) return { targetHours: 25, remainingMins: 1500 - mins, label: '25 Horas (Imersão Pro)' };
+        if (hrs < 50) return { targetHours: 50, remainingMins: 3000 - mins, label: '50 Horas (Alta Maestria)' };
+        return { targetHours: Math.ceil(hrs / 25) * 25, remainingMins: (Math.ceil(hrs / 25) * 25 * 60) - mins, label: 'Super Especialista' };
+      } else {
+        if (hrs < 1) return { targetHours: 1, remainingMins: 60 - mins, label: '1st Hour of Code' };
+        if (hrs < 3) return { targetHours: 3, remainingMins: 180 - mins, label: '3 Hours of Study' };
+        if (hrs < 5) return { targetHours: 5, remainingMins: 300 - mins, label: '5 Hours Dedication' };
+        if (hrs < 10) return { targetHours: 10, remainingMins: 600 - mins, label: '10 Hours (Solid Focus)' };
+        if (hrs < 25) return { targetHours: 25, remainingMins: 1500 - mins, label: '25 Hours (Pro Immersion)' };
+        if (hrs < 50) return { targetHours: 50, remainingMins: 3000 - mins, label: '50 Hours (High Mastery)' };
+        return { targetHours: Math.ceil(hrs / 25) * 25, remainingMins: (Math.ceil(hrs / 25) * 25 * 60) - mins, label: 'Super Specialist' };
+      }
     };
 
     const nextMilestone = getNextMilestoneHours(totalMinutes);
 
     // Nível de Foco e Estágio
     const getFocusStage = (mins: number) => {
-      if (mins === 0) return { title: 'Iniciando Jornada', badge: 'Primeiros Passos', icon: Sparkles };
-      if (mins < 60) return { title: 'Aquecimento Cognitivo', badge: 'Fase Inicial', icon: Brain };
-      if (mins < 180) return { title: 'Ritmo em Construção', badge: 'Constante', icon: TrendingUp };
-      if (mins < 600) return { title: 'Foco & Consistência', badge: 'Dedicado', icon: Zap };
-      if (mins < 1500) return { title: 'Imersão Aprofundada', badge: 'Avançado', icon: Layers };
-      return { title: 'Maestria Consagrada', badge: 'Mestre Sênior', icon: Award };
+      if (language === 'pt') {
+        if (mins === 0) return { title: 'Iniciando Jornada', badge: 'Primeiros Passos', icon: Sparkles };
+        if (mins < 60) return { title: 'Aquecimento Cognitivo', badge: 'Fase Inicial', icon: Brain };
+        if (mins < 180) return { title: 'Ritmo em Construção', badge: 'Constante', icon: TrendingUp };
+        if (mins < 600) return { title: 'Foco & Consistência', badge: 'Dedicado', icon: Zap };
+        if (mins < 1500) return { title: 'Imersão Aprofundada', badge: 'Avançado', icon: Layers };
+        return { title: 'Maestria Consagrada', badge: 'Mestre Sênior', icon: Award };
+      } else {
+        if (mins === 0) return { title: 'Starting Journey', badge: 'First Steps', icon: Sparkles };
+        if (mins < 60) return { title: 'Cognitive Warmup', badge: 'Early Phase', icon: Brain };
+        if (mins < 180) return { title: 'Building Rhythm', badge: 'Consistent', icon: TrendingUp };
+        if (mins < 600) return { title: 'Focus & Dedication', badge: 'Dedicated', icon: Zap };
+        if (mins < 1500) return { title: 'Deep Immersion', badge: 'Advanced', icon: Layers };
+        return { title: 'Recognized Mastery', badge: 'Senior Master', icon: Award };
+      }
     };
 
     const focusStage = getFocusStage(totalMinutes);
@@ -212,7 +248,7 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
       nextMilestone,
       focusStage,
     };
-  }, [progress.completedLessons, lessonCatalog]);
+  }, [progress.completedLessons, lessonCatalog, language]);
 
   const allLevels: LevelId[] = ['iniciante', 'intermediario', 'avancado', 'projetos'];
 
@@ -234,10 +270,10 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
           </div>
           <div>
             <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest flex items-center gap-1">
-              <span>ESTATÍSTICA DE DEDICAÇÃO</span>
+              <span>{t('studyTime.badge')}</span>
             </div>
             <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">
-              Tempo Total de Estudo Estimado
+              {t('studyTime.title')}
             </h3>
           </div>
         </div>
@@ -245,8 +281,8 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
         <button
           onClick={() => setShowExplanation(!showExplanation)}
           className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-surface)] transition-all border border-transparent hover:border-[var(--border-subtle)]"
-          title="Ver detalhes de cálculo por dificuldade"
-          aria-label="Ver detalhes de cálculo por dificuldade"
+          title={t('studyTime.howCalculated')}
+          aria-label={t('studyTime.howCalculated')}
         >
           <Info className="w-4 h-4" />
         </button>
@@ -264,11 +300,11 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
                 {formattedTimeString}
               </span>
               <span className="text-xs font-semibold text-[var(--text-muted)]">
-                investidos em código
+                {t('studyTime.invested')}
               </span>
             </div>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              Calculado ponderando {stats.completedCount} {stats.completedCount === 1 ? 'aula concluída' : 'aulas concluídas'} e seus pesos de complexidade.
+              {t('studyTime.calculated', { count: stats.completedCount })}
             </p>
           </div>
 
@@ -284,8 +320,8 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
         {stats.totalMinutes > 0 && (
           <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] space-y-2">
             <div className="flex justify-between text-[11px] font-bold text-[var(--text-muted)]">
-              <span>Distribuição por Complexidade</span>
-              <span>100% ponderado</span>
+              <span>{t('studyTime.distribution')}</span>
+              <span>{t('studyTime.weighted')}</span>
             </div>
 
             <div className="w-full h-2.5 bg-black/40 rounded-full overflow-hidden flex p-0.5 border border-white/5">
@@ -294,6 +330,7 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
                 if (mins === 0) return null;
                 const pct = ((mins / stats.totalMinutes) * 100);
                 const conf = DIFFICULTY_CONFIG[lvl];
+                const label = language === 'pt' ? conf.labelPt : conf.labelEn;
 
                 return (
                   <div
@@ -303,7 +340,7 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
                       backgroundColor: conf.color,
                     }}
                     className="h-full first:rounded-l-full last:rounded-r-full transition-all duration-500"
-                    title={`${conf.label}: ${mins} min (${Math.round(pct)}%)`}
+                    title={`${label}: ${mins} min (${Math.round(pct)}%)`}
                   />
                 );
               })}
@@ -321,6 +358,7 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
           const hours = Math.floor(mins / 60);
           const remMins = mins % 60;
           const formattedLvlTime = hours > 0 ? `${hours}h ${remMins > 0 ? `${remMins}m` : ''}` : `${mins}m`;
+          const label = language === 'pt' ? conf.labelPt : conf.labelEn;
 
           return (
             <div
@@ -333,7 +371,7 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
             >
               <div className="flex items-center justify-between">
                 <span className={`text-[11px] font-extrabold uppercase tracking-wider ${conf.textClass}`}>
-                  {conf.label}
+                  {label}
                 </span>
                 {/* Indicador de pontos de dificuldade (1 a 4) */}
                 <div className="flex items-center gap-0.5" title={`Dificuldade ${conf.dots}/4`}>
@@ -354,13 +392,13 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
                   {formattedLvlTime}
                 </div>
                 <div className="text-[10px] text-[var(--text-muted)] font-medium">
-                  {count} {count === 1 ? 'aula concluída' : 'aulas concluídas'}
+                  {t('studyTime.completedLessons', { count })}
                 </div>
               </div>
 
               <div className="text-[9px] text-[var(--text-muted)] border-t border-white/5 pt-1.5 flex justify-between items-center">
-                <span>Peso Médio</span>
-                <span className="font-bold text-[var(--text-primary)]">~{conf.baseMinutes} min/aula</span>
+                <span>{t('studyTime.avgWeight')}</span>
+                <span className="font-bold text-[var(--text-primary)]">{t('studyTime.minPerLesson', { minutes: conf.baseMinutes })}</span>
               </div>
             </div>
           );
@@ -376,10 +414,10 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
           </div>
           <div>
             <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider block font-bold">
-              Média por Aula
+              {t('studyTime.avgPerLesson')}
             </span>
             <span className="font-extrabold text-[var(--text-primary)]">
-              {stats.completedCount > 0 ? `~${stats.avgMinutesPerLesson} min/aula` : '0 min'}
+              {stats.completedCount > 0 ? t('studyTime.minPerLesson', { minutes: stats.avgMinutesPerLesson }) : '0 min'}
             </span>
           </div>
         </div>
@@ -391,10 +429,10 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
           </div>
           <div>
             <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider block font-bold">
-              Blocos de Foco (25m)
+              {t('studyTime.focusBlocks')}
             </span>
             <span className="font-extrabold text-[var(--text-primary)]">
-              {stats.pomodoroBlocks} {stats.pomodoroBlocks === 1 ? 'sessão Pomodoro' : 'sessões Pomodoro'}
+              {t('studyTime.pomodoroSessions', { count: stats.pomodoroBlocks })}
             </span>
           </div>
         </div>
@@ -406,10 +444,10 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
           </div>
           <div>
             <span className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider block font-bold">
-              Próximo Marco
+              {t('studyTime.nextMilestone')}
             </span>
             <span className="font-extrabold text-[var(--text-primary)]">
-              {stats.nextMilestone.remainingMins > 0 ? `Faltam ${stats.nextMilestone.remainingMins} min` : 'Alcançado!'}
+              {stats.nextMilestone.remainingMins > 0 ? t('studyTime.remainingMins', { count: stats.nextMilestone.remainingMins }) : t('studyTime.achieved')}
             </span>
           </div>
         </div>
@@ -429,41 +467,41 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
               <div className="flex items-center justify-between font-bold text-orange-400 text-xs">
                 <span className="flex items-center gap-1.5">
                   <Info className="w-3.5 h-3.5" />
-                  Como o tempo de estudo é calculado?
+                  {t('studyTime.howCalculated')}
                 </span>
                 <button
                   onClick={() => setShowExplanation(false)}
                   className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-[11px]"
                 >
-                  Fechar
+                  {t('studyTime.close')}
                 </button>
               </div>
 
               <p className="text-[var(--text-muted)] text-[11px] leading-relaxed">
-                Cada lição concluída possui um tempo estimado baseado na profundidade teórica, volume de código e testes práticos exigidos em seu nível de dificuldade:
+                {t('studyTime.calcExplanation')}
               </p>
 
               <div className="space-y-1.5 text-[11px]">
                 <div className="flex items-center justify-between p-1.5 rounded-lg bg-black/20">
-                  <span className="font-bold text-emerald-400">● Iniciante</span>
-                  <span className="text-[var(--text-muted)]">8 a 15 minutos (Média: 10 min)</span>
+                  <span className="font-bold text-emerald-400">● {language === 'pt' ? 'Iniciante' : 'Beginner'}</span>
+                  <span className="text-[var(--text-muted)]">{language === 'pt' ? '8 a 15 minutos (Média: 10 min)' : '8 to 15 minutes (Avg: 10 min)'}</span>
                 </div>
                 <div className="flex items-center justify-between p-1.5 rounded-lg bg-black/20">
-                  <span className="font-bold text-amber-400">●● Intermediário</span>
-                  <span className="text-[var(--text-muted)]">15 a 25 minutos (Média: 18 min)</span>
+                  <span className="font-bold text-amber-400">●● {language === 'pt' ? 'Intermediário' : 'Intermediate'}</span>
+                  <span className="text-[var(--text-muted)]">{language === 'pt' ? '15 a 25 minutos (Média: 18 min)' : '15 to 25 minutes (Avg: 18 min)'}</span>
                 </div>
                 <div className="flex items-center justify-between p-1.5 rounded-lg bg-black/20">
-                  <span className="font-bold text-orange-400">●●● Avançado</span>
-                  <span className="text-[var(--text-muted)]">25 a 45 minutos (Média: 30 min)</span>
+                  <span className="font-bold text-orange-400">●●● {language === 'pt' ? 'Avançado' : 'Advanced'}</span>
+                  <span className="text-[var(--text-muted)]">{language === 'pt' ? '25 a 45 minutos (Média: 30 min)' : '25 to 45 minutes (Avg: 30 min)'}</span>
                 </div>
                 <div className="flex items-center justify-between p-1.5 rounded-lg bg-black/20">
-                  <span className="font-bold text-purple-400">●●●● Projetos Práticos</span>
-                  <span className="text-[var(--text-muted)]">45 a 90 minutos (Média: 60 min)</span>
+                  <span className="font-bold text-purple-400">●●●● {language === 'pt' ? 'Projetos Práticos' : 'Hands-on Projects'}</span>
+                  <span className="text-[var(--text-muted)]">{language === 'pt' ? '45 a 90 minutos (Média: 60 min)' : '45 to 90 minutes (Avg: 60 min)'}</span>
                 </div>
               </div>
 
               <div className="text-[10px] text-[var(--text-muted)] italic pt-1 border-t border-[var(--border-subtle)]">
-                Fórmula: <code className="text-orange-300 font-mono">Tempo Total = Σ(Duração de cada lição concluída indexada pelo nível)</code>
+                {t('studyTime.formula')}
               </div>
             </div>
           </motion.div>
@@ -478,10 +516,11 @@ export const StudyTimeEstimator: React.FC<StudyTimeEstimatorProps> = ({
             className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-black font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-500/20 hover:opacity-90 active:scale-[0.98] transition-all"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Começar Minha 1ª Aula e Contabilizar Horas</span>
+            <span>{t('studyTime.startFirst')}</span>
           </button>
         </div>
       )}
     </div>
   );
 };
+

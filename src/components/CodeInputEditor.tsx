@@ -19,6 +19,7 @@ import {
   TOKEN_COLOR_CLASSES,
   SyntaxDiagnostic
 } from '../utils/codeTokenizer';
+import { useI18n } from '../i18n';
 
 interface CodeInputEditorProps {
   value: string;
@@ -37,7 +38,7 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
   value,
   onChange,
   language = 'javascript',
-  placeholder = 'Escreva sua solução de código aqui...',
+  placeholder,
   initialCode,
   expectedKeywords = [],
   expectedAnswer,
@@ -45,6 +46,7 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
   disabled = false,
   minLines = 6,
 }) => {
+  const { t, language: appLang } = useI18n();
   const [copied, setCopied] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(true);
@@ -52,6 +54,8 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const preRef = useRef<HTMLPreElement>(null);
+
+  const defaultPlaceholder = placeholder || (appLang === 'pt' ? 'Escreva sua solução de código aqui...' : 'Write your code solution here...');
 
   // Sync scroll between textarea and syntax highlight preview
   const handleScroll = (e: React.UIEvent<HTMLTextAreaElement>) => {
@@ -245,16 +249,21 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
           {diagnostics.length === 0 && value.trim().length > 0 ? (
             <span className="hidden sm:flex items-center gap-1 text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-medium">
               <CheckCircle2 className="w-3 h-3" />
-              Sintaxe OK
+              {appLang === 'pt' ? 'Sintaxe OK' : 'Syntax OK'}
             </span>
           ) : diagnostics.length > 0 ? (
             <button
               onClick={() => setShowDiagnostics(!showDiagnostics)}
               className="flex items-center gap-1 text-[10px] text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30 hover:bg-amber-500/20 transition-colors font-medium"
-              title="Clique para ver diagnósticos"
+              title={appLang === 'pt' ? 'Clique para ver diagnósticos' : 'Click to view diagnostics'}
             >
               <AlertTriangle className="w-3 h-3 text-amber-400" />
-              <span>{diagnostics.length} {diagnostics.length === 1 ? 'aviso de sintaxe' : 'avisos de sintaxe'}</span>
+              <span>
+                {diagnostics.length}{' '}
+                {appLang === 'pt'
+                  ? diagnostics.length === 1 ? 'aviso de sintaxe' : 'avisos de sintaxe'
+                  : diagnostics.length === 1 ? 'syntax warning' : 'syntax warnings'}
+              </span>
             </button>
           ) : null}
         </div>
@@ -265,27 +274,27 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
             type="button"
             onClick={handleCopy}
             className="p-1.5 hover:text-emerald-400 hover:bg-slate-800 rounded-lg transition-colors text-xs flex items-center gap-1 px-2"
-            title="Copiar código"
+            title={appLang === 'pt' ? 'Copiar código' : 'Copy code'}
           >
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-            <span className="hidden sm:inline text-[11px]">{copied ? 'Copiado' : 'Copiar'}</span>
+            <span className="hidden sm:inline text-[11px]">{copied ? (appLang === 'pt' ? 'Copiado' : 'Copied') : (appLang === 'pt' ? 'Copiar' : 'Copy')}</span>
           </button>
 
           <button
             type="button"
             onClick={handleReset}
             className="p-1.5 hover:text-orange-400 hover:bg-slate-800 rounded-lg transition-colors text-xs flex items-center gap-1 px-2"
-            title="Restaurar código inicial"
+            title={appLang === 'pt' ? 'Restaurar código inicial' : 'Reset initial code'}
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline text-[11px]">Restaurar</span>
+            <span className="hidden sm:inline text-[11px]">{appLang === 'pt' ? 'Restaurar' : 'Reset'}</span>
           </button>
 
           <button
             type="button"
             onClick={() => setIsFullscreen(!isFullscreen)}
             className="p-1.5 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors"
-            title={isFullscreen ? 'Reduzir editor' : 'Expandir editor'}
+            title={isFullscreen ? (appLang === 'pt' ? 'Reduzir editor' : 'Minimize') : (appLang === 'pt' ? 'Expandir editor' : 'Expand')}
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>
@@ -295,7 +304,7 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
       {/* Quick Mobile / Desktop Symbol Toolbar */}
       <div className="bg-slate-900/60 border-b border-slate-800/80 px-2 py-1.5 flex items-center gap-1 overflow-x-auto no-scrollbar">
         <span className="text-[9px] uppercase font-mono tracking-widest text-slate-500 font-bold px-1 shrink-0">
-          Atalhos:
+          {appLang === 'pt' ? 'Atalhos:' : 'Shortcuts:'}
         </span>
         {quickSymbols.map((sym, idx) => (
           <button
@@ -346,7 +355,7 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
             className="absolute inset-0 p-3 m-0 font-mono text-xs sm:text-sm leading-6 whitespace-pre-wrap break-words pointer-events-none select-none overflow-hidden"
           >
             {tokens.length === 0 ? (
-              <span className="text-slate-600 italic">{placeholder}</span>
+              <span className="text-slate-600 italic">{defaultPlaceholder}</span>
             ) : (
               tokens.map((tok, tIdx) => (
                 <span key={tIdx} className={TOKEN_COLOR_CLASSES[tok.type] || 'text-slate-200'}>
@@ -370,7 +379,7 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
             onSelect={updateCursorPosition}
             onScroll={handleScroll}
             disabled={disabled}
-            placeholder={placeholder}
+            placeholder={defaultPlaceholder}
             spellCheck={false}
             autoCapitalize="none"
             autoCorrect="off"
@@ -389,13 +398,13 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
           <div className="flex items-center justify-between text-[11px] font-bold text-amber-400">
             <span className="flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5" />
-              Verificações de Sintaxe em Tempo Real:
+              {appLang === 'pt' ? 'Verificações de Sintaxe em Tempo Real:' : 'Real-time Syntax Diagnostics:'}
             </span>
             <button
               onClick={() => setShowDiagnostics(false)}
               className="text-amber-400/60 hover:text-amber-300 text-[10px] uppercase tracking-wider"
             >
-              Ocultar
+              {appLang === 'pt' ? 'Ocultar' : 'Hide'}
             </button>
           </div>
           {diagnostics.map((diag, dIdx) => (
@@ -415,17 +424,17 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
           <div className="flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-orange-400" />
             <span className="text-[11px] text-slate-400">
-              Estruturas esperadas: <strong className="text-orange-300">{validationProgress.matched}/{validationProgress.total}</strong>
+              {appLang === 'pt' ? 'Estruturas esperadas:' : 'Expected structures:'} <strong className="text-orange-300">{validationProgress.matched}/{validationProgress.total}</strong>
             </span>
           </div>
           {validationProgress.isAllMatched ? (
             <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1">
               <Check className="w-3 h-3" />
-              Requisitos sintáticos presentes
+              {appLang === 'pt' ? 'Requisitos sintáticos presentes' : 'Syntax requirements matched'}
             </span>
           ) : (
             <span className="text-[10px] text-slate-400 italic">
-              Faltando: {validationProgress.missing.join(', ')}
+              {appLang === 'pt' ? 'Faltando:' : 'Missing:'} {validationProgress.missing.join(', ')}
             </span>
           )}
         </div>
@@ -434,11 +443,16 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
       {/* Bottom Status Bar (VS Code style footer) */}
       <div className="bg-slate-900 border-t border-slate-800 px-3 py-1.5 flex items-center justify-between text-[11px] font-mono text-slate-400 select-none">
         <div className="flex items-center gap-3">
-          <span>Lin {cursorPos.line}, Col {cursorPos.col}</span>
+          <span>{appLang === 'pt' ? `Lin ${cursorPos.line}, Col ${cursorPos.col}` : `Ln ${cursorPos.line}, Col ${cursorPos.col}`}</span>
           <span className="hidden sm:inline">•</span>
-          <span className="hidden sm:inline">{value.length} caracteres</span>
+          <span className="hidden sm:inline">{value.length} {appLang === 'pt' ? 'caracteres' : 'chars'}</span>
           <span className="hidden sm:inline">•</span>
-          <span className="hidden sm:inline">{lines.length} {lines.length === 1 ? 'linha' : 'linhas'}</span>
+          <span className="hidden sm:inline">
+            {lines.length}{' '}
+            {appLang === 'pt'
+              ? lines.length === 1 ? 'linha' : 'linhas'
+              : lines.length === 1 ? 'line' : 'lines'}
+          </span>
         </div>
 
         <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-slate-400">
@@ -450,3 +464,4 @@ export const CodeInputEditor: React.FC<CodeInputEditorProps> = ({
     </div>
   );
 };
+

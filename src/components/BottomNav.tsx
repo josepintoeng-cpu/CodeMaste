@@ -1,5 +1,6 @@
 import React from 'react';
 import { Home, BookOpen, Award, User } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 export type TabType = 'home' | 'courses' | 'progress' | 'profile';
 
@@ -9,11 +10,13 @@ interface BottomNavProps {
 }
 
 export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) => {
+  const { t } = useI18n();
+
   const tabs = [
-    { id: 'home' as TabType, label: 'Início', icon: Home },
-    { id: 'courses' as TabType, label: 'Cursos', icon: BookOpen },
-    { id: 'progress' as TabType, label: 'Status', icon: Award },
-    { id: 'profile' as TabType, label: 'Perfil', icon: User },
+    { id: 'home' as TabType, label: t('nav.home'), icon: Home },
+    { id: 'courses' as TabType, label: t('nav.courses'), icon: BookOpen },
+    { id: 'progress' as TabType, label: t('nav.progress'), icon: Award },
+    { id: 'profile' as TabType, label: t('nav.profile'), icon: User },
   ];
 
   return (
@@ -44,4 +47,5 @@ export const BottomNav: React.FC<BottomNavProps> = ({ activeTab, onSelectTab }) 
     </nav>
   );
 };
+
 

@@ -5,6 +5,7 @@ import { UserProgress, TechId, LevelId } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { FooterStamp } from '../components/FooterStamp';
 import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
+import { useI18n } from '../i18n';
 
 interface HomeScreenProps {
   progress: UserProgress;
@@ -17,6 +18,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onSelectTech,
   onNavigateTab,
 }) => {
+  const { t, language } = useI18n();
+
   // Mapeamento de ícones do lucide-react para os cards
   const getTechIcon = (iconName: string) => {
     switch (iconName) {
@@ -70,7 +73,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <div className="flex justify-between items-center">
           <div>
             <div className="text-[var(--text-muted)] text-[10px] uppercase tracking-widest font-bold">
-              BEM-VINDO DE VOLTA
+              {t('home.welcomeBack')}
             </div>
             <h2 className="text-2xl font-bold tracking-tight text-[var(--text-primary)] flex items-center gap-2">
               <span>{progress.userName}</span>
@@ -85,9 +88,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 ? 'bg-[var(--bg-surface)] text-orange-400 border-[var(--border-subtle)]'
                 : 'bg-[var(--bg-surface)] text-[var(--text-muted)] border-[var(--border-subtle)]'
             }`}
-            title="Ver detalhes da Sequência Diária no Progresso"
+            title={t('streak.tooltipTitle')}
           >
-            <span>🔥 {streak} {streak === 1 ? 'dia' : 'dias'}</span>
+            <span>🔥 {streak} {streak === 1 ? (language === 'pt' ? 'dia' : 'day') : (language === 'pt' ? 'dias' : 'days')}</span>
           </div>
         </div>
 
@@ -99,17 +102,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         >
           <div className="space-y-1 z-10">
             <div className="text-[10px] uppercase font-bold text-white/80 tracking-widest">
-              SEQUÊNCIA & META DIÁRIA
+              {t('home.streakBannerTitle')}
             </div>
             <div className="text-base font-bold text-white">
-              {completedToday ? 'Meta diária concluída! 🔥' : 'Mantenha sua sequência ativa'}
+              {completedToday ? t('home.goalDone') : t('home.goalPending')}
             </div>
             <p className="text-[11px] text-white/90 leading-tight">
               {completedToday
-                ? `Você manteve seu fogo aceso por ${streak} ${streak === 1 ? 'dia consecutivo' : 'dias consecutivos'}!`
+                ? (streak === 1 ? t('home.streakKept_one', { count: streak }) : t('home.streakKept_other', { count: streak }))
                 : streak > 0
-                ? `Complete 1 aula hoje para não perder sua sequência de ${streak} dias!`
-                : 'Complete sua 1ª aula hoje para acender seu fogo de sequência diária!'}
+                ? t('home.completeOne', { count: streak })
+                : t('home.completeFirst')}
             </p>
           </div>
           <div className="w-12 h-12 border-4 border-white/30 rounded-full flex flex-col items-center justify-center text-[10px] font-black text-white relative shrink-0 z-10 bg-black/25 backdrop-blur-sm">
@@ -123,7 +126,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.98 }}
           onClick={() => onSelectTech('python', 'iniciante')}
-          className="w-full bg-[#1A1A1C] hover:bg-[#222226] text-white p-3.5 rounded-2xl flex items-center justify-between border border-white/10 transition-colors shadow-sm"
+          className="w-full bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] text-[var(--text-primary)] p-3.5 rounded-2xl flex items-center justify-between border border-[var(--border-subtle)] transition-colors shadow-sm"
         >
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-orange-500/20 border border-orange-500/30 text-orange-500 flex items-center justify-center shrink-0">
@@ -131,14 +134,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </div>
             <div className="text-left">
               <span className="text-[9px] text-orange-400 font-bold uppercase tracking-widest block">
-                CONTINUAR APRENDENDO
+                {t('home.continueLearning')}
               </span>
-              <span className="text-xs font-bold text-white block">
-                Python: 1. Olá Mundo e Variáveis
+              <span className="text-xs font-bold text-[var(--text-primary)] block">
+                Python: 1. {language === 'pt' ? 'Olá Mundo e Variáveis' : 'Hello World & Variables'}
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-white/40 shrink-0" />
+          <ChevronRight className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
         </motion.button>
       </motion.div>
 
@@ -146,18 +149,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-xs uppercase tracking-widest text-white/40 font-bold">
-              TECNOLOGIAS (9 CURSOS)
+            <h3 className="text-xs uppercase tracking-widest text-[var(--text-muted)] font-bold">
+              {t('home.technologies')}
             </h3>
-            <p className="text-[11px] text-white/60">
-              Aprenda interativamente do zero ao avançado.
+            <p className="text-[11px] text-[var(--text-muted)]">
+              {t('home.techSubtitle')}
             </p>
           </div>
           <button
             onClick={() => onNavigateTab('courses')}
             className="text-xs text-orange-400 font-bold hover:underline flex items-center uppercase tracking-wider touch-btn"
           >
-            Ver Todos
+            {t('home.viewAll')}
           </button>
         </div>
 
@@ -179,7 +182,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 whileHover={{ y: -3, transition: { duration: 0.18 } }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => onSelectTech(tech.id)}
-                className="bg-[#1A1A1C] hover:bg-[#222226] p-4 rounded-2xl border border-white/10 hover:border-white/25 transition-colors cursor-pointer relative overflow-hidden group shadow-md"
+                className="bg-[var(--bg-card)] hover:bg-[var(--bg-surface)] p-4 rounded-2xl border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-colors cursor-pointer relative overflow-hidden group shadow-md"
               >
                 {/* Tech Header Icon + Badge */}
                 <div className="flex justify-between items-start mb-3">
@@ -197,8 +200,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   </span>
                 </div>
 
-                <div className="text-xs font-bold text-white mb-0.5">{tech.name}</div>
-                <div className="text-[10px] text-white/50 mb-2 truncate">{tech.category}</div>
+                <div className="text-xs font-bold text-[var(--text-primary)] mb-0.5">{tech.name}</div>
+                <div className="text-[10px] text-[var(--text-muted)] mb-2 truncate">{tech.category}</div>
 
                 {/* Progress Bar */}
                 <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden mt-3">
@@ -207,8 +210,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     style={{ width: `${pct}%`, backgroundColor: tech.color }}
                   />
                 </div>
-                <div className="flex justify-between items-center text-[9px] text-white/40 mt-1.5 font-medium">
-                  <span>{count}/20 aulas</span>
+                <div className="flex justify-between items-center text-[9px] text-[var(--text-muted)] mt-1.5 font-medium">
+                  <span>{count}/20 {t('home.lessonsCount')}</span>
                   <span style={{ color: tech.color }}>{pct}%</span>
                 </div>
               </motion.div>
@@ -222,19 +225,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         variants={fadeInUp}
         initial="initial"
         animate="animate"
-        className="bg-[#1A1A1C] border border-white/10 rounded-2xl p-5 grid grid-cols-3 gap-2 text-center shadow-lg"
+        className="bg-[var(--bg-card)] border border-[var(--border-subtle)] rounded-2xl p-5 grid grid-cols-3 gap-2 text-center shadow-lg"
       >
         <div>
-          <div className="text-3xl font-serif-italic text-white font-light">{totalCompleted}</div>
-          <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">Aulas Feitas</div>
+          <div className="text-3xl font-serif-italic text-[var(--text-primary)] font-light">{totalCompleted}</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">{t('home.lessonsDone')}</div>
         </div>
-        <div className="border-x border-white/10 px-2">
+        <div className="border-x border-[var(--border-subtle)] px-2">
           <div className="text-3xl font-serif-italic text-orange-400 font-light">{progress.xp}</div>
-          <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">XP Total</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">{t('home.totalXp')}</div>
         </div>
         <div>
-          <div className="text-3xl font-serif-italic text-white font-light">{progress.streak}d</div>
-          <div className="text-[9px] font-bold uppercase tracking-widest text-white/40 mt-1">Sequência</div>
+          <div className="text-3xl font-serif-italic text-[var(--text-primary)] font-light">{progress.streak}d</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">{t('home.streakStat')}</div>
         </div>
       </motion.div>
 
@@ -243,4 +246,5 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     </div>
   );
 };
+
 

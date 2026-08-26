@@ -5,6 +5,7 @@ import { Quiz } from '../types';
 import { ConfettiEffect } from '../components/ConfettiEffect';
 import { FooterStamp } from '../components/FooterStamp';
 import { fadeInUp, cardVariant } from '../utils/animations';
+import { useI18n } from '../i18n';
 
 interface QuizScreenProps {
   quiz: Quiz;
@@ -17,6 +18,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
   onBack,
   onCompleteQuiz,
 }) => {
+  const { t, language } = useI18n();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
@@ -75,8 +77,8 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
       <ConfettiEffect
         show={showConfetti}
         xpEarned={passed ? quiz.xpReward : undefined}
-        title="Quiz Concluído!"
-        subtitle={`Você atingiu ${score}% de acerto no desafio ${quiz.title}!`}
+        title={t('quiz.confettiTitle')}
+        subtitle={t('quiz.confettiSubtitle', { score, title: quiz.title })}
         onClose={() => setShowConfetti(false)}
       />
 
@@ -84,7 +86,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
       <motion.div variants={fadeInUp} initial="initial" animate="animate" className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="p-2.5 rounded-xl bg-[#1A1A1C] border border-white/10 text-white/70 hover:text-white transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
+          className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -93,7 +95,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
           <span className="text-[9px] uppercase font-bold text-orange-500 tracking-widest">
             {quiz.techId.toUpperCase()} • {quiz.levelId}
           </span>
-          <h2 className="text-base font-bold text-white tracking-tight">{quiz.title}</h2>
+          <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">{quiz.title}</h2>
         </div>
       </motion.div>
 
@@ -101,9 +103,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
         <div className="space-y-4">
           {/* Progress Bar */}
           <motion.div variants={fadeInUp} initial="initial" animate="animate" className="space-y-1">
-            <div className="flex justify-between text-[11px] text-white/50 font-bold uppercase tracking-wider">
+            <div className="flex justify-between text-[11px] text-[var(--text-muted)] font-bold uppercase tracking-wider">
               <span>
-                Questão {currentQuestionIndex + 1} de {quiz.questions.length}
+                {t('quiz.questionProgress', { current: currentQuestionIndex + 1, total: quiz.questions.length })}
               </span>
               <span className="text-orange-400">
                 {Math.round(
@@ -132,9 +134,9 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
               initial="initial"
               animate="animate"
               exit="exit"
-              className="p-5 rounded-2xl bg-[#1A1A1C] border border-white/10 space-y-4 shadow-md"
+              className="p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-4 shadow-md"
             >
-              <h3 className="text-sm sm:text-base font-bold text-white leading-snug tracking-tight">
+              <h3 className="text-sm sm:text-base font-bold text-[var(--text-primary)] leading-snug tracking-tight">
                 {question.question}
               </h3>
 
@@ -182,7 +184,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   className="p-3 bg-black/50 rounded-xl border border-white/10 text-xs text-white/80 space-y-1"
                 >
-                  <span className="font-bold text-orange-400 block uppercase tracking-wider text-[10px]">Explicação:</span>
+                  <span className="font-bold text-orange-400 block uppercase tracking-wider text-[10px]">{t('quiz.explanation')}</span>
                   <p>{question.explanation}</p>
                 </motion.div>
               )}
@@ -197,7 +199,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
               disabled={selectedOption === null}
               className="w-full py-3.5 bg-orange-500 hover:bg-orange-400 active:bg-orange-600 disabled:opacity-50 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-colors shadow-md min-h-[48px] touch-btn"
             >
-              Confirmar Resposta
+              {t('quiz.confirmAnswer')}
             </motion.button>
           ) : (
             <motion.button
@@ -205,7 +207,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
               onClick={handleNextQuestion}
               className="w-full py-3.5 bg-white hover:bg-white/90 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-colors shadow-md min-h-[48px] touch-btn"
             >
-              {isLastQuestion ? 'Ver Resultado do Quiz' : 'Próxima Questão'}
+              {isLastQuestion ? t('quiz.seeResults') : t('quiz.nextQuestion')}
             </motion.button>
           )}
         </div>
@@ -215,7 +217,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
           variants={fadeInUp}
           initial="initial"
           animate="animate"
-          className="p-6 rounded-3xl bg-[#1A1A1C] border border-white/10 text-center space-y-4 shadow-xl"
+          className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-center space-y-4 shadow-xl"
         >
           <div
             className={`w-16 h-16 rounded-2xl mx-auto flex items-center justify-center font-bold shadow-xl ${
@@ -228,18 +230,18 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
           </div>
 
           <div>
-            <h3 className="text-xl font-bold text-white tracking-tight">
-              {passed ? 'Quiz Concluído com Sucesso! 🎉' : 'Precisa de Mais Estudo 📚'}
+            <h3 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+              {passed ? t('quiz.passedTitle') : t('quiz.failedTitle')}
             </h3>
-            <p className="text-xs text-white/50 mt-1">
-              Você acertou {correctCount} de {quiz.questions.length} questões ({score}%).
+            <p className="text-xs text-[var(--text-muted)] mt-1">
+              {t('quiz.scoreSummary', { correct: correctCount, total: quiz.questions.length, score })}
             </p>
           </div>
 
           {passed && (
             <div className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-orange-500/20 border border-orange-500/40 text-orange-300 font-extrabold text-xs">
               <Zap className="w-4 h-4 fill-orange-400 text-orange-400" />
-              <span>+{quiz.xpReward} XP Recompensa Bônus Ganha!</span>
+              <span>{t('quiz.xpReward', { xp: quiz.xpReward })}</span>
             </div>
           )}
 
@@ -249,7 +251,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
               onClick={onBack}
               className="w-full py-3.5 bg-orange-500 hover:bg-orange-400 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-colors shadow-md min-h-[44px] touch-btn"
             >
-              Voltar às Aulas
+              {t('quiz.backToLessons')}
             </motion.button>
           </div>
         </motion.div>
@@ -259,4 +261,5 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
     </div>
   );
 };
+
 

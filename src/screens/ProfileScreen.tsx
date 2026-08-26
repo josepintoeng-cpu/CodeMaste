@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { User, Shield, Moon, Sun, Download, Upload, RotateCcw, Smartphone, Check, AlertTriangle, X, Cloud, CloudOff, RefreshCw, Wifi, WifiOff, CheckCircle2 } from 'lucide-react';
+import { User, Shield, Moon, Sun, Download, Upload, RotateCcw, Smartphone, Check, AlertTriangle, X, Cloud, CloudOff, RefreshCw, Wifi, WifiOff, CheckCircle2, Globe } from 'lucide-react';
 import { UserProgress, SyncStatus } from '../types';
 import { storageService } from '../services/storageService';
 import { FooterStamp } from '../components/FooterStamp';
 import { fadeInUp, modalVariant, backdropVariant } from '../utils/animations';
+import { useI18n } from '../i18n';
 
 interface ProfileScreenProps {
   progress: UserProgress;
@@ -25,6 +26,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onImportData,
   onResetProgress,
 }) => {
+  const { t, language, setLanguage } = useI18n();
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(progress.userName);
   const [importJson, setImportJson] = useState('');
@@ -38,7 +40,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     if (nameInput.trim()) {
       onUpdateName(nameInput.trim());
       setIsEditingName(false);
-      showToast('Nome atualizado com sucesso!');
+      showToast(language === 'pt' ? 'Nome atualizado com sucesso!' : 'Name updated successfully!');
     }
   };
 
@@ -54,9 +56,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     if (ok) {
       setShowImportModal(false);
       setImportJson('');
-      showToast('Dados de progresso importados com êxito!');
+      showToast(language === 'pt' ? 'Dados de progresso importados com êxito!' : 'Progress data imported successfully!');
     } else {
-      alert('Arquivo ou formato JSON inválido.');
+      alert(language === 'pt' ? 'Arquivo ou formato JSON inválido.' : 'Invalid JSON file or format.');
     }
   };
 
@@ -67,21 +69,41 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   // Patente do programador baseada em XP
   const getRankTitle = (xp: number) => {
-    if (xp >= 1000) return { title: 'Mestre da Programação 👑', color: 'text-amber-400' };
-    if (xp >= 500) return { title: 'Desenvolvedor Pleno 🚀', color: 'text-orange-400' };
-    if (xp >= 200) return { title: 'Desenvolvedor Júnior 💻', color: 'text-blue-400' };
-    return { title: 'Iniciante Curioso 🌱', color: 'text-emerald-400' };
+    if (xp >= 1000) {
+      return {
+        title: language === 'pt' ? 'Mestre da Programação 👑' : 'Programming Master 👑',
+        color: 'text-amber-400'
+      };
+    }
+    if (xp >= 500) {
+      return {
+        title: language === 'pt' ? 'Desenvolvedor Pleno 🚀' : 'Mid-Level Developer 🚀',
+        color: 'text-orange-400'
+      };
+    }
+    if (xp >= 200) {
+      return {
+        title: language === 'pt' ? 'Desenvolvedor Júnior 💻' : 'Junior Developer 💻',
+        color: 'text-blue-400'
+      };
+    }
+    return {
+      title: language === 'pt' ? 'Iniciante Curioso 🌱' : 'Curious Beginner 🌱',
+      color: 'text-emerald-400'
+    };
   };
 
   const rank = getRankTitle(progress.xp);
 
   const formatLastSync = (isoString?: string | null) => {
-    if (!isoString) return 'Nunca sincronizado';
+    if (!isoString) return language === 'pt' ? 'Nunca sincronizado' : 'Never synced';
     try {
       const d = new Date(isoString);
-      return `Hoje às ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+      return language === 'pt'
+        ? `Hoje às ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+        : `Today at ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     } catch {
-      return 'Recentemente';
+      return language === 'pt' ? 'Recentemente' : 'Recently';
     }
   };
 
@@ -107,7 +129,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         variants={fadeInUp}
         initial="initial"
         animate="animate"
-        className="p-6 rounded-3xl bg-[#1A1A1C] border border-white/10 text-center space-y-3 relative overflow-hidden shadow-xl"
+        className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-center space-y-3 relative overflow-hidden shadow-xl"
       >
         <div className="w-20 h-20 rounded-2xl bg-orange-500/20 text-orange-500 border border-orange-500/30 mx-auto flex items-center justify-center font-black text-2xl shadow-xl">
           <Shield className="w-10 h-10 text-orange-500" />
@@ -126,17 +148,17 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 onClick={handleSaveName}
                 className="px-3.5 py-1.5 bg-orange-500 text-black font-extrabold text-xs rounded-xl uppercase tracking-wider touch-btn"
               >
-                Salvar
+                {t('profile.save')}
               </button>
             </div>
           ) : (
             <div className="flex items-center justify-center gap-2">
-              <h2 className="text-xl font-bold text-white tracking-tight">{progress.userName}</h2>
+              <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">{progress.userName}</h2>
               <button
                 onClick={() => setIsEditingName(true)}
                 className="text-[11px] text-orange-400 font-bold hover:underline uppercase tracking-wider touch-btn"
               >
-                Editar
+                {t('profile.edit')}
               </button>
             </div>
           )}
@@ -155,8 +177,48 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-3 shadow-md"
       >
         <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
-          CONFIGURAÇÕES DA PLATAFORMA
+          {t('profile.platformSettings')}
         </h3>
+
+        {/* Idioma / Language */}
+        <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 shrink-0">
+              <Globe className="w-4 h-4 text-orange-500" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-[var(--text-primary)] block">
+                {t('profile.languageOption')}
+              </span>
+              <span className="text-[10px] text-[var(--text-muted)] font-medium">
+                {language === 'pt' ? 'Português (Brasil)' : 'English (US)'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1 bg-[var(--bg-card)] p-1 rounded-xl border border-[var(--border-subtle)]">
+            <button
+              onClick={() => setLanguage('pt')}
+              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all ${
+                language === 'pt'
+                  ? 'bg-orange-500 text-black shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              PT
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all ${
+                language === 'en'
+                  ? 'bg-orange-500 text-black shadow-sm'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+              }`}
+            >
+              EN
+            </button>
+          </div>
+        </div>
 
         {/* Alternar Tema */}
         <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] transition-colors">
@@ -170,10 +232,10 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </div>
             <div>
               <span className="text-xs font-bold text-[var(--text-primary)] block">
-                Tema Escuro (Dark Mode)
+                {t('profile.darkMode')}
               </span>
               <span className="text-[10px] text-[var(--text-muted)] font-medium">
-                {progress.theme === 'dark' ? 'Ativado — Estética escura editorial' : 'Desativado — Modo Claro ativo'}
+                {progress.theme === 'dark' ? t('profile.darkModeOn') : t('profile.darkModeOff')}
               </span>
             </div>
           </div>
@@ -189,7 +251,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             title={`Alternar Tema (Atualmente: ${progress.theme === 'dark' ? 'Ativado' : 'Desativado'})`}
           >
             <span className="uppercase tracking-wider">
-              {progress.theme === 'dark' ? 'Ativado' : 'Desativado'}
+              {progress.theme === 'dark' ? t('profile.enabled') : t('profile.disabled')}
             </span>
             <div className={`w-7 h-4 rounded-full transition-colors relative p-0.5 ${progress.theme === 'dark' ? 'bg-black/40' : 'bg-slate-300'}`}>
               <div className={`w-3 h-3 rounded-full transition-transform ${progress.theme === 'dark' ? 'translate-x-3 bg-white' : 'translate-x-0 bg-slate-600'}`} />
@@ -205,8 +267,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           <div className="flex items-center gap-2.5">
             <Smartphone className="w-4 h-4 text-orange-400" />
             <div>
-              <span className="text-xs font-bold text-white block">Exportar para App Mobile (Capacitor)</span>
-              <span className="text-[10px] text-white/40">Instruções para gerar APK Android / iOS</span>
+              <span className="text-xs font-bold text-[var(--text-primary)] block">{t('profile.exportMobile')}</span>
+              <span className="text-[10px] text-[var(--text-muted)]">{t('profile.exportMobileSubtitle')}</span>
             </div>
           </div>
         </div>
@@ -222,7 +284,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         <div className="flex items-center justify-between">
           <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5">
             <Cloud className="w-3.5 h-3.5 text-orange-500" />
-            <span>SINCRONIZAÇÃO EM SEGUNDO PLANO</span>
+            <span>{t('profile.backgroundSync')}</span>
           </h3>
           <span
             className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
@@ -250,28 +312,28 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         {/* Detalhes de Conectividade e Fila */}
         <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--text-muted)]">Status da Nuvem:</span>
+            <span className="text-[var(--text-muted)]">{t('profile.cloudStatus')}</span>
             <span className="font-bold text-[var(--text-primary)] flex items-center gap-1">
               {syncStatus?.isSyncing ? (
                 <>
                   <RefreshCw className="w-3 h-3 text-blue-400 animate-spin" />
-                  <span className="text-blue-400">Sincronizando fila...</span>
+                  <span className="text-blue-400">{t('profile.syncingQueue')}</span>
                 </>
               ) : syncStatus && syncStatus.pendingCount > 0 ? (
                 <span className="text-orange-400 font-bold">
-                  {syncStatus.pendingCount} ação(ões) pendente(s)
+                  {syncStatus.pendingCount} {language === 'pt' ? 'ação(ões) pendente(s)' : 'pending action(s)'}
                 </span>
               ) : (
                 <span className="text-emerald-400 font-bold flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" />
-                  Totalmente Sincronizado
+                  {t('profile.fullySynced')}
                 </span>
               )}
             </span>
           </div>
 
           <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--text-muted)]">Última Sincronização:</span>
+            <span className="text-[var(--text-muted)]">{t('profile.lastSync')}</span>
             <span className="font-medium text-[var(--text-primary)]">
               {formatLastSync(progress.lastSyncedAt || syncStatus?.lastSyncedAt)}
             </span>
@@ -280,7 +342,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           <div className="pt-2 border-t border-[var(--border-subtle)] text-[11px] text-[var(--text-muted)] leading-relaxed flex items-start gap-1.5">
             <Shield className="w-3.5 h-3.5 text-orange-500 shrink-0 mt-0.5" />
             <span>
-              Suporte offline ativo: você pode concluir aulas e quizzes mesmo sem internet. Os dados ficam salvos localmente e serão sincronizados automaticamente assim que a conexão for reestabelecida.
+              {language === 'pt'
+                ? 'Suporte offline ativo: você pode concluir aulas e quizzes mesmo sem internet. Os dados ficam salvos localmente e serão sincronizados automaticamente assim que a conexão for reestabelecida.'
+                : 'Active offline support: you can complete lessons and quizzes even without internet. Data is saved locally and will sync automatically once connection is restored.'}
             </span>
           </div>
         </div>
@@ -293,7 +357,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-orange-500/10 via-orange-500/20 to-orange-500/10 hover:bg-orange-500/30 border border-orange-500/30 rounded-xl text-xs font-bold text-orange-400 uppercase tracking-wider transition-all disabled:opacity-50 touch-btn"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isManualSyncing ? 'animate-spin' : ''}`} />
-          <span>{isManualSyncing ? 'Sincronizando Dados...' : 'Sincronizar Agora'}</span>
+          <span>{isManualSyncing ? t('profile.syncingData') : t('profile.syncNow')}</span>
         </motion.button>
       </motion.div>
 
@@ -302,29 +366,29 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         variants={fadeInUp}
         initial="initial"
         animate="animate"
-        className="p-4 rounded-2xl bg-[#1A1A1C] border border-white/10 space-y-3 shadow-md"
+        className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-3 shadow-md"
       >
-        <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
-          BACKUP & DADOS
+        <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+          {t('profile.backupData')}
         </h3>
 
         <div className="grid grid-cols-2 gap-2">
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={onExportData}
-            className="flex items-center justify-center gap-2 p-3 bg-black/40 hover:bg-black/80 border border-white/10 hover:border-white/20 rounded-xl text-xs font-bold text-white transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
+            className="flex items-center justify-center gap-2 p-3 bg-black/40 hover:bg-black/80 border border-white/10 hover:border-white/20 rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
           >
             <Download className="w-4 h-4 text-orange-400" />
-            <span>Exportar JSON</span>
+            <span>{t('profile.exportJson')}</span>
           </motion.button>
 
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => setShowImportModal(true)}
-            className="flex items-center justify-center gap-2 p-3 bg-black/40 hover:bg-black/80 border border-white/10 hover:border-white/20 rounded-xl text-xs font-bold text-white transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
+            className="flex items-center justify-center gap-2 p-3 bg-black/40 hover:bg-black/80 border border-white/10 hover:border-white/20 rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
           >
             <Upload className="w-4 h-4 text-orange-400" />
-            <span>Importar JSON</span>
+            <span>{t('profile.importJson')}</span>
           </motion.button>
         </div>
 
@@ -332,9 +396,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         <motion.button
           whileTap={{ scale: 0.98 }}
           onClick={onExportData}
-          className="w-full py-3.5 border border-white/20 font-bold text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors rounded-xl shadow-sm touch-btn"
+          className="w-full py-3.5 border border-white/20 font-bold text-xs uppercase tracking-widest text-[var(--text-primary)] hover:bg-white hover:text-black transition-colors rounded-xl shadow-sm touch-btn"
         >
-          Exportar Relatório de Certificados
+          {t('profile.exportCertReport')}
         </motion.button>
 
         <motion.button
@@ -343,7 +407,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           className="w-full mt-2 flex items-center justify-center gap-2 p-3 bg-red-950/30 hover:bg-red-900/40 border border-red-500/30 rounded-xl text-xs font-bold text-red-400 transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
         >
           <RotateCcw className="w-4 h-4" />
-          <span>Resetar Todo o Progresso</span>
+          <span>{t('profile.resetAllProgress')}</span>
         </motion.button>
       </motion.div>
 
@@ -421,7 +485,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   onClick={() => {
                     onResetProgress();
                     setShowResetModal(false);
-                    showToast('Progresso resetado com sucesso!');
+                    showToast(language === 'pt' ? 'Progresso resetado com sucesso!' : 'Progress reset successfully!');
                   }}
                   className="flex-1 py-2.5 bg-red-600 text-white font-bold text-xs rounded-xl uppercase tracking-wider touch-btn"
                 >
@@ -487,4 +551,5 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
     </div>
   );
 };
+
 

@@ -146,6 +146,7 @@ export interface UserProgress {
   lastLessonDate?: string; // YYYY-MM-DD
   lessonDates?: string[]; // YYYY-MM-DD array of days with at least 1 completed lesson
   theme: 'dark' | 'light';
+  language?: 'pt' | 'en';
   favoriteTechs: TechId[];
   unlockedBadges: string[];
   dailyXpHistory?: Record<string, number>; // date YYYY-MM-DD -> XP ganho

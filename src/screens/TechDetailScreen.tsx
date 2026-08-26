@@ -6,6 +6,7 @@ import { TECHNOLOGIES } from '../content/technologies';
 import { getLessonsForTechAndLevel } from '../content';
 import { FooterStamp } from '../components/FooterStamp';
 import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
+import { useI18n } from '../i18n';
 
 interface TechDetailScreenProps {
   techId: TechId;
@@ -24,15 +25,16 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
   onStartLesson,
   onStartQuiz,
 }) => {
+  const { t, language } = useI18n();
   const [activeLevel, setActiveLevel] = useState<LevelId>(initialLevelId);
 
   const tech = TECHNOLOGIES.find(t => t.id === techId) || TECHNOLOGIES[0];
 
   const levels: { id: LevelId; title: string; label: string }[] = [
-    { id: 'iniciante', title: '01. INICIANTE', label: 'Iniciante' },
-    { id: 'intermediario', title: '02. INTERMEDIÁRIO', label: 'Intermediário' },
-    { id: 'avancado', title: '03. AVANÇADO', label: 'Avançado' },
-    { id: 'projetos', title: '04. PROJETOS', label: 'Projetos' },
+    { id: 'iniciante', title: language === 'pt' ? '01. INICIANTE' : '01. BEGINNER', label: t('techDetail.levelIniciante') },
+    { id: 'intermediario', title: language === 'pt' ? '02. INTERMEDIÁRIO' : '02. INTERMEDIATE', label: t('techDetail.levelIntermediario') },
+    { id: 'avancado', title: language === 'pt' ? '03. AVANÇADO' : '03. ADVANCED', label: t('techDetail.levelAvancado') },
+    { id: 'projetos', title: language === 'pt' ? '04. PROJETOS' : '04. PROJECTS', label: t('techDetail.levelProjetos') },
   ];
 
   const lessons = getLessonsForTechAndLevel(techId, activeLevel);
@@ -48,7 +50,7 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
       <motion.div variants={fadeInUp} initial="initial" animate="animate" className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="p-2.5 rounded-xl bg-[#1A1A1C] border border-white/10 text-white/70 hover:text-white transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
+          className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -62,9 +64,9 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
           </div>
           <div>
             <div className="text-[9px] font-bold uppercase tracking-widest text-orange-500">
-              MÓDULOS DE APRENDIZADO
+              {t('techDetail.modules')}
             </div>
-            <h2 className="text-base font-bold text-white tracking-tight leading-tight">
+            <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight leading-tight">
               {tech.name}
             </h2>
           </div>
@@ -76,7 +78,7 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
         variants={fadeInUp}
         initial="initial"
         animate="animate"
-        className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-[#1A1A1C] p-1.5 rounded-2xl border border-white/10"
+        className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-[var(--bg-card)] p-1.5 rounded-2xl border border-[var(--border-subtle)]"
       >
         {levels.map(lvl => {
           const isActive = activeLevel === lvl.id;
@@ -88,7 +90,7 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
               className={`py-2 px-2 rounded-xl text-[10px] font-bold tracking-wider transition-all text-center min-h-[38px] flex items-center justify-center uppercase touch-btn ${
                 isActive
                   ? 'bg-orange-500 text-black font-black shadow-md'
-                  : 'text-white/50 hover:text-white hover:bg-white/5'
+                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/5'
               }`}
             >
               {lvl.title}
@@ -102,14 +104,14 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
         variants={fadeInUp}
         initial="initial"
         animate="animate"
-        className="p-4 rounded-2xl bg-[#1A1A1C] border border-white/10 flex items-center justify-between"
+        className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-between"
       >
         <div>
-          <span className="text-[9px] text-white/40 font-bold uppercase tracking-widest block">
-            PROGRESSO DO NÍVEL
+          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-widest block">
+            {t('techDetail.levelProgress')}
           </span>
-          <span className="text-xs font-bold text-white mt-0.5 block">
-            {completedInActiveLevel} de {totalInActiveLevel} Aulas Concluídas
+          <span className="text-xs font-bold text-[var(--text-primary)] mt-0.5 block">
+            {t('techDetail.completedCount', { done: completedInActiveLevel, total: totalInActiveLevel })}
           </span>
         </div>
         <div className="flex items-center gap-2.5">
@@ -125,8 +127,8 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
 
       {/* Trilha de Aulas do Nível com Stagger */}
       <div className="space-y-2.5">
-        <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
-          AULAS DISPONÍVEIS
+        <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+          {t('techDetail.availableLessons')}
         </h3>
 
         <AnimatePresence mode="wait">
@@ -151,10 +153,10 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
                   onClick={() => isUnlocked && onStartLesson(lesson.id, activeLevel)}
                   className={`p-4 rounded-2xl border transition-colors flex items-center justify-between gap-3 ${
                     isDone
-                      ? 'bg-[#1A1A1C] border-orange-500/40'
+                      ? 'bg-[var(--bg-card)] border-orange-500/40'
                       : isUnlocked
-                      ? 'bg-[#1A1A1C] hover:bg-[#222226] border-white/10 hover:border-white/20 cursor-pointer'
-                      : 'bg-[#121214] border-white/5 opacity-50 cursor-not-allowed'
+                      ? 'bg-[var(--bg-card)] hover:bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-strong)] cursor-pointer'
+                      : 'bg-[var(--bg-surface)] border-white/5 opacity-50 cursor-not-allowed'
                   }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
@@ -178,15 +180,15 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
                     </div>
 
                     <div className="min-w-0">
-                      <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                      <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">
                         {lesson.title}
                       </h4>
-                      <p className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
+                      <p className="text-[11px] text-[var(--text-muted)] line-clamp-1 mt-0.5">
                         {lesson.description}
                       </p>
-                      <div className="flex items-center gap-3 mt-1 text-[10px] text-white/40 font-medium">
+                      <div className="flex items-center gap-3 mt-1 text-[10px] text-[var(--text-muted)] font-medium">
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-white/30" />
+                          <Clock className="w-3 h-3 text-[var(--text-muted)]" />
                           {lesson.estimatedMinutes} min
                         </span>
                         <span className="flex items-center gap-1 text-orange-400 font-bold">
@@ -208,18 +210,18 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
         variants={fadeInUp}
         initial="initial"
         animate="animate"
-        className="p-4 rounded-2xl bg-[#1A1A1C] border border-orange-500/30 flex items-center justify-between gap-3 mt-6 shadow-md"
+        className="p-4 rounded-2xl bg-[var(--bg-card)] border border-orange-500/30 flex items-center justify-between gap-3 mt-6 shadow-md"
       >
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/30">
             <HelpCircle className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white">
-              Quiz Avaliativo de Nível
+            <h4 className="text-xs font-bold text-[var(--text-primary)]">
+              {t('techDetail.quizTitle')}
             </h4>
-            <p className="text-[10px] text-white/50">
-              Teste seus conhecimentos e ganhe +50 XP bônus.
+            <p className="text-[10px] text-[var(--text-muted)]">
+              {t('techDetail.quizDesc')}
             </p>
           </div>
         </div>
@@ -230,7 +232,7 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
           onClick={() => onStartQuiz(activeLevel)}
           className="px-3 py-2 bg-orange-500 hover:bg-orange-400 text-black font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-colors shrink-0 shadow-md min-h-[36px] touch-btn"
         >
-          Iniciar Quiz
+          {t('techDetail.startQuiz')}
         </motion.button>
       </motion.div>
 
@@ -238,4 +240,5 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
     </div>
   );
 };
+
 

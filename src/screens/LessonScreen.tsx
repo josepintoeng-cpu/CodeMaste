@@ -9,6 +9,7 @@ import { ConfettiEffect } from '../components/ConfettiEffect';
 import { FooterStamp } from '../components/FooterStamp';
 import { validationService } from '../services/validationService';
 import { fadeInUp } from '../utils/animations';
+import { useI18n } from '../i18n';
 
 interface LessonScreenProps {
   lesson: Lesson;
@@ -23,6 +24,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
   onComplete,
   onNextLesson,
 }) => {
+  const { t, language } = useI18n();
   const [userAnswer, setUserAnswer] = useState<string>(
     lesson.exercise.initialCode || ''
   );
@@ -73,8 +75,8 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
       <ConfettiEffect
         show={showConfetti}
         xpEarned={lesson.xpReward}
-        title="Lição Concluída!"
-        subtitle={`Você dominou "${lesson.title}" com perfeição.`}
+        title={t('lesson.confettiTitle')}
+        subtitle={t('lesson.confettiSubtitle', { title: lesson.title })}
         onClose={() => setShowConfetti(false)}
       />
 
@@ -82,7 +84,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
       <motion.div variants={fadeInUp} initial="initial" animate="animate" className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="p-2.5 rounded-xl bg-[#1A1A1C] border border-white/10 text-white/70 hover:text-white transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
+          className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -93,28 +95,28 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
               {lesson.techId.toUpperCase()} • {lesson.levelId}
             </span>
           </div>
-          <h2 className="text-base font-bold text-white truncate mt-1 tracking-tight">
+          <h2 className="text-base font-bold text-[var(--text-primary)] truncate mt-1 tracking-tight">
             {lesson.title}
           </h2>
         </div>
       </motion.div>
 
       {/* SEÇÃO 1: TEORIA */}
-      <motion.section variants={fadeInUp} initial="initial" animate="animate" className="bg-[#1A1A1C] rounded-2xl p-4 border border-white/10 space-y-3 shadow-md">
+      <motion.section variants={fadeInUp} initial="initial" animate="animate" className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border-subtle)] space-y-3 shadow-md">
         <div className="flex items-center gap-2 text-orange-500 font-bold text-[10px] uppercase tracking-widest">
           <BookOpen className="w-3.5 h-3.5" />
-          <span>1. TEORIA E CONCEITO</span>
+          <span>{t('lesson.section1Theory')}</span>
         </div>
 
         {lesson.theory.map((item, idx) => (
-          <div key={idx} className="space-y-2 text-xs text-white/80 leading-relaxed">
+          <div key={idx} className="space-y-2 text-xs text-[var(--text-primary)] leading-relaxed">
             {item.title && (
-              <h3 className="text-sm font-bold text-white tracking-tight">{item.title}</h3>
+              <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">{item.title}</h3>
             )}
-            <p>{item.text}</p>
+            <p className="text-[var(--text-muted)]">{item.text}</p>
 
             {item.keyPoints && item.keyPoints.length > 0 && (
-              <ul className="list-disc list-inside space-y-1 bg-black/40 p-3 rounded-xl border border-white/5 text-white/80">
+              <ul className="list-disc list-inside space-y-1 bg-black/40 p-3 rounded-xl border border-white/5 text-[var(--text-muted)]">
                 {item.keyPoints.map((point, pIdx) => (
                   <li key={pIdx}>{point}</li>
                 ))}
@@ -131,10 +133,10 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
       </motion.section>
 
       {/* SEÇÃO 2: EXEMPLO DE CÓDIGO COMENTADO */}
-      <motion.section variants={fadeInUp} initial="initial" animate="animate" className="bg-[#1A1A1C] rounded-2xl p-4 border border-white/10 space-y-2.5 shadow-md">
+      <motion.section variants={fadeInUp} initial="initial" animate="animate" className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border-subtle)] space-y-2.5 shadow-md">
         <div className="flex items-center gap-2 text-orange-500 font-bold text-[10px] uppercase tracking-widest">
           <Code className="w-3.5 h-3.5" />
-          <span>2. CÓDIGO COMENTADO</span>
+          <span>{t('lesson.section2Code')}</span>
         </div>
 
         <CodeBlock
@@ -142,16 +144,16 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
           language={lesson.codeExample.language}
         />
 
-        <p className="text-[11px] text-white/60 italic bg-black/40 p-2.5 rounded-xl border border-white/5 leading-relaxed">
+        <p className="text-[11px] text-[var(--text-muted)] italic bg-black/40 p-2.5 rounded-xl border border-white/5 leading-relaxed">
           💡 {lesson.codeExample.explanation}
         </p>
       </motion.section>
 
       {/* SEÇÃO 3: EXECUÇÃO E SIMULAÇÃO */}
-      <motion.section variants={fadeInUp} initial="initial" animate="animate" className="bg-[#1A1A1C] rounded-2xl p-4 border border-white/10 space-y-2.5 shadow-md">
+      <motion.section variants={fadeInUp} initial="initial" animate="animate" className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border-subtle)] space-y-2.5 shadow-md">
         <div className="flex items-center gap-2 text-orange-500 font-bold text-[10px] uppercase tracking-widest">
           <Terminal className="w-3.5 h-3.5" />
-          <span>3. SIMULAÇÃO DE CÓDIGO</span>
+          <span>{t('lesson.section3Simulation')}</span>
         </div>
 
         <CodeSimulator
@@ -162,11 +164,11 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
       </motion.section>
 
       {/* SEÇÃO 4: EXERCÍCIO PRÁTICO REAL */}
-      <motion.section variants={fadeInUp} initial="initial" animate="animate" className="bg-[#1A1A1C] rounded-2xl p-4 border border-white/10 space-y-3.5 shadow-md">
+      <motion.section variants={fadeInUp} initial="initial" animate="animate" className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border-subtle)] space-y-3.5 shadow-md">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-orange-500 font-bold text-[10px] uppercase tracking-widest">
             <HelpCircle className="w-3.5 h-3.5" />
-            <span>4. EXERCÍCIO PRÁTICO</span>
+            <span>{t('lesson.section4Exercise')}</span>
           </div>
 
           <button
@@ -174,24 +176,24 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
             className="flex items-center gap-1 text-[10px] font-bold text-orange-400 hover:underline uppercase tracking-wider min-h-[32px] touch-btn"
           >
             <Lightbulb className="w-3.5 h-3.5" />
-            <span>{showHint ? 'Ocultar Dica' : 'Ver Dica'}</span>
+            <span>{showHint ? t('lesson.hideHint') : t('lesson.showHint')}</span>
           </button>
         </div>
 
-        <p className="text-xs sm:text-sm font-semibold text-white leading-snug">
+        <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)] leading-snug">
           {lesson.exercise.prompt}
         </p>
 
         {showHint && (
           <div className="bg-orange-500/10 border border-orange-500/30 p-3 rounded-xl text-orange-300 text-xs">
-            💡 <strong>Dica:</strong> {lesson.exercise.hint}
+            💡 <strong>{t('lesson.hint')}:</strong> {lesson.exercise.hint}
           </div>
         )}
 
         {/* SEÇÃO 5: CORREÇÃO AUTOMÁTICA / CAMPO DE RESPOSTA */}
-        <div className="pt-2 border-t border-white/10 space-y-3">
-          <div className="text-[10px] font-bold text-white/40 uppercase tracking-widest">
-            5. SUA RESPOSTA:
+        <div className="pt-2 border-t border-[var(--border-subtle)] space-y-3">
+          <div className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+            {t('lesson.section5Answer')}
           </div>
 
           {lesson.exercise.type === 'multiple_choice' ? (
@@ -214,7 +216,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
             <CodeEditor
               value={userAnswer}
               onChange={val => setUserAnswer(val)}
-              placeholder="Digite sua solução em código aqui..."
+              placeholder={t('lesson.editorPlaceholder')}
               language={exerciseLanguage}
               initialCode={lesson.exercise.initialCode}
               expectedKeywords={expectedKeywords}
@@ -230,7 +232,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
             className="w-full py-3 bg-orange-500 hover:bg-orange-400 active:bg-orange-600 disabled:opacity-60 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 min-h-[48px] touch-btn"
           >
             <CheckCircle2 className="w-4 h-4 text-black" />
-            <span>{isCompleted ? 'Aula Concluída!' : 'Verificar Resposta'}</span>
+            <span>{isCompleted ? t('lesson.lessonCompleted') : t('lesson.checkAnswer')}</span>
           </motion.button>
         </div>
       </motion.section>
@@ -242,7 +244,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
           animate={{ opacity: 1, y: 0 }}
           className={`p-4 rounded-2xl border space-y-3 ${
             feedback.isValid
-              ? 'bg-[#1A1A1C] border-orange-500 text-orange-300'
+              ? 'bg-[var(--bg-card)] border-orange-500 text-orange-300'
               : 'bg-red-950/40 border-red-500/50 text-red-200'
           }`}
         >
@@ -250,12 +252,12 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
             {feedback.isValid ? (
               <>
                 <Sparkles className="w-4 h-4 text-orange-400" />
-                <span>6. Resposta Correta (+{lesson.xpReward} XP)</span>
+                <span>{t('lesson.correctAnswer', { xp: lesson.xpReward })}</span>
               </>
             ) : (
               <>
                 <AlertCircle className="w-4 h-4 text-red-400" />
-                <span>6. Tente Novamente (Tentativa {attempts})</span>
+                <span>{t('lesson.tryAgain', { attempts })}</span>
               </>
             )}
           </div>
@@ -266,12 +268,12 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
           {!feedback.isValid && attempts >= 2 && (
             <div className="bg-black p-3 rounded-xl border border-red-500/30 text-xs text-white/80 space-y-1">
               <span className="font-bold text-orange-400 block uppercase tracking-wider text-[10px]">
-                Solução Recomendada:
+                {t('lesson.recommendedSolution')}
               </span>
-              <pre className="font-mono text-orange-300 bg-[#1A1A1C] p-2 rounded-lg text-xs overflow-x-auto border border-white/10">
+              <pre className="font-mono text-orange-300 bg-[var(--bg-card)] p-2 rounded-lg text-xs overflow-x-auto border border-white/10">
                 {lesson.exercise.correctAnswer}
               </pre>
-              <p className="text-[10px] text-white/50 mt-1">
+              <p className="text-[10px] text-[var(--text-muted)] mt-1">
                 {lesson.exercise.explanation}
               </p>
             </div>
@@ -283,7 +285,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
               onClick={onNextLesson || onBack}
               className="w-full py-3 bg-white hover:bg-white/90 text-black font-extrabold text-xs uppercase tracking-wider rounded-xl transition-colors shadow-lg flex items-center justify-center gap-2 mt-2 min-h-[44px] touch-btn"
             >
-              <span>Ir para a Próxima Aula</span>
+              <span>{t('lesson.nextLesson')}</span>
               <ArrowRight className="w-4 h-4" />
             </motion.button>
           )}
@@ -294,4 +296,5 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
     </div>
   );
 };
+
 

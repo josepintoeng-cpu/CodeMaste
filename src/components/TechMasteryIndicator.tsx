@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, CheckCircle2, Trophy, Sparkles } from 'lucide-react';
 import { TechMasteryInfo } from '../utils/mastery';
+import { useI18n } from '../i18n';
 
 interface TechMasteryIndicatorProps {
   mastery: TechMasteryInfo;
@@ -14,7 +15,10 @@ export const TechMasteryIndicator: React.FC<TechMasteryIndicatorProps> = ({
   color = '#f97316',
   variant = 'card',
 }) => {
+  const { t, language } = useI18n();
   const { percentage, completedLessons, totalLessons, passedQuizzes, totalQuizzes, tier } = mastery;
+
+  const tierLabel = useMemoTierLabel(tier.label, language);
 
   if (variant === 'circular') {
     const size = 44;
@@ -84,12 +88,12 @@ export const TechMasteryIndicator: React.FC<TechMasteryIndicatorProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--text-muted)]">
-            Domínio da Stack
+            {t('courses.masteryLabel')}
           </span>
           {percentage === 100 && (
             <span className="flex items-center gap-0.5 text-[9px] font-black text-amber-400 uppercase bg-amber-500/15 px-1.5 py-0.2 rounded border border-amber-500/30 animate-pulse">
               <Sparkles className="w-2.5 h-2.5" />
-              Mestria
+              {t('courses.mastered')}
             </span>
           )}
         </div>
@@ -97,7 +101,7 @@ export const TechMasteryIndicator: React.FC<TechMasteryIndicatorProps> = ({
         {/* Badge do Nível / Tier de Domínio */}
         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border flex items-center gap-1 ${tier.bgClass}`}>
           <span>{tier.icon}</span>
-          <span>{tier.label}</span>
+          <span>{tierLabel}</span>
           <span className="font-extrabold ml-0.5">({percentage}%)</span>
         </span>
       </div>
@@ -128,7 +132,7 @@ export const TechMasteryIndicator: React.FC<TechMasteryIndicatorProps> = ({
         <div className="flex items-center gap-1.5">
           <span className="flex items-center gap-1">
             <BookOpen className="w-3 h-3 text-[var(--text-muted)]" />
-            <span>Aulas:</span>
+            <span>{t('courses.lessons')}:</span>
             <strong className="text-[var(--text-primary)] font-bold">
               {completedLessons}/{totalLessons}
             </strong>
@@ -141,7 +145,7 @@ export const TechMasteryIndicator: React.FC<TechMasteryIndicatorProps> = ({
         <div className="flex items-center gap-1.5">
           <span className="flex items-center gap-1">
             <Trophy className="w-3 h-3 text-amber-400" />
-            <span>Quizzes:</span>
+            <span>{t('courses.quizzes')}:</span>
             <strong className="text-[var(--text-primary)] font-bold">
               {passedQuizzes}/{totalQuizzes}
             </strong>
@@ -154,3 +158,22 @@ export const TechMasteryIndicator: React.FC<TechMasteryIndicatorProps> = ({
     </div>
   );
 };
+
+function useMemoTierLabel(label: string, lang: string) {
+  if (lang === 'pt') return label;
+  switch (label) {
+    case 'Iniciante':
+      return 'Beginner';
+    case 'Praticante':
+      return 'Practitioner';
+    case 'Proficiente':
+      return 'Proficient';
+    case 'Especialista':
+      return 'Specialist';
+    case 'Mestre':
+      return 'Master';
+    default:
+      return label;
+  }
+}
+

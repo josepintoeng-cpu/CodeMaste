@@ -9,6 +9,7 @@ import { StreakCounter } from '../components/StreakCounter';
 import { StudyTimeEstimator } from '../components/StudyTimeEstimator';
 import { FooterStamp } from '../components/FooterStamp';
 import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
+import { useI18n } from '../i18n';
 
 interface ProgressScreenProps {
   progress: UserProgress;
@@ -40,7 +41,7 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
         </div>
         <div className="text-orange-400 font-extrabold flex items-center gap-1.5">
           <Zap className="w-3.5 h-3.5 fill-orange-400" />
-          <span>+{data.xp} XP ganho</span>
+          <span>+{data.xp} XP</span>
         </div>
       </div>
     );
@@ -49,12 +50,17 @@ const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
 };
 
 export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavigateToStudy }) => {
+  const { t, language } = useI18n();
   const totalCompletedLessons = Object.keys(progress.completedLessons).length;
 
   // Processa os últimos 7 dias de atividade (XP ganho)
   const last7DaysData = useMemo(() => {
-    const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    const daysOfWeek = language === 'pt'
+      ? ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+      : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = language === 'pt'
+      ? ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+      : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const today = new Date();
     const result = [];
 
@@ -81,7 +87,7 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
       });
     }
     return result;
-  }, [progress.dailyXpHistory, progress.xp]);
+  }, [progress.dailyXpHistory, progress.xp, language]);
 
   const totalWeekXp = useMemo(() => {
     return last7DaysData.reduce((acc, curr) => acc + curr.xp, 0);
@@ -91,70 +97,70 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
     return last7DaysData.reduce((max, curr) => (curr.xp > max.xp ? curr : max), last7DaysData[0]);
   }, [last7DaysData]);
 
-  const allBadges = [
+  const allBadges = useMemo(() => [
     {
       id: 'primeiros_passos',
-      title: 'Primeiros Passos',
-      description: 'Iniciou sua jornada no CodeMaster.',
+      title: language === 'pt' ? 'Primeiros Passos' : 'First Steps',
+      description: language === 'pt' ? 'Iniciou sua jornada no CodeMaster.' : 'Started your journey on CodeMaster.',
       iconName: 'zap',
       isUnlocked: true,
     },
     {
       id: 'primeira_aula',
-      title: 'Primeira Aula Concluída',
-      description: 'Concluiu sua 1ª aula com sucesso.',
+      title: language === 'pt' ? 'Primeira Aula Concluída' : 'First Lesson Completed',
+      description: language === 'pt' ? 'Concluiu sua 1ª aula com sucesso.' : 'Successfully completed your 1st lesson.',
       iconName: 'book',
       isUnlocked: totalCompletedLessons >= 1,
     },
     {
       id: 'dedicado_5',
-      title: 'Dedicado (5 Aulas)',
-      description: 'Completou 5 aulas na plataforma.',
+      title: language === 'pt' ? 'Dedicado (5 Aulas)' : 'Dedicated (5 Lessons)',
+      description: language === 'pt' ? 'Completou 5 aulas na plataforma.' : 'Completed 5 lessons on the platform.',
       iconName: 'book',
       isUnlocked: totalCompletedLessons >= 5,
     },
     {
       id: 'mestre_15',
-      title: 'Mestre da Prática (15 Aulas)',
-      description: 'Superou a marca de 15 aulas.',
+      title: language === 'pt' ? 'Mestre da Prática (15 Aulas)' : 'Practice Master (15 Lessons)',
+      description: language === 'pt' ? 'Superou a marca de 15 aulas.' : 'Passed the 15 lessons milestone.',
       iconName: 'award',
       isUnlocked: totalCompletedLessons >= 15,
     },
     {
       id: 'xp_100',
-      title: '100 XP Acumulados',
-      description: 'Conquistou seus primeiros 100 pontos.',
+      title: language === 'pt' ? '100 XP Acumulados' : '100 XP Accumulated',
+      description: language === 'pt' ? 'Conquistou seus primeiros 100 pontos.' : 'Earned your first 100 points.',
       iconName: 'zap',
       isUnlocked: progress.xp >= 100,
     },
     {
       id: 'streak_3',
-      title: 'Tríade de Fogo (3 Dias)',
-      description: 'Manteve 3 dias seguidos de estudo.',
+      title: language === 'pt' ? 'Tríade de Fogo (3 Dias)' : 'Fire Triad (3 Days)',
+      description: language === 'pt' ? 'Manteve 3 dias seguidos de estudo.' : 'Kept 3 consecutive study days.',
       iconName: 'flame',
       isUnlocked: progress.streak >= 3,
     },
     {
       id: 'streak_7',
-      title: 'Chama Semanal (7 Dias)',
-      description: 'Manteve 7 dias consecutivos de aulas completadas.',
+      title: language === 'pt' ? 'Chama Semanal (7 Dias)' : 'Weekly Flame (7 Days)',
+      description: language === 'pt' ? 'Manteve 7 dias consecutivos de aulas completadas.' : 'Kept 7 consecutive days of completed lessons.',
       iconName: 'flame',
       isUnlocked: (progress.streak >= 7) || ((progress.longestStreak || 0) >= 7),
     },
-  ];
+  ], [language, totalCompletedLessons, progress.xp, progress.streak, progress.longestStreak]);
 
   return (
     <div className="pb-24 pt-4 px-4 max-w-md md:max-w-2xl mx-auto space-y-6">
       {/* Top Title */}
       <motion.div variants={fadeInUp} initial="initial" animate="animate">
         <div className="text-[10px] uppercase font-bold text-orange-500 tracking-widest">
-          ESTATÍSTICAS ATUAIS
+          {t('progress.badge')}
         </div>
         <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
-          Status & Conquistas
+          {t('progress.title')}
         </h2>
         <p className="text-xs text-[var(--text-muted)]">
-          Acompanhe o seu desempenho diário e sequência de estudos consecutivos.
+          {t('progress.subtitle')}
         </p>
       </motion.div>
 
@@ -174,17 +180,17 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
       >
         <motion.div variants={cardVariant} className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-center shadow-md">
           <div className="text-3xl sm:text-4xl font-serif-italic text-orange-400 font-light">{progress.xp}</div>
-          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">XP Total</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">{t('home.totalXp')}</div>
         </motion.div>
 
         <motion.div variants={cardVariant} className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-center shadow-md">
           <div className="text-3xl sm:text-4xl font-serif-italic text-[var(--text-primary)] font-light">{progress.streak}d</div>
-          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">Sequência</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">{t('home.streakStat')}</div>
         </motion.div>
 
         <motion.div variants={cardVariant} className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-center shadow-md">
           <div className="text-3xl sm:text-4xl font-serif-italic text-[var(--text-primary)] font-light">{totalCompletedLessons}</div>
-          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">Aulas Feitas</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">{t('home.lessonsDone')}</div>
         </motion.div>
       </motion.div>
 
@@ -210,10 +216,10 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
             </div>
             <div>
               <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] tracking-widest">
-                ATIVIDADE DIÁRIA
+                {t('progress.dailyActivityBadge')}
               </div>
               <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">
-                XP ganho nos últimos 7 dias
+                {t('progress.dailyActivityTitle')}
               </h3>
             </div>
           </div>
@@ -269,17 +275,17 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
           <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-orange-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block font-bold">Média Diária</span>
-              <span className="font-extrabold text-[var(--text-primary)]">{Math.round(totalWeekXp / 7)} XP / dia</span>
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block font-bold">{t('progress.dailyAvg')}</span>
+              <span className="font-extrabold text-[var(--text-primary)]">{Math.round(totalWeekXp / 7)} XP / {language === 'pt' ? 'dia' : 'day'}</span>
             </div>
           </div>
 
           <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center gap-2">
             <Trophy className="w-4 h-4 text-amber-400 shrink-0" />
             <div>
-              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block font-bold">Melhor Dia</span>
+              <span className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider block font-bold">{t('progress.bestDay')}</span>
               <span className="font-extrabold text-[var(--text-primary)]">
-                {bestDay.xp > 0 ? `${bestDay.day} (+${bestDay.xp} XP)` : 'Em progresso'}
+                {bestDay.xp > 0 ? `${bestDay.day} (+${bestDay.xp} XP)` : t('progress.inProgress')}
               </span>
             </div>
           </div>
@@ -287,20 +293,20 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
       </motion.div>
 
       {/* Editorial Citação Motivacional */}
-      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="p-4 rounded-2xl bg-[#1A1A1C] border border-white/10 shadow-sm">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-white/30 mb-2">
-          INSIGHT DIÁRIO
+      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
+        <div className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mb-2">
+          {t('progress.dailyInsightBadge')}
         </div>
-        <div className="text-xs italic text-white/70 font-serif leading-relaxed">
-          "A persistência na prática de código transforma sintaxe em maestria. Mantenha sua sequência ativa hoje."
+        <div className="text-xs italic text-[var(--text-muted)] font-serif leading-relaxed">
+          {t('progress.dailyQuote')}
         </div>
       </motion.div>
 
       {/* Progresso por Tecnologia */}
-      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="p-4 rounded-2xl bg-[#1A1A1C] border border-white/10 space-y-3.5 shadow-md">
-        <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider">
+      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-3.5 shadow-md">
+        <div className="flex items-center gap-2 text-xs font-bold text-[var(--text-primary)] uppercase tracking-wider">
           <BarChart2 className="w-4 h-4 text-orange-500" />
-          <span>Progresso por Tecnologia</span>
+          <span>{t('progress.techProgressTitle')}</span>
         </div>
 
         <div className="space-y-3">
@@ -312,12 +318,12 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
 
             return (
               <div key={tech.id} className="space-y-1">
-                <div className="flex justify-between text-xs text-white font-medium">
+                <div className="flex justify-between text-xs text-[var(--text-primary)] font-medium">
                   <span className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full" style={{ backgroundColor: tech.color }} />
                     <span className="font-bold">{tech.name}</span>
                   </span>
-                  <span className="text-white/40 text-[11px]">{completedCount} aulas ({pct}%)</span>
+                  <span className="text-[var(--text-muted)] text-[11px]">{completedCount} {t('home.lessonsCount')} ({pct}%)</span>
                 </div>
                 <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
                   <div
@@ -334,9 +340,9 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
       {/* Conquistas / Badges */}
       <motion.div variants={fadeInUp} initial="initial" animate="animate" className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-1.5">
+          <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5">
             <Trophy className="w-3.5 h-3.5 text-orange-400" />
-            CONQUISTAS DESBLOQUEADAS
+            {t('progress.unlockedBadges')}
           </h3>
           <span className="text-xs font-bold text-orange-400">
             {allBadges.filter(b => b.isUnlocked).length} / {allBadges.length}
@@ -361,4 +367,5 @@ export const ProgressScreen: React.FC<ProgressScreenProps> = ({ progress, onNavi
     </div>
   );
 };
+
 

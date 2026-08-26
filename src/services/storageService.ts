@@ -18,6 +18,7 @@ const INITIAL_PROGRESS: UserProgress = {
   lastLessonDate: undefined,
   lessonDates: [],
   theme: 'dark',
+  language: 'pt',
   favoriteTechs: ['python', 'javascript', 'html'],
   unlockedBadges: ['primeiros_passos'],
   dailyXpHistory: {},
@@ -386,6 +387,14 @@ class StorageEngine {
     progress.theme = theme;
     this.saveUserProgress(progress);
     this.addToSyncQueue('THEME_CHANGE', { theme });
+    return progress;
+  }
+
+  public setLanguage(language: 'pt' | 'en'): UserProgress {
+    const progress = this.getUserProgress();
+    progress.language = language;
+    this.saveUserProgress(progress);
+    this.addToSyncQueue('UPDATE_PROFILE', { language });
     return progress;
   }
 
