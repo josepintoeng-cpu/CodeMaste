@@ -70,11 +70,11 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
 
   if (variant === 'compact') {
     return (
-      <div className="relative">
+      <div className="relative shrink-0">
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowTooltip(!showTooltip)}
-          className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border touch-btn ${
+          className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full text-xs font-bold transition-all border touch-btn ${
             isCompletedToday
               ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 text-orange-400 border-orange-500/40 shadow-sm'
               : streak > 0
@@ -103,11 +103,14 @@ export const StreakCounter: React.FC<StreakCounterProps> = ({
               }`}
             />
           </motion.div>
-          <span>{streak} {streak === 1 ? (language === 'pt' ? 'dia' : 'day') : (language === 'pt' ? 'dias' : 'days')}</span>
+          <span className="font-extrabold text-[11px] sm:text-xs">{streak}</span>
+          <span className="hidden sm:inline text-[11px] font-medium opacity-90">
+            {streak === 1 ? (language === 'pt' ? 'dia' : 'day') : (language === 'pt' ? 'dias' : 'days')}
+          </span>
           {isCompletedToday ? (
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
           ) : (
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping shrink-0" />
           )}
         </motion.button>
 
