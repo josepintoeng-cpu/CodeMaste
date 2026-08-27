@@ -18,6 +18,7 @@ import { QuizScreen } from './screens/QuizScreen';
 import { ProgressScreen } from './screens/ProgressScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
+import { FloatingScrollControls } from './components/FloatingScrollControls';
 import { getLessonsForTechAndLevel, getQuizForTechAndLevel } from './content';
 import { fadeInUp } from './utils/animations';
 
@@ -220,7 +221,10 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased transition-colors duration-250 selection:bg-orange-500 selection:text-black">
+    <div className="relative min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] font-sans antialiased transition-colors duration-250 selection:bg-orange-500 selection:text-black">
+      {/* Floating Scroll Indicator and Back-to-Top Control */}
+      <FloatingScrollControls />
+
       {/* Header Fixo no Topo com Botão Dinâmico de Voltar */}
       <Header
         progress={progress}

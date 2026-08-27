@@ -41,6 +41,9 @@
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
     touch-action: manipulation;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   body {
@@ -48,6 +51,8 @@
     background-color: var(--bg-primary);
     color: var(--text-primary);
     overflow-x: hidden;
+    min-height: 100dvh;
+    min-height: -webkit-fill-available;
     padding-top: env(safe-area-inset-top, 0px);
     padding-left: env(safe-area-inset-left, 0px);
     padding-right: env(safe-area-inset-right, 0px);
@@ -66,6 +71,80 @@
   }
 }
 
+/* Fluid Typography for Dynamic Resolution */
+.fluid-title-hero {
+  font-size: clamp(2rem, 5vw + 1rem, 3.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.fluid-title-section {
+  font-size: clamp(1.4rem, 3vw + 0.6rem, 2.2rem);
+  line-height: 1.2;
+}
+
+.fluid-text-sub {
+  font-size: clamp(0.875rem, 1.2vw + 0.5rem, 1.15rem);
+}
+
+/* Dynamic Responsive Container */
+.responsive-app-container {
+  width: 100%;
+  max-width: min(100vw, 1200px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(0.75rem, 3vw, 2rem);
+  padding-right: clamp(0.75rem, 3vw, 2rem);
+}
+
+/* Floating Animation Keyframes */
+@keyframes floatDynamic {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.6deg);
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+@keyframes floatDynamicSlow {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-12px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(1.08);
+  }
+}
+
+.animate-float-dynamic {
+  animation: floatDynamic 4.2s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: floatDynamicSlow 6s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glowPulse 5s ease-in-out infinite;
+}
+
 /* Custom Mobile Touch & Interaction Utilities */
 .touch-action-manipulation {
   touch-action: manipulation;
@@ -76,12 +155,12 @@
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  transition: transform 0.1s ease, opacity 0.1s ease, background-color 0.15s ease;
+  transition: transform 0.12s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.12s ease, background-color 0.15s ease;
 }
 
 .touch-btn:active {
-  transform: scale(0.97);
-  opacity: 0.9;
+  transform: scale(0.96);
+  opacity: 0.92;
 }
 
 /* Custom Safe Area Utility for Fixed Navigation Bar */
@@ -93,13 +172,14 @@
 .editorial-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   color: var(--text-primary);
 }
 
 .editorial-card:hover {
   border-color: var(--border-strong);
   background-color: var(--bg-card-hover);
+  transform: translateY(-2px);
 }
 
 .editorial-badge {

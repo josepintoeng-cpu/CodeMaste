@@ -51,6 +51,51 @@ export const cardVariant: Variants = {
   },
 };
 
+// Animação Flutuante Contínua (Floating Bobbing Effect)
+export const floatingVariant: Variants = {
+  animate: {
+    y: [0, -8, 0],
+    transition: {
+      duration: 3.8,
+      repeat: Infinity,
+      repeatType: 'reverse',
+      ease: 'easeInOut',
+    },
+  },
+};
+
+// Animação Flutuante com Leve Rotação (Slow Dynamic Float)
+export const floatingSlowRotate: Variants = {
+  animate: {
+    y: [0, -10, 0],
+    rotate: [0, 1.5, -1.5, 0],
+    transition: {
+      duration: 5,
+      repeat: Infinity,
+      repeatType: 'reverse',
+      ease: 'easeInOut',
+    },
+  },
+};
+
+// Variação para elementos que flutuam ao entrar no viewport no scroll
+export const scrollFloatReveal: Variants = {
+  initial: {
+    opacity: 0,
+    y: 28,
+    scale: 0.98,
+  },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.45,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
 // Variação para modais e popups
 export const modalVariant: Variants = {
   initial: {
@@ -84,3 +129,4 @@ export const backdropVariant: Variants = {
   animate: { opacity: 1, transition: { duration: 0.2 } },
   exit: { opacity: 0, transition: { duration: 0.15 } },
 };
+

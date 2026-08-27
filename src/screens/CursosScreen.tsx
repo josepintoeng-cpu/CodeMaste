@@ -82,16 +82,21 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
   });
 
   return (
-    <div className="pb-24 pt-4 px-4 max-w-md md:max-w-2xl mx-auto space-y-5">
+    <div className="relative pb-28 pt-4 px-3.5 sm:px-6 md:px-8 max-w-7xl mx-auto space-y-6 overflow-hidden">
+      {/* Ambient Floating Glow Orbs */}
+      <div className="absolute top-10 right-10 w-72 sm:w-96 h-72 sm:h-96 bg-orange-500/6 rounded-full blur-3xl pointer-events-none -z-10 animate-float-slow" />
+      <div className="absolute top-1/2 left-5 w-64 sm:w-80 h-64 sm:h-80 bg-amber-500/6 rounded-full blur-3xl pointer-events-none -z-10 animate-float-dynamic" />
+
       {/* Editorial Header */}
       <motion.div variants={fadeInUp} initial="initial" animate="animate">
-        <div className="text-[10px] uppercase font-bold text-orange-500 tracking-widest">
-          {t('courses.badge')}
+        <div className="text-[10px] sm:text-xs uppercase font-bold text-orange-500 tracking-widest flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-orange-400" />
+          <span>{t('courses.badge')}</span>
         </div>
-        <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[var(--text-primary)] tracking-tight">
           {t('courses.title')}
         </h2>
-        <p className="text-xs text-[var(--text-muted)]">
+        <p className="text-xs sm:text-sm text-[var(--text-muted)]">
           {t('courses.subtitle')}
         </p>
       </motion.div>
@@ -101,38 +106,39 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
         variants={fadeInUp}
         initial="initial"
         animate="animate"
-        className="p-5 rounded-2xl bg-gradient-to-br from-[var(--bg-card)] via-[var(--bg-surface)] to-[var(--bg-card)] border border-[var(--border-subtle)] shadow-lg space-y-4 relative overflow-hidden"
+        whileHover={{ y: -2 }}
+        className="p-5 sm:p-7 rounded-2xl bg-gradient-to-br from-[var(--bg-card)] via-[var(--bg-surface)] to-[var(--bg-card)] border border-[var(--border-subtle)] shadow-lg space-y-4 relative overflow-hidden"
       >
         {/* Glow decorativo */}
         <div className="absolute -top-10 -right-10 w-36 h-36 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center font-black">
-              <Award className="w-5 h-5 text-orange-400" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center font-black">
+              <Award className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
             </div>
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] block">
+              <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] block">
                 {t('courses.globalProgress')}
               </span>
-              <h3 className="text-sm font-extrabold text-[var(--text-primary)]">
+              <h3 className="text-sm sm:text-base font-extrabold text-[var(--text-primary)]">
                 {t('courses.overallMastery')}
               </h3>
             </div>
           </div>
 
           <div className="text-right">
-            <span className="text-2xl font-black tracking-tight text-orange-400">
+            <span className="text-2xl sm:text-3xl font-black tracking-tight text-orange-400">
               {catalogStats.averageMastery}%
             </span>
-            <span className="text-[9px] uppercase font-bold text-[var(--text-muted)] block">
+            <span className="text-[9px] sm:text-[10px] uppercase font-bold text-[var(--text-muted)] block">
               {t('courses.overallAvg')}
             </span>
           </div>
         </div>
 
         {/* Barra de progresso global */}
-        <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden p-0.5 border border-white/5">
+        <div className="w-full h-2.5 bg-black/40 rounded-full overflow-hidden p-0.5 border border-white/5">
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: `${catalogStats.averageMastery}%` }}
@@ -142,25 +148,25 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
         </div>
 
         {/* Estatísticas resumidas em 3 colunas */}
-        <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border-subtle)] text-center">
-          <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.lessons')}</span>
-            <span className="text-xs font-black text-[var(--text-primary)]">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 pt-2 border-t border-[var(--border-subtle)] text-center">
+          <div className="p-2 sm:p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+            <span className="text-[9px] sm:text-[10px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.lessons')}</span>
+            <span className="text-xs sm:text-sm font-black text-[var(--text-primary)]">
               {catalogStats.totalCompletedLessons}/180
             </span>
           </div>
 
-          <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.quizzes')}</span>
-            <span className="text-xs font-black text-[var(--text-primary)]">
+          <div className="p-2 sm:p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+            <span className="text-[9px] sm:text-[10px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.quizzes')}</span>
+            <span className="text-xs sm:text-sm font-black text-[var(--text-primary)]">
               {catalogStats.totalPassedQuizzes}/36
             </span>
           </div>
 
-          <div className="p-2 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-            <span className="text-[9px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.masteries')}</span>
-            <span className="text-xs font-black text-amber-400 flex items-center justify-center gap-1">
-              <Trophy className="w-3 h-3" />
+          <div className="p-2 sm:p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
+            <span className="text-[9px] sm:text-[10px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.masteries')}</span>
+            <span className="text-xs sm:text-sm font-black text-amber-400 flex items-center justify-center gap-1">
+              <Trophy className="w-3.5 h-3.5" />
               {catalogStats.masteredCount}/9
             </span>
           </div>

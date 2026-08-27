@@ -25,7 +25,8 @@ import {
 } from 'lucide-react';
 import { useI18n } from '../i18n';
 import { TECHNOLOGIES } from '../content/technologies';
-import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
+import { fadeInUp, staggerContainer, cardVariant, floatingVariant } from '../utils/animations';
+import { FloatingScrollControls } from '../components/FloatingScrollControls';
 
 interface WelcomeScreenProps {
   onEnterApp: () => void;
@@ -110,20 +111,27 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-250 selection:bg-orange-500 selection:text-black">
+    <div className="relative min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-250 selection:bg-orange-500 selection:text-black overflow-x-hidden">
+      {/* Floating Scroll Indicator and Back-to-Top Control */}
+      <FloatingScrollControls />
+
+      {/* Floating Background Glow Orbs */}
+      <div className="absolute top-20 left-10 w-80 sm:w-[32rem] h-80 sm:h-[32rem] bg-orange-500/10 rounded-full blur-3xl pointer-events-none -z-10 animate-float-slow" />
+      <div className="absolute top-1/3 right-10 w-72 sm:w-[28rem] h-72 sm:h-[28rem] bg-amber-500/8 rounded-full blur-3xl pointer-events-none -z-10 animate-float-dynamic" />
+
       {/* Top Header Bar for Landing */}
-      <header className="sticky top-0 z-50 bg-[var(--header-bg)] backdrop-blur-md border-b border-[var(--border-subtle)] px-4 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between gap-2">
+      <header className="sticky top-0 z-50 bg-[var(--header-bg)] backdrop-blur-xl border-b border-[var(--border-subtle)] px-4 sm:px-8 py-3.5 transition-all">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-black flex items-center justify-center font-black shadow-md shadow-orange-500/20">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 text-black flex items-center justify-center font-black shadow-md shadow-orange-500/20">
               <ShieldCheck className="w-5 h-5 text-black stroke-[2.5]" />
             </div>
             <div>
               <div className="text-[10px] uppercase font-black text-orange-500 tracking-wider leading-none">
                 {t('app.name')}
               </div>
-              <div className="text-xs font-bold text-[var(--text-primary)] leading-tight">
+              <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)] leading-tight">
                 DevMentor Academy
               </div>
             </div>
@@ -133,7 +141,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-black text-[var(--text-primary)] transition-all touch-btn shadow-sm"
+              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-black text-[var(--text-primary)] transition-all touch-btn shadow-sm"
               title={language === 'pt' ? 'Switch to English' : 'Mudar para Português'}
             >
               <Globe className="w-3.5 h-3.5 text-orange-400 shrink-0" />
@@ -142,7 +150,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
             <button
               onClick={onToggleTheme}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm"
               title={isDark ? t('header.themeDarkActive') : t('header.themeLightActive')}
             >
               {isDark ? (
@@ -154,9 +162,9 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
             <motion.button
               whileTap={{ scale: 0.96 }}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.03 }}
               onClick={onEnterApp}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-black font-extrabold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 transition-all touch-btn"
+              className="flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-orange-500 hover:bg-orange-400 text-black font-extrabold text-xs uppercase tracking-wider shadow-md shadow-orange-500/20 transition-all touch-btn"
             >
               <span>{t('welcome.ctaEnter')}</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -166,26 +174,26 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
       </header>
 
       {/* Main Presentation Container */}
-      <main className="max-w-4xl mx-auto px-4 pt-8 pb-20 space-y-14 sm:space-y-20">
+      <main className="max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 md:px-8 pt-8 pb-24 space-y-16 sm:space-y-24">
         {/* HERO SECTION */}
         <motion.section
           variants={staggerContainer}
           initial="initial"
           animate="animate"
-          className="text-center space-y-6 pt-4 sm:pt-10"
+          className="text-center space-y-6 pt-4 sm:pt-12"
         >
           {/* Institutional Badge */}
-          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-[11px] font-extrabold tracking-wider uppercase shadow-sm">
-            <Sparkles className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+          <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/30 text-orange-400 text-[11px] sm:text-xs font-extrabold tracking-wider uppercase shadow-sm">
+            <Sparkles className="w-4 h-4 text-orange-400 shrink-0" />
             <span>{t('welcome.badge')}</span>
           </motion.div>
 
-          {/* Main Title & Tagline */}
+          {/* Main Title & Tagline with Fluid Typography */}
           <motion.div variants={fadeInUp} className="space-y-3">
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-[var(--text-primary)] leading-[1.1]">
+            <h1 className="fluid-title-hero font-extrabold tracking-tight text-[var(--text-primary)]">
               Code<span className="text-orange-500">Master</span>
             </h1>
-            <p className="text-lg sm:text-2xl font-bold text-[var(--text-secondary)] max-w-2xl mx-auto leading-snug">
+            <p className="fluid-title-section font-bold text-[var(--text-secondary)] max-w-3xl mx-auto leading-snug">
               {t('welcome.tagline')}
             </p>
           </motion.div>
@@ -193,7 +201,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           {/* Subtitle Description */}
           <motion.p
             variants={fadeInUp}
-            className="text-sm sm:text-base text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed"
+            className="fluid-text-sub text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed"
           >
             {t('welcome.subtitle')}
           </motion.p>
@@ -205,7 +213,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           >
             <motion.button
               whileTap={{ scale: 0.97 }}
-              whileHover={{ scale: 1.03 }}
+              whileHover={{ scale: 1.03, y: -2 }}
               onClick={onEnterApp}
               className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-orange-500 via-orange-400 to-amber-500 hover:from-orange-400 hover:to-amber-400 active:from-orange-600 active:to-amber-600 text-black font-extrabold text-sm uppercase tracking-wider rounded-2xl shadow-xl shadow-orange-500/25 flex items-center justify-center gap-2.5 transition-all touch-btn"
             >
@@ -216,7 +224,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
             <motion.button
               whileTap={{ scale: 0.97 }}
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.02, y: -1 }}
               onClick={() => scrollToSection('metodologia')}
               className="w-full sm:w-auto px-6 py-4 bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] text-[var(--text-primary)] font-bold text-xs uppercase tracking-wider rounded-2xl border border-[var(--border-subtle)] flex items-center justify-center gap-2 transition-all touch-btn"
             >
@@ -228,24 +236,24 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           {/* Stats Bar */}
           <motion.div
             variants={fadeInUp}
-            className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 pt-6 max-w-3xl mx-auto"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-6 max-w-4xl mx-auto"
           >
-            <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
-              <div className="text-2xl font-black text-orange-500">21</div>
-              <div className="text-[11px] font-bold text-[var(--text-secondary)]">{t('welcome.statsTechs')}</div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
-              <div className="text-2xl font-black text-amber-500">80+</div>
-              <div className="text-[11px] font-bold text-[var(--text-secondary)]">{t('welcome.statsLessons')}</div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
-              <div className="text-2xl font-black text-emerald-500">100%</div>
-              <div className="text-[11px] font-bold text-[var(--text-secondary)]">{t('welcome.statsOffline')}</div>
-            </div>
-            <div className="p-3.5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
-              <div className="text-2xl font-black text-blue-500">PRO</div>
-              <div className="text-[11px] font-bold text-[var(--text-secondary)]">{t('welcome.statsCert')}</div>
-            </div>
+            <motion.div whileHover={{ y: -3 }} className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
+              <div className="text-2xl sm:text-3xl font-black text-orange-500">21</div>
+              <div className="text-[11px] sm:text-xs font-bold text-[var(--text-secondary)]">{t('welcome.statsTechs')}</div>
+            </motion.div>
+            <motion.div whileHover={{ y: -3 }} className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
+              <div className="text-2xl sm:text-3xl font-black text-amber-500">80+</div>
+              <div className="text-[11px] sm:text-xs font-bold text-[var(--text-secondary)]">{t('welcome.statsLessons')}</div>
+            </motion.div>
+            <motion.div whileHover={{ y: -3 }} className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
+              <div className="text-2xl sm:text-3xl font-black text-emerald-500">100%</div>
+              <div className="text-[11px] sm:text-xs font-bold text-[var(--text-secondary)]">{t('welcome.statsOffline')}</div>
+            </motion.div>
+            <motion.div whileHover={{ y: -3 }} className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
+              <div className="text-2xl sm:text-3xl font-black text-blue-500">PRO</div>
+              <div className="text-[11px] sm:text-xs font-bold text-[var(--text-secondary)]">{t('welcome.statsCert')}</div>
+            </motion.div>
           </motion.div>
         </motion.section>
 

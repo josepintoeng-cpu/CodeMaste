@@ -3,6 +3,7 @@ import { ArrowLeft, Zap, Moon, Sun, ShieldCheck, Cloud, CloudOff, RefreshCw, Glo
 import { motion } from 'motion/react';
 import { UserProgress, SyncStatus } from '../types';
 import { StreakCounter } from './StreakCounter';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 import { useI18n } from '../i18n';
 
 interface HeaderProps {
@@ -28,18 +29,25 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const isDark = progress.theme === 'dark';
   const { t, language, toggleLanguage } = useI18n();
+  const { isScrolled, scrollDirection } = useScrollDirection(10);
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--header-bg)] backdrop-blur-md border-b border-[var(--border-subtle)] text-[var(--text-primary)] px-2.5 sm:px-4 py-2 sm:py-2.5 shadow-sm transition-colors duration-200">
-      <div className="max-w-md md:max-w-4xl mx-auto flex items-center justify-between gap-1.5 sm:gap-3">
+    <header
+      className={`sticky top-0 z-40 text-[var(--text-primary)] px-3 sm:px-5 md:px-8 py-2.5 sm:py-3 transition-all duration-300 ${
+        isScrolled
+          ? 'bg-[var(--header-bg)] backdrop-blur-xl border-b border-[var(--border-subtle)] shadow-lg shadow-black/10 translate-y-0'
+          : 'bg-[var(--bg-primary)] border-b border-transparent shadow-none'
+      }`}
+    >
+      <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
         {/* Left Section: Back Button or Logo & User Title */}
-        <div className="flex items-center gap-2 min-w-0 flex-1 sm:flex-initial">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1 sm:flex-initial">
           {onBack ? (
             <motion.button
-              whileHover={{ scale: 1.02 }}
+              whileHover={{ scale: 1.03, x: -2 }}
               whileTap={{ scale: 0.94 }}
               onClick={onBack}
-              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 active:bg-orange-500/30 text-orange-400 border border-orange-500/30 text-xs font-black transition-all touch-btn shadow-sm shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 active:bg-orange-500/30 text-orange-400 border border-orange-500/30 text-xs font-black transition-all touch-btn shadow-sm shrink-0"
               title={backLabel || t('nav.back')}
             >
               <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
@@ -48,15 +56,16 @@ export const Header: React.FC<HeaderProps> = ({
               </span>
             </motion.button>
           ) : (
-            <div
-              className="flex items-center gap-2 cursor-pointer touch-btn min-w-0 group"
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="flex items-center gap-2.5 cursor-pointer touch-btn min-w-0 group"
               onClick={onProfileClick}
             >
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 text-orange-400 border border-orange-500/30 flex items-center justify-center font-bold text-xs shrink-0 shadow-sm group-hover:border-orange-500/50 transition-colors">
-                <ShieldCheck className="w-4 h-4 text-orange-400" />
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 text-orange-400 border border-orange-500/30 flex items-center justify-center font-bold text-xs shrink-0 shadow-sm group-hover:border-orange-500/50 group-hover:shadow-orange-500/10 transition-all">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
               </div>
               <div className="min-w-0 overflow-hidden">
-                <div className="text-[10px] uppercase font-black text-orange-500 tracking-wider leading-none flex items-center gap-1.5 mb-0.5">
+                <div className="text-[9px] sm:text-[10px] uppercase font-black text-orange-500 tracking-wider leading-none flex items-center gap-1.5 mb-0.5">
                   <span className="truncate">{t('app.name')}</span>
                   <span className="text-[9px] opacity-70 font-mono hidden xs:inline">{t('app.version')}</span>
                   {/* Status de Sincronização Inteligente */}
@@ -104,12 +113,12 @@ export const Header: React.FC<HeaderProps> = ({
                   {progress.userName || 'Dev Aprendiz'}
                 </h1>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
 
         {/* Right Section Gamification Stats: Streak & XP & Language & Theme Toggle */}
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Elemento Streak Counter Diário */}
           <StreakCounter
             progress={progress}
@@ -118,53 +127,61 @@ export const Header: React.FC<HeaderProps> = ({
           />
 
           {/* Pontos de Experiência / XP */}
-          <div
-            className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-black shadow-sm"
+          <motion.div
+            whileHover={{ scale: 1.05 }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-black shadow-sm"
             title={t('header.xpTitle')}
           >
             <Zap className="w-3.5 h-3.5 fill-orange-400 text-orange-400 shrink-0" />
             <span className="text-[11px] sm:text-xs">{progress.xp}</span>
-          </div>
+          </motion.div>
 
           {/* Apresentação & Sobre o Projeto */}
           {onOpenWelcome && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 12 }}
+              whileTap={{ scale: 0.9 }}
               onClick={onOpenWelcome}
-              className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
               title={t('welcome.navAbout')}
             >
-              <Sparkles className="w-3.5 h-3.5 text-orange-400" />
-            </button>
+              <Sparkles className="w-4 h-4 text-orange-400" />
+            </motion.button>
           )}
 
           {/* Quick Language Toggle */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.92 }}
             onClick={toggleLanguage}
-            className="flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] transition-all touch-btn shadow-sm"
+            className="flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] transition-all touch-btn shadow-sm"
             title={language === 'pt' ? 'Switch to English' : 'Mudar para Português'}
           >
             <Globe className="w-3.5 h-3.5 text-orange-400 shrink-0" />
             <span className="text-[10px] font-black uppercase tracking-wider">
               {language === 'pt' ? 'PT' : 'EN'}
             </span>
-          </button>
+          </motion.button>
 
           {/* Theme Toggle Button */}
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             onClick={onToggleTheme}
-            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
+            className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
             title={isDark ? t('header.themeDarkActive') : t('header.themeLightActive')}
           >
             {isDark ? (
-              <Moon className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
+              <Moon className="w-4 h-4 text-orange-400 fill-orange-400" />
             ) : (
-              <Sun className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
+              <Sun className="w-4 h-4 text-orange-500 fill-orange-500" />
             )}
-          </button>
+          </motion.button>
         </div>
       </div>
     </header>
   );
 };
+
 
 
