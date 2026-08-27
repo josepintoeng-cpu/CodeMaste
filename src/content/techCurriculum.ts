@@ -6,6 +6,10 @@ import { BACKEND_CURRICULUM } from './data/backendCurriculum';
 import { DB_PYTHON_CURRICULUM } from './data/dbAndPythonCurriculum';
 import { CLOUD_AI_CURRICULUM } from './data/cloudAiCurriculum';
 import { BASE_WEB_CURRICULUM } from './data/baseWebCurriculum';
+import { GAME_DEV_CURRICULUM } from './data/gameDevCurriculum';
+import { GAME_3D_UNREAL_CURRICULUM } from './data/game3dUnrealCurriculum';
+import { GAME_ENGINES_MULTIPLAYER_CURRICULUM } from './data/gameEnginesMultiplayerCurriculum';
+import { GAME_SPECIALIZATION_CURRICULUM } from './data/gameSpecializationCurriculum';
 
 export interface TechCurriculumData {
   topicsByLevel: Record<
@@ -24,6 +28,17 @@ export interface TechCurriculumData {
 }
 
 export const TECH_CURRICULUM: Partial<Record<TechId, TechCurriculumData>> = {
+  // Game Development & 3D Engines
+  unity_2d: GAME_DEV_CURRICULUM.unity_2d,
+  unity_3d: GAME_3D_UNREAL_CURRICULUM.unity_3d,
+  unreal_cpp: GAME_3D_UNREAL_CURRICULUM.unreal_cpp,
+  godot_engine: GAME_ENGINES_MULTIPLAYER_CURRICULUM.godot_engine,
+  game_multiplayer: GAME_ENGINES_MULTIPLAYER_CURRICULUM.game_multiplayer,
+  game_mobile_dev: GAME_ENGINES_MULTIPLAYER_CURRICULUM.game_mobile_dev,
+  game_pc_publishing: GAME_ENGINES_MULTIPLAYER_CURRICULUM.game_pc_publishing,
+  game_fundamentals: GAME_SPECIALIZATION_CURRICULUM.game_fundamentals,
+  game_graphics_ai: GAME_SPECIALIZATION_CURRICULUM.game_graphics_ai,
+  blender_3d: GAME_SPECIALIZATION_CURRICULUM.blender_3d,
   // Linux & Ethical Hacking
   linux_cyber: CYBER_CURRICULUM.linux_cyber,
   // C, Redes, Sistemas Operacionais & Cyber

@@ -73,7 +73,7 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
   const passed = score >= 60;
 
   return (
-    <div className="pb-28 pt-4 px-4 max-w-md md:max-w-2xl mx-auto space-y-5">
+    <div className="pb-28 pt-4 px-3.5 sm:px-6 md:px-8 max-w-3xl lg:max-w-4xl mx-auto space-y-6">
       <ConfettiEffect
         show={showConfetti}
         xpEarned={passed ? quiz.xpReward : undefined}
@@ -86,16 +86,16 @@ export const QuizScreen: React.FC<QuizScreenProps> = ({
       <motion.div variants={fadeInUp} initial="initial" animate="animate" className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
+          className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-orange-500/40 transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
         <div>
-          <span className="text-[9px] uppercase font-bold text-orange-500 tracking-widest">
+          <span className="text-[9px] sm:text-[10px] uppercase font-black text-orange-500 tracking-widest bg-orange-500/10 px-2 py-0.5 rounded-md border border-orange-500/20">
             {quiz.techId.toUpperCase()} • {quiz.levelId}
           </span>
-          <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight">{quiz.title}</h2>
+          <h2 className="text-base sm:text-xl font-bold text-[var(--text-primary)] tracking-tight mt-0.5">{quiz.title}</h2>
         </div>
       </motion.div>
 

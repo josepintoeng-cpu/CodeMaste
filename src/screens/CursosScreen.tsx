@@ -22,24 +22,53 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
 
   const categoryOptions = [
     { key: 'all', label: t('courses.catAll'), rawCat: 'Todos' },
+    { key: 'game_dev', label: t('courses.catGameDev'), rawCat: 'Game Dev' },
+    { key: '3d_engines', label: t('courses.cat3DEngines'), rawCat: '3D & Engines' },
     { key: 'frontend', label: t('courses.catFrontend'), rawCat: 'Frontend' },
     { key: 'backend', label: t('courses.catBackend'), rawCat: 'Backend' },
     { key: 'mobile', label: t('courses.catMobile'), rawCat: 'Mobile' },
     { key: 'database', label: t('courses.catDatabase'), rawCat: 'Banco de Dados' },
     { key: 'languages', label: t('courses.catLanguages'), rawCat: 'Linguagens' },
+    { key: 'cybersecurity', label: t('courses.catCybersecurity'), rawCat: 'Cybersecurity' },
+    { key: 'devops', label: t('courses.catDevOps'), rawCat: 'DevOps & Cloud' },
+    { key: 'ai', label: t('courses.catAI'), rawCat: 'IA & Dados' },
+    { key: 'tools', label: t('courses.catTools'), rawCat: 'Ferramentas' },
+    { key: 'career', label: t('courses.catCareer'), rawCat: 'Carreira & Inglês' },
   ];
 
   const getTechAbbrev = (techId: TechId) => {
     switch (techId) {
       case 'python': return 'Py';
       case 'javascript': return 'JS';
-      case 'java': return 'Jv';
-      case 'flutter': return 'Fl';
-      case 'css': return 'CS';
-      case 'html': return 'HT';
-      case 'php': return 'PH';
+      case 'typescript': return 'TS';
+      case 'react': return 'Re';
+      case 'nextjs': return 'Nx';
+      case 'html': return 'H5';
+      case 'css': return 'C3';
       case 'nodejs': return 'Nd';
+      case 'apis': return 'API';
+      case 'python_fastapi': return 'FA';
+      case 'java': return 'Jv';
+      case 'php': return 'PH';
+      case 'flutter': return 'Fl';
+      case 'postgresql': return 'PG';
       case 'mysql': return 'SQ';
+      case 'linux_cyber': return 'Lx';
+      case 'c_sys_cyber': return 'C';
+      case 'cloud_devops': return 'Dk';
+      case 'ai_apps': return 'IA';
+      case 'git': return 'Git';
+      case 'english_tech': return 'En';
+      case 'unity_2d': return 'U2D';
+      case 'unity_3d': return 'U3D';
+      case 'unreal_cpp': return 'UE5';
+      case 'godot_engine': return 'GD';
+      case 'game_multiplayer': return 'Net';
+      case 'game_mobile_dev': return 'Mob';
+      case 'game_pc_publishing': return 'Stm';
+      case 'game_fundamentals': return 'Mat';
+      case 'game_graphics_ai': return 'AI';
+      case 'blender_3d': return '3D';
       default: return 'Code';
     }
   };
@@ -152,14 +181,14 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
           <div className="p-2 sm:p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
             <span className="text-[9px] sm:text-[10px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.lessons')}</span>
             <span className="text-xs sm:text-sm font-black text-[var(--text-primary)]">
-              {catalogStats.totalCompletedLessons}/180
+              {catalogStats.totalCompletedLessons}/{catalogStats.totalTechs * 20}
             </span>
           </div>
 
           <div className="p-2 sm:p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
             <span className="text-[9px] sm:text-[10px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.quizzes')}</span>
             <span className="text-xs sm:text-sm font-black text-[var(--text-primary)]">
-              {catalogStats.totalPassedQuizzes}/36
+              {catalogStats.totalPassedQuizzes}/{catalogStats.totalTechs * 4}
             </span>
           </div>
 
@@ -167,7 +196,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
             <span className="text-[9px] sm:text-[10px] text-[var(--text-muted)] uppercase font-bold block">{t('courses.masteries')}</span>
             <span className="text-xs sm:text-sm font-black text-amber-400 flex items-center justify-center gap-1">
               <Trophy className="w-3.5 h-3.5" />
-              {catalogStats.masteredCount}/9
+              {catalogStats.masteredCount}/{catalogStats.totalTechs}
             </span>
           </div>
         </div>

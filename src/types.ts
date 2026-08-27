@@ -24,7 +24,17 @@ export type TechId =
   | 'ai_apps'
   | 'c_sys_cyber'
   | 'cloud_devops'
-  | 'english_tech';
+  | 'english_tech'
+  | 'unity_2d'
+  | 'unity_3d'
+  | 'unreal_cpp'
+  | 'godot_engine'
+  | 'game_multiplayer'
+  | 'game_mobile_dev'
+  | 'game_pc_publishing'
+  | 'game_fundamentals'
+  | 'game_graphics_ai'
+  | 'blender_3d';
 
 export type TechCategory =
   | 'Frontend'
@@ -36,7 +46,9 @@ export type TechCategory =
   | 'DevOps & Cloud'
   | 'IA & Dados'
   | 'Ferramentas'
-  | 'Carreira & Inglês';
+  | 'Carreira & Inglês'
+  | 'Game Dev'
+  | '3D & Engines';
 
 export type LevelId = 'iniciante' | 'intermediario' | 'avancado' | 'projetos';
 

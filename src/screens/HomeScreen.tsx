@@ -1,6 +1,32 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Play, ChevronRight, Terminal, Code, Layout, Palette, Server, Coffee, Smartphone, Globe, Database, Sparkles } from 'lucide-react';
+import {
+  Play,
+  ChevronRight,
+  Terminal,
+  Code,
+  Code2,
+  Atom,
+  Layers,
+  Layout,
+  Palette,
+  Server,
+  Network,
+  Zap,
+  Coffee,
+  Globe,
+  Smartphone,
+  Database,
+  HardDrive,
+  ShieldAlert,
+  Cpu,
+  Cloud,
+  Sparkles,
+  GitBranch,
+  BookMarked,
+  Gamepad2,
+  Box,
+} from 'lucide-react';
 import { UserProgress, TechId, LevelId } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { FooterStamp } from '../components/FooterStamp';
@@ -26,13 +52,27 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     switch (iconName) {
       case 'Terminal': return Terminal;
       case 'Code': return Code;
+      case 'Code2': return Code2;
+      case 'Atom': return Atom;
+      case 'Layers': return Layers;
       case 'Layout': return Layout;
       case 'Palette': return Palette;
       case 'Server': return Server;
+      case 'Network': return Network;
+      case 'Zap': return Zap;
       case 'Coffee': return Coffee;
-      case 'Smartphone': return Smartphone;
       case 'Globe': return Globe;
+      case 'Smartphone': return Smartphone;
       case 'Database': return Database;
+      case 'HardDrive': return HardDrive;
+      case 'ShieldAlert': return ShieldAlert;
+      case 'Cpu': return Cpu;
+      case 'Cloud': return Cloud;
+      case 'Sparkles': return Sparkles;
+      case 'GitBranch': return GitBranch;
+      case 'BookMarked': return BookMarked;
+      case 'Gamepad2': return Gamepad2;
+      case 'Box': return Box;
       default: return Code;
     }
   };
@@ -41,13 +81,35 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     switch (techId) {
       case 'python': return 'Py';
       case 'javascript': return 'JS';
-      case 'java': return 'Jv';
-      case 'flutter': return 'Fl';
-      case 'css': return 'CS';
-      case 'html': return 'HT';
-      case 'php': return 'PH';
+      case 'typescript': return 'TS';
+      case 'react': return 'Re';
+      case 'nextjs': return 'Nx';
+      case 'html': return 'H5';
+      case 'css': return 'C3';
       case 'nodejs': return 'Nd';
+      case 'apis': return 'API';
+      case 'python_fastapi': return 'FA';
+      case 'java': return 'Jv';
+      case 'php': return 'PH';
+      case 'flutter': return 'Fl';
+      case 'postgresql': return 'PG';
       case 'mysql': return 'SQ';
+      case 'linux_cyber': return 'Lx';
+      case 'c_sys_cyber': return 'C';
+      case 'cloud_devops': return 'Dk';
+      case 'ai_apps': return 'IA';
+      case 'git': return 'Git';
+      case 'english_tech': return 'En';
+      case 'unity_2d': return 'U2D';
+      case 'unity_3d': return 'U3D';
+      case 'unreal_cpp': return 'UE5';
+      case 'godot_engine': return 'GD';
+      case 'game_multiplayer': return 'Net';
+      case 'game_mobile_dev': return 'Mob';
+      case 'game_pc_publishing': return 'Stm';
+      case 'game_fundamentals': return 'Mat';
+      case 'game_graphics_ai': return 'AI';
+      case 'blender_3d': return '3D';
       default: return 'Code';
     }
   };

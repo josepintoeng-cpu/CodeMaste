@@ -239,11 +239,11 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-6 max-w-4xl mx-auto"
           >
             <motion.div whileHover={{ y: -3 }} className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
-              <div className="text-2xl sm:text-3xl font-black text-orange-500">21</div>
+              <div className="text-2xl sm:text-3xl font-black text-orange-500">{TECHNOLOGIES.length}</div>
               <div className="text-[11px] sm:text-xs font-bold text-[var(--text-secondary)]">{t('welcome.statsTechs')}</div>
             </motion.div>
             <motion.div whileHover={{ y: -3 }} className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">
-              <div className="text-2xl sm:text-3xl font-black text-amber-500">80+</div>
+              <div className="text-2xl sm:text-3xl font-black text-amber-500">{TECHNOLOGIES.length * 20}</div>
               <div className="text-[11px] sm:text-xs font-bold text-[var(--text-secondary)]">{t('welcome.statsLessons')}</div>
             </motion.div>
             <motion.div whileHover={{ y: -3 }} className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] shadow-sm">

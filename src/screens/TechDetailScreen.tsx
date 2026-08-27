@@ -45,28 +45,28 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
   const levelPct = Math.round((completedInActiveLevel / totalInActiveLevel) * 100);
 
   return (
-    <div className="pb-24 pt-4 px-4 max-w-md md:max-w-2xl mx-auto space-y-5">
+    <div className="relative pb-28 pt-4 px-3.5 sm:px-6 md:px-8 max-w-7xl mx-auto space-y-6">
       {/* Top bar de navegação */}
-      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="flex items-center gap-3">
+      <motion.div variants={fadeInUp} initial="initial" animate="animate" className="flex items-center gap-3.5">
         <button
           onClick={onBack}
-          className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn"
+          className="p-2.5 rounded-xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-orange-500/40 transition-colors min-w-[42px] min-h-[42px] flex items-center justify-center touch-btn shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shadow-md"
+            className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm shadow-md"
             style={{ backgroundColor: `${tech.color}20`, border: `1px solid ${tech.color}40`, color: tech.color }}
           >
             {tech.name.substring(0, 2).toUpperCase()}
           </div>
           <div>
-            <div className="text-[9px] font-bold uppercase tracking-widest text-orange-500">
+            <div className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-orange-500">
               {t('techDetail.modules')}
             </div>
-            <h2 className="text-base font-bold text-[var(--text-primary)] tracking-tight leading-tight">
+            <h2 className="text-base sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight leading-tight">
               {tech.name}
             </h2>
           </div>
@@ -78,7 +78,7 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
         variants={fadeInUp}
         initial="initial"
         animate="animate"
-        className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-[var(--bg-card)] p-1.5 rounded-2xl border border-[var(--border-subtle)]"
+        className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[var(--bg-card)] p-2 rounded-2xl border border-[var(--border-subtle)] shadow-sm"
       >
         {levels.map(lvl => {
           const isActive = activeLevel === lvl.id;
@@ -87,7 +87,7 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
               key={lvl.id}
               whileTap={{ scale: 0.96 }}
               onClick={() => setActiveLevel(lvl.id)}
-              className={`py-2 px-2 rounded-xl text-[10px] font-bold tracking-wider transition-all text-center min-h-[38px] flex items-center justify-center uppercase touch-btn ${
+              className={`py-2.5 px-3 rounded-xl text-[10px] sm:text-xs font-bold tracking-wider transition-all text-center min-h-[40px] flex items-center justify-center uppercase touch-btn ${
                 isActive
                   ? 'bg-orange-500 text-black font-black shadow-md'
                   : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/5'
@@ -99,35 +99,69 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
         })}
       </motion.div>
 
-      {/* Resumo do Nível Ativo */}
-      <motion.div
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-        className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-between"
-      >
-        <div>
-          <span className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-widest block">
-            {t('techDetail.levelProgress')}
-          </span>
-          <span className="text-xs font-bold text-[var(--text-primary)] mt-0.5 block">
-            {t('techDetail.completedCount', { done: completedInActiveLevel, total: totalInActiveLevel })}
-          </span>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <div className="w-16 bg-white/10 h-1.5 rounded-full overflow-hidden">
-            <div
-              className="bg-orange-500 h-full rounded-full transition-all duration-300"
-              style={{ width: `${levelPct}%` }}
-            />
+      {/* Resumo do Nível Ativo & Banner de Quiz em Grid no Desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Resumo do Nível Ativo */}
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          className="p-4 sm:p-5 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] flex items-center justify-between shadow-sm"
+        >
+          <div>
+            <span className="text-[9px] sm:text-[10px] text-[var(--text-muted)] font-bold uppercase tracking-widest block">
+              {t('techDetail.levelProgress')}
+            </span>
+            <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] mt-0.5 block">
+              {t('techDetail.completedCount', { done: completedInActiveLevel, total: totalInActiveLevel })}
+            </span>
           </div>
-          <span className="text-xs font-bold text-orange-400">{levelPct}%</span>
-        </div>
-      </motion.div>
+          <div className="flex items-center gap-3">
+            <div className="w-20 sm:w-28 bg-white/10 h-2 rounded-full overflow-hidden">
+              <div
+                className="bg-orange-500 h-full rounded-full transition-all duration-300"
+                style={{ width: `${levelPct}%` }}
+              />
+            </div>
+            <span className="text-xs sm:text-sm font-black text-orange-400">{levelPct}%</span>
+          </div>
+        </motion.div>
 
-      {/* Trilha de Aulas do Nível com Stagger */}
-      <div className="space-y-2.5">
-        <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+        {/* Banner de Quiz do Nível */}
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[var(--bg-card)] to-[var(--bg-surface)] border border-orange-500/30 flex items-center justify-between gap-3 shadow-sm"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/30">
+              <HelpCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
+                {t('techDetail.quizTitle')}
+              </h4>
+              <p className="text-[10px] sm:text-xs text-[var(--text-muted)]">
+                {t('techDetail.quizDesc')}
+              </p>
+            </div>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onStartQuiz(activeLevel)}
+            className="px-3.5 py-2 sm:px-4 sm:py-2.5 bg-orange-500 hover:bg-orange-400 text-black font-black text-[11px] sm:text-xs uppercase tracking-wider rounded-xl transition-colors shrink-0 shadow-md min-h-[38px] touch-btn"
+          >
+            {t('techDetail.startQuiz')}
+          </motion.button>
+        </motion.div>
+      </div>
+
+      {/* Trilha de Aulas do Nível em Grid Responsivo Multi-Coluna (1 col mobile, 2 cols tablet, 3 cols desktop) */}
+      <div className="space-y-3">
+        <h3 className="text-[10px] sm:text-xs font-black text-[var(--text-muted)] uppercase tracking-widest">
           {t('techDetail.availableLessons')}
         </h3>
 
@@ -138,7 +172,7 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
             initial="initial"
             animate="animate"
             exit="exit"
-            className="space-y-2.5"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4"
           >
             {lessons.map((lesson, index) => {
               const isDone = Boolean(progress.completedLessons[lesson.id]);
@@ -148,21 +182,21 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
                 <motion.div
                   key={lesson.id}
                   variants={cardVariant}
-                  whileHover={isUnlocked ? { y: -2, transition: { duration: 0.15 } } : {}}
+                  whileHover={isUnlocked ? { y: -3, transition: { duration: 0.15 } } : {}}
                   whileTap={isUnlocked ? { scale: 0.98 } : {}}
                   onClick={() => isUnlocked && onStartLesson(lesson.id, activeLevel)}
-                  className={`p-4 rounded-2xl border transition-colors flex items-center justify-between gap-3 ${
+                  className={`p-4 sm:p-5 rounded-2xl border transition-all flex flex-col justify-between gap-3 shadow-sm ${
                     isDone
                       ? 'bg-[var(--bg-card)] border-orange-500/40'
                       : isUnlocked
-                      ? 'bg-[var(--bg-card)] hover:bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-strong)] cursor-pointer'
+                      ? 'bg-[var(--bg-card)] hover:bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-orange-500/30 cursor-pointer'
                       : 'bg-[var(--bg-surface)] border-white/5 opacity-50 cursor-not-allowed'
                   }`}
                 >
-                  <div className="flex items-center gap-3.5 min-w-0">
+                  <div className="flex items-start gap-3.5">
                     {/* Ícone de Status */}
                     <div
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs ${
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 font-bold text-xs ${
                         isDone
                           ? 'bg-orange-500 text-black shadow-md'
                           : isUnlocked
@@ -173,30 +207,31 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
                       {isDone ? (
                         <CheckCircle2 className="w-5 h-5 text-black" />
                       ) : isUnlocked ? (
-                        <Play className="w-3.5 h-3.5 fill-orange-400 ml-0.5" />
+                        <Play className="w-4 h-4 fill-orange-400 ml-0.5" />
                       ) : (
-                        <Lock className="w-3.5 h-3.5" />
+                        <Lock className="w-4 h-4" />
                       )}
                     </div>
 
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">
                         {lesson.title}
                       </h4>
-                      <p className="text-[11px] text-[var(--text-muted)] line-clamp-1 mt-0.5">
+                      <p className="text-[11px] sm:text-xs text-[var(--text-muted)] line-clamp-2 mt-0.5 leading-relaxed">
                         {lesson.description}
                       </p>
-                      <div className="flex items-center gap-3 mt-1 text-[10px] text-[var(--text-muted)] font-medium">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-[var(--text-muted)]" />
-                          {lesson.estimatedMinutes} min
-                        </span>
-                        <span className="flex items-center gap-1 text-orange-400 font-bold">
-                          <Zap className="w-3 h-3 text-orange-400" />
-                          +{lesson.xpReward} XP
-                        </span>
-                      </div>
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-[var(--border-subtle)] text-[10px] sm:text-[11px] text-[var(--text-muted)] font-medium">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 text-[var(--text-muted)]" />
+                      {lesson.estimatedMinutes} min
+                    </span>
+                    <span className="flex items-center gap-1 text-orange-400 font-bold bg-orange-500/10 px-2 py-0.5 rounded-md border border-orange-500/20">
+                      <Zap className="w-3 h-3 text-orange-400" />
+                      +{lesson.xpReward} XP
+                    </span>
                   </div>
                 </motion.div>
               );
@@ -204,37 +239,6 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
           </motion.div>
         </AnimatePresence>
       </div>
-
-      {/* Banner de Quiz do Nível */}
-      <motion.div
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-        className="p-4 rounded-2xl bg-[var(--bg-card)] border border-orange-500/30 flex items-center justify-between gap-3 mt-6 shadow-md"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0 border border-orange-500/30">
-            <HelpCircle className="w-4 h-4" />
-          </div>
-          <div>
-            <h4 className="text-xs font-bold text-[var(--text-primary)]">
-              {t('techDetail.quizTitle')}
-            </h4>
-            <p className="text-[10px] text-[var(--text-muted)]">
-              {t('techDetail.quizDesc')}
-            </p>
-          </div>
-        </div>
-
-        <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={() => onStartQuiz(activeLevel)}
-          className="px-3 py-2 bg-orange-500 hover:bg-orange-400 text-black font-extrabold text-[11px] uppercase tracking-wider rounded-xl transition-colors shrink-0 shadow-md min-h-[36px] touch-btn"
-        >
-          {t('techDetail.startQuiz')}
-        </motion.button>
-      </motion.div>
 
       <FooterStamp />
     </div>

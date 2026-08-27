@@ -110,7 +110,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   };
 
   return (
-    <div className="pb-24 pt-4 px-4 max-w-md md:max-w-2xl mx-auto space-y-5">
+    <div className="relative pb-28 pt-4 px-3.5 sm:px-6 md:px-8 max-w-7xl mx-auto space-y-6">
       {/* Toast Notification */}
       <AnimatePresence>
         {toastMessage && (
@@ -118,7 +118,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-orange-500 text-black font-extrabold text-xs px-4 py-2 rounded-full shadow-2xl flex items-center gap-2"
+            className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-orange-500 text-black font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2"
           >
             <Check className="w-4 h-4" />
             <span>{toastMessage}</span>
@@ -126,304 +126,314 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Header Profile Card */}
-      <motion.div
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-        className="p-6 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-center space-y-3 relative overflow-hidden shadow-xl"
-      >
-        <div className="w-20 h-20 rounded-2xl bg-orange-500/20 text-orange-500 border border-orange-500/30 mx-auto flex items-center justify-center font-black text-2xl shadow-xl">
-          <Shield className="w-10 h-10 text-orange-500" />
-        </div>
-
-        <div>
-          {isEditingName ? (
-            <div className="flex items-center justify-center gap-2 max-w-xs mx-auto">
-              <input
-                type="text"
-                value={nameInput}
-                onChange={e => setNameInput(e.target.value)}
-                className="px-3 py-1.5 rounded-xl bg-black border border-white/20 text-white text-sm font-bold focus:outline-none focus:border-orange-500 w-full"
-              />
-              <button
-                onClick={handleSaveName}
-                className="px-3.5 py-1.5 bg-orange-500 text-black font-extrabold text-xs rounded-xl uppercase tracking-wider touch-btn"
-              >
-                {t('profile.save')}
-              </button>
+      {/* Grid Layout (2-column on desktop: left for profile & settings, right for sync & backup) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column (lg:col-span-5 space-y-6) */}
+        <div className="lg:col-span-5 space-y-6">
+          {/* Header Profile Card */}
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            className="p-6 sm:p-8 rounded-3xl bg-[var(--bg-card)] border border-[var(--border-subtle)] text-center space-y-4 relative overflow-hidden shadow-xl"
+          >
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-orange-500/20 text-orange-500 border border-orange-500/30 mx-auto flex items-center justify-center font-black text-2xl shadow-xl">
+              <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-orange-500" />
             </div>
-          ) : (
-            <div className="flex items-center justify-center gap-2">
-              <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-tight">{progress.userName}</h2>
-              <button
-                onClick={() => setIsEditingName(true)}
-                className="text-[11px] text-orange-400 font-bold hover:underline uppercase tracking-wider touch-btn"
-              >
-                {t('profile.edit')}
-              </button>
-            </div>
-          )}
 
-          <span className={`text-xs font-bold block mt-1 uppercase tracking-wider ${rank.color}`}>
-            {rank.title}
-          </span>
-        </div>
-      </motion.div>
-
-      {/* Opções de Configuração */}
-      <motion.div
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-        className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-3 shadow-md"
-      >
-        <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
-          {t('profile.platformSettings')}
-        </h3>
-
-        {/* Idioma / Language */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 shrink-0">
-              <Globe className="w-4 h-4 text-orange-500" />
-            </div>
             <div>
-              <span className="text-xs font-bold text-[var(--text-primary)] block">
-                {t('profile.languageOption')}
-              </span>
-              <span className="text-[10px] text-[var(--text-muted)] font-medium">
-                {language === 'pt' ? 'Português (Brasil)' : 'English (US)'}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1 bg-[var(--bg-card)] p-1 rounded-xl border border-[var(--border-subtle)]">
-            <button
-              onClick={() => setLanguage('pt')}
-              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all ${
-                language === 'pt'
-                  ? 'bg-orange-500 text-black shadow-sm'
-                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              PT
-            </button>
-            <button
-              onClick={() => setLanguage('en')}
-              className={`px-2.5 py-1 text-[11px] font-extrabold rounded-lg transition-all ${
-                language === 'en'
-                  ? 'bg-orange-500 text-black shadow-sm'
-                  : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
-              }`}
-            >
-              EN
-            </button>
-          </div>
-        </div>
-
-        {/* Alternar Tema */}
-        <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] transition-colors">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 shrink-0">
-              {progress.theme === 'dark' ? (
-                <Moon className="w-4 h-4 fill-orange-500" />
+              {isEditingName ? (
+                <div className="flex items-center justify-center gap-2 max-w-xs mx-auto">
+                  <input
+                    type="text"
+                    value={nameInput}
+                    onChange={e => setNameInput(e.target.value)}
+                    className="px-3 py-2 rounded-xl bg-black border border-white/20 text-white text-sm font-bold focus:outline-none focus:border-orange-500 w-full"
+                  />
+                  <button
+                    onClick={handleSaveName}
+                    className="px-4 py-2 bg-orange-500 text-black font-black text-xs rounded-xl uppercase tracking-wider touch-btn"
+                  >
+                    {t('profile.save')}
+                  </button>
+                </div>
               ) : (
-                <Sun className="w-4 h-4 fill-orange-500" />
+                <div className="flex items-center justify-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-bold text-[var(--text-primary)] tracking-tight">{progress.userName}</h2>
+                  <button
+                    onClick={() => setIsEditingName(true)}
+                    className="text-[11px] sm:text-xs text-orange-400 font-bold hover:underline uppercase tracking-wider touch-btn ml-1"
+                  >
+                    {t('profile.edit')}
+                  </button>
+                </div>
               )}
-            </div>
-            <div>
-              <span className="text-xs font-bold text-[var(--text-primary)] block">
-                {t('profile.darkMode')}
-              </span>
-              <span className="text-[10px] text-[var(--text-muted)] font-medium">
-                {progress.theme === 'dark' ? t('profile.darkModeOn') : t('profile.darkModeOff')}
+
+              <span className={`text-xs sm:text-sm font-bold block mt-1.5 uppercase tracking-wider ${rank.color}`}>
+                {rank.title}
               </span>
             </div>
-          </div>
+          </motion.div>
 
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={onToggleTheme}
-            className={`px-3 py-1.5 text-[11px] font-bold rounded-xl transition-all touch-btn min-h-[38px] flex items-center gap-2 border ${
-              progress.theme === 'dark'
-                ? 'bg-orange-500 text-black border-orange-400 shadow-sm'
-                : 'bg-[var(--bg-card)] text-[var(--text-primary)] border-[var(--border-strong)]'
-            }`}
-            title={`Alternar Tema (Atualmente: ${progress.theme === 'dark' ? 'Ativado' : 'Desativado'})`}
+          {/* Opções de Configuração */}
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            className="p-5 sm:p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-4 shadow-md"
           >
-            <span className="uppercase tracking-wider">
-              {progress.theme === 'dark' ? t('profile.enabled') : t('profile.disabled')}
-            </span>
-            <div className={`w-7 h-4 rounded-full transition-colors relative p-0.5 ${progress.theme === 'dark' ? 'bg-black/40' : 'bg-slate-300'}`}>
-              <div className={`w-3 h-3 rounded-full transition-transform ${progress.theme === 'dark' ? 'translate-x-3 bg-white' : 'translate-x-0 bg-slate-600'}`} />
-            </div>
-          </motion.button>
-        </div>
+            <h3 className="text-[10px] sm:text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
+              {t('profile.platformSettings')}
+            </h3>
 
-        {/* Empacotamento Mobile / PWA */}
-        <div
-          onClick={() => setShowMobileModal(true)}
-          className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/5 cursor-pointer hover:border-white/20 transition-colors touch-btn"
-        >
-          <div className="flex items-center gap-2.5">
-            <Smartphone className="w-4 h-4 text-orange-400" />
-            <div>
-              <span className="text-xs font-bold text-[var(--text-primary)] block">{t('profile.exportMobile')}</span>
-              <span className="text-[10px] text-[var(--text-muted)]">{t('profile.exportMobileSubtitle')}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Apresentação do Projeto & Desenvolvedor */}
-        {onOpenWelcome && (
-          <div
-            onClick={onOpenWelcome}
-            className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent border border-orange-500/30 cursor-pointer hover:border-orange-500/50 transition-all touch-btn"
-          >
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center">
-                <Sparkles className="w-4 h-4" />
+            {/* Idioma / Language */}
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 shrink-0">
+                  <Globe className="w-4 h-4 text-orange-500" />
+                </div>
+                <div>
+                  <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block">
+                    {t('profile.languageOption')}
+                  </span>
+                  <span className="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium">
+                    {language === 'pt' ? 'Português (Brasil)' : 'English (US)'}
+                  </span>
+                </div>
               </div>
-              <div>
-                <span className="text-xs font-bold text-orange-400 block">{t('welcome.navAbout')}</span>
-                <span className="text-[10px] text-[var(--text-muted)]">
-                  {language === 'pt' ? 'Finalidade, metodologia e criador' : 'Purpose, methodology & developer'}
+
+              <div className="flex items-center gap-1 bg-[var(--bg-card)] p-1 rounded-xl border border-[var(--border-subtle)]">
+                <button
+                  onClick={() => setLanguage('pt')}
+                  className={`px-3 py-1 text-[11px] sm:text-xs font-extrabold rounded-lg transition-all ${
+                    language === 'pt'
+                      ? 'bg-orange-500 text-black shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  PT
+                </button>
+                <button
+                  onClick={() => setLanguage('en')}
+                  className={`px-3 py-1 text-[11px] sm:text-xs font-extrabold rounded-lg transition-all ${
+                    language === 'en'
+                      ? 'bg-orange-500 text-black shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  EN
+                </button>
+              </div>
+            </div>
+
+            {/* Alternar Tema */}
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-orange-500/10 text-orange-500 shrink-0">
+                  {progress.theme === 'dark' ? (
+                    <Moon className="w-4 h-4 fill-orange-500" />
+                  ) : (
+                    <Sun className="w-4 h-4 fill-orange-500" />
+                  )}
+                </div>
+                <div>
+                  <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block">
+                    {t('profile.darkMode')}
+                  </span>
+                  <span className="text-[10px] sm:text-xs text-[var(--text-muted)] font-medium">
+                    {progress.theme === 'dark' ? t('profile.darkModeOn') : t('profile.darkModeOff')}
+                  </span>
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={onToggleTheme}
+                className={`px-3 py-1.5 text-[11px] sm:text-xs font-bold rounded-xl transition-all touch-btn min-h-[38px] flex items-center gap-2 border ${
+                  progress.theme === 'dark'
+                    ? 'bg-orange-500 text-black border-orange-400 shadow-sm'
+                    : 'bg-[var(--bg-card)] text-[var(--text-primary)] border-[var(--border-strong)]'
+                }`}
+                title={`Alternar Tema (Atualmente: ${progress.theme === 'dark' ? 'Ativado' : 'Desativado'})`}
+              >
+                <span className="uppercase tracking-wider">
+                  {progress.theme === 'dark' ? t('profile.enabled') : t('profile.disabled')}
                 </span>
-              </div>
+                <div className={`w-7 h-4 rounded-full transition-colors relative p-0.5 ${progress.theme === 'dark' ? 'bg-black/40' : 'bg-slate-300'}`}>
+                  <div className={`w-3 h-3 rounded-full transition-transform ${progress.theme === 'dark' ? 'translate-x-3 bg-white' : 'translate-x-0 bg-slate-600'}`} />
+                </div>
+              </motion.button>
             </div>
-            <ChevronRight className="w-4 h-4 text-orange-400" />
-          </div>
-        )}
-      </motion.div>
 
-      {/* Sincronização Inteligente & Persistência Offline */}
-      <motion.div
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-        className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-3 shadow-md"
-      >
-        <div className="flex items-center justify-between">
-          <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5">
-            <Cloud className="w-3.5 h-3.5 text-orange-500" />
-            <span>{t('profile.backgroundSync')}</span>
-          </h3>
-          <span
-            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-              syncStatus && !syncStatus.isOnline
-                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-                : syncStatus?.isSyncing
-                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-            }`}
-          >
-            {syncStatus && !syncStatus.isOnline ? (
-              <>
-                <WifiOff className="w-3 h-3" />
-                <span>Offline</span>
-              </>
-            ) : (
-              <>
-                <Wifi className="w-3 h-3" />
-                <span>Online</span>
-              </>
+            {/* Empacotamento Mobile / PWA */}
+            <div
+              onClick={() => setShowMobileModal(true)}
+              className="flex items-center justify-between p-3.5 rounded-xl bg-black/40 border border-white/5 cursor-pointer hover:border-white/20 transition-colors touch-btn"
+            >
+              <div className="flex items-center gap-3">
+                <Smartphone className="w-4 h-4 text-orange-400 shrink-0" />
+                <div>
+                  <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block">{t('profile.exportMobile')}</span>
+                  <span className="text-[10px] sm:text-xs text-[var(--text-muted)]">{t('profile.exportMobileSubtitle')}</span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" />
+            </div>
+
+            {/* Apresentação do Projeto & Desenvolvedor */}
+            {onOpenWelcome && (
+              <div
+                onClick={onOpenWelcome}
+                className="flex items-center justify-between p-3.5 rounded-xl bg-gradient-to-r from-orange-500/10 via-amber-500/5 to-transparent border border-orange-500/30 cursor-pointer hover:border-orange-500/50 transition-all touch-btn"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-xs sm:text-sm font-bold text-orange-400 block">{t('welcome.navAbout')}</span>
+                    <span className="text-[10px] sm:text-xs text-[var(--text-muted)]">
+                      {language === 'pt' ? 'Finalidade, metodologia e criador' : 'Purpose, methodology & developer'}
+                    </span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 text-orange-400" />
+              </div>
             )}
-          </span>
+          </motion.div>
         </div>
 
-        {/* Detalhes de Conectividade e Fila */}
-        <div className="p-3.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-2">
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--text-muted)]">{t('profile.cloudStatus')}</span>
-            <span className="font-bold text-[var(--text-primary)] flex items-center gap-1">
-              {syncStatus?.isSyncing ? (
-                <>
-                  <RefreshCw className="w-3 h-3 text-blue-400 animate-spin" />
-                  <span className="text-blue-400">{t('profile.syncingQueue')}</span>
-                </>
-              ) : syncStatus && syncStatus.pendingCount > 0 ? (
-                <span className="text-orange-400 font-bold">
-                  {syncStatus.pendingCount} {language === 'pt' ? 'ação(ões) pendente(s)' : 'pending action(s)'}
-                </span>
-              ) : (
-                <span className="text-emerald-400 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  {t('profile.fullySynced')}
-                </span>
-              )}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[var(--text-muted)]">{t('profile.lastSync')}</span>
-            <span className="font-medium text-[var(--text-primary)]">
-              {formatLastSync(progress.lastSyncedAt || syncStatus?.lastSyncedAt)}
-            </span>
-          </div>
-
-          <div className="pt-2 border-t border-[var(--border-subtle)] text-[11px] text-[var(--text-muted)] leading-relaxed flex items-start gap-1.5">
-            <Shield className="w-3.5 h-3.5 text-orange-500 shrink-0 mt-0.5" />
-            <span>
-              {language === 'pt'
-                ? 'Suporte offline ativo: você pode concluir aulas e quizzes mesmo sem internet. Os dados ficam salvos localmente e serão sincronizados automaticamente assim que a conexão for reestabelecida.'
-                : 'Active offline support: you can complete lessons and quizzes even without internet. Data is saved locally and will sync automatically once connection is restored.'}
-            </span>
-          </div>
-        </div>
-
-        {/* Botão de Sincronização Manual */}
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={handleManualSync}
-          disabled={isManualSyncing}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-orange-500/10 via-orange-500/20 to-orange-500/10 hover:bg-orange-500/30 border border-orange-500/30 rounded-xl text-xs font-bold text-orange-400 uppercase tracking-wider transition-all disabled:opacity-50 touch-btn"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${isManualSyncing ? 'animate-spin' : ''}`} />
-          <span>{isManualSyncing ? t('profile.syncingData') : t('profile.syncNow')}</span>
-        </motion.button>
-      </motion.div>
-
-      {/* Gerenciamento de Dados */}
-      <motion.div
-        variants={fadeInUp}
-        initial="initial"
-        animate="animate"
-        className="p-4 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-3 shadow-md"
-      >
-        <h3 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
-          {t('profile.backupData')}
-        </h3>
-
-        <div className="grid grid-cols-2 gap-2">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={onExportData}
-            className="flex items-center justify-center gap-2 p-3 bg-black/40 hover:bg-black/80 border border-white/10 hover:border-white/20 rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
+        {/* Right Column (lg:col-span-7 space-y-6) */}
+        <div className="lg:col-span-7 space-y-6">
+          {/* Sincronização Inteligente & Persistência Offline */}
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            className="p-5 sm:p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-4 shadow-md"
           >
-            <Download className="w-4 h-4 text-orange-400" />
-            <span>{t('profile.exportJson')}</span>
-          </motion.button>
+            <div className="flex items-center justify-between">
+              <h3 className="text-[10px] sm:text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-1.5">
+                <Cloud className="w-4 h-4 text-orange-500" />
+                <span>{t('profile.backgroundSync')}</span>
+              </h3>
+              <span
+                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                  syncStatus && !syncStatus.isOnline
+                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                    : syncStatus?.isSyncing
+                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                    : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                }`}
+              >
+                {syncStatus && !syncStatus.isOnline ? (
+                  <>
+                    <WifiOff className="w-3.5 h-3.5" />
+                    <span>Offline</span>
+                  </>
+                ) : (
+                  <>
+                    <Wifi className="w-3.5 h-3.5" />
+                    <span>Online</span>
+                  </>
+                )}
+              </span>
+            </div>
 
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={() => setShowImportModal(true)}
-            className="flex items-center justify-center gap-2 p-3 bg-black/40 hover:bg-black/80 border border-white/10 hover:border-white/20 rounded-xl text-xs font-bold text-[var(--text-primary)] transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
+            {/* Detalhes de Conectividade e Fila */}
+            <div className="p-4 sm:p-5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-3">
+              <div className="flex items-center justify-between text-xs sm:text-sm">
+                <span className="text-[var(--text-muted)]">{t('profile.cloudStatus')}</span>
+                <span className="font-bold text-[var(--text-primary)] flex items-center gap-1.5">
+                  {syncStatus?.isSyncing ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+                      <span className="text-blue-400">{t('profile.syncingQueue')}</span>
+                    </>
+                  ) : syncStatus && syncStatus.pendingCount > 0 ? (
+                    <span className="text-orange-400 font-bold">
+                      {syncStatus.pendingCount} {language === 'pt' ? 'ação(ões) pendente(s)' : 'pending action(s)'}
+                    </span>
+                  ) : (
+                    <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4" />
+                      {t('profile.fullySynced')}
+                    </span>
+                  )}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-xs sm:text-sm">
+                <span className="text-[var(--text-muted)]">{t('profile.lastSync')}</span>
+                <span className="font-medium text-[var(--text-primary)]">
+                  {formatLastSync(progress.lastSyncedAt || syncStatus?.lastSyncedAt)}
+                </span>
+              </div>
+
+              <div className="pt-2.5 border-t border-[var(--border-subtle)] text-xs text-[var(--text-muted)] leading-relaxed flex items-start gap-2">
+                <Shield className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
+                <span>
+                  {language === 'pt'
+                    ? 'Suporte offline ativo: você pode concluir aulas e quizzes mesmo sem internet. Os dados ficam salvos localmente e serão sincronizados automaticamente assim que a conexão for reestabelecida.'
+                    : 'Active offline support: you can complete lessons and quizzes even without internet. Data is saved locally and will sync automatically once connection is restored.'}
+                </span>
+              </div>
+            </div>
+
+            {/* Botão de Sincronização Manual */}
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={handleManualSync}
+              disabled={isManualSyncing}
+              className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-orange-500/10 via-orange-500/20 to-orange-500/10 hover:bg-orange-500/30 border border-orange-500/30 rounded-xl text-xs sm:text-sm font-black text-orange-400 uppercase tracking-wider transition-all disabled:opacity-50 touch-btn"
+            >
+              <RefreshCw className={`w-4 h-4 ${isManualSyncing ? 'animate-spin' : ''}`} />
+              <span>{isManualSyncing ? t('profile.syncingData') : t('profile.syncNow')}</span>
+            </motion.button>
+          </motion.div>
+
+          {/* Gerenciamento de Dados */}
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            animate="animate"
+            className="p-5 sm:p-6 rounded-2xl bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-4 shadow-md"
           >
-            <Upload className="w-4 h-4 text-orange-400" />
-            <span>{t('profile.importJson')}</span>
-          </motion.button>
-        </div>
+            <h3 className="text-[10px] sm:text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
+              {t('profile.backupData')}
+            </h3>
 
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setShowResetModal(true)}
-          className="w-full flex items-center justify-center gap-2 p-3 bg-red-950/30 hover:bg-red-900/40 border border-red-500/30 rounded-xl text-xs font-bold text-red-400 transition-colors min-h-[44px] uppercase tracking-wider touch-btn"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span>{t('profile.resetAllProgress')}</span>
-        </motion.button>
-      </motion.div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={onExportData}
+                className="flex items-center justify-center gap-2.5 p-3.5 bg-black/40 hover:bg-black/80 border border-white/10 hover:border-white/20 rounded-xl text-xs sm:text-sm font-bold text-[var(--text-primary)] transition-colors min-h-[46px] uppercase tracking-wider touch-btn"
+              >
+                <Download className="w-4 h-4 text-orange-400" />
+                <span>{t('profile.exportJson')}</span>
+              </motion.button>
+
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowImportModal(true)}
+                className="flex items-center justify-center gap-2.5 p-3.5 bg-black/40 hover:bg-black/80 border border-white/10 hover:border-white/20 rounded-xl text-xs sm:text-sm font-bold text-[var(--text-primary)] transition-colors min-h-[46px] uppercase tracking-wider touch-btn"
+              >
+                <Upload className="w-4 h-4 text-orange-400" />
+                <span>{t('profile.importJson')}</span>
+              </motion.button>
+            </div>
+
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowResetModal(true)}
+              className="w-full flex items-center justify-center gap-2 p-3.5 bg-red-950/30 hover:bg-red-900/40 border border-red-500/30 rounded-xl text-xs sm:text-sm font-bold text-red-400 transition-colors min-h-[46px] uppercase tracking-wider touch-btn"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>{t('profile.resetAllProgress')}</span>
+            </motion.button>
+          </motion.div>
+        </div>
+      </div>
 
       {/* Modal Importar JSON */}
       <AnimatePresence>

@@ -1,6 +1,6 @@
 {
   "name": "CodeMaster - Plataforma de Programação",
-  "description": "Plataforma interativa e profissional de ensino de programação com 21 tecnologias completas (React, Next.js, TypeScript, Git, Linux/Cybersecurity, PostgreSQL, Python FastAPI, IA & APIs, C/Sistemas, Cloud & DevOps, Inglês Técnico), sistema de Streak diário e cálculo de maestria visual.",
+  "description": "Plataforma interativa e profissional de ensino de programação com 31 tecnologias completas (React, Next.js, TypeScript, Git, Linux/Cybersecurity, PostgreSQL, Python FastAPI, IA & APIs, C/Sistemas, Cloud & DevOps, Inglês Técnico, Unity 2D/3D, Unreal Engine 5, Godot 4, Multiplayer, Mobile Games, Steam Publishing, Matemática/Física de Jogos e Blender 3D), sistema de Streak diário e cálculo de maestria visual.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
