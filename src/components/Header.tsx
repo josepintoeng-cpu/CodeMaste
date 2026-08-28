@@ -29,40 +29,40 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const isDark = progress.theme === 'dark';
   const { t, language, toggleLanguage } = useI18n();
-  const { isScrolled, scrollDirection } = useScrollDirection(10);
+  const { isScrolled } = useScrollDirection(10);
 
   return (
     <header
-      className={`sticky top-0 z-40 text-[var(--text-primary)] px-3 sm:px-5 md:px-8 py-2.5 sm:py-3 transition-all duration-300 ${
+      className={`sticky top-0 z-40 text-[var(--text-primary)] px-2.5 sm:px-5 md:px-8 py-2 sm:py-2.5 transition-all duration-200 ${
         isScrolled
-          ? 'bg-[var(--header-bg)] backdrop-blur-xl border-b border-[var(--border-subtle)] shadow-lg shadow-black/10 translate-y-0'
+          ? 'bg-[var(--header-bg)] backdrop-blur-xl border-b border-[var(--border-subtle)] shadow-md shadow-black/5'
           : 'bg-[var(--bg-primary)] border-b border-transparent shadow-none'
       }`}
     >
-      <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
-        {/* Left Section: Back Button or Logo & User Title */}
-        <div className="flex items-center gap-2.5 min-w-0 flex-1 sm:flex-initial">
+      <div className="w-full max-w-7xl mx-auto flex items-center justify-between gap-1.5 sm:gap-4">
+        {/* Left Section: Back Button or Logo & User Profile */}
+        <div className="flex items-center gap-2 min-w-0 flex-shrink flex-grow-0 sm:flex-initial">
           {onBack ? (
             <motion.button
-              whileHover={{ scale: 1.03, x: -2 }}
-              whileTap={{ scale: 0.94 }}
+              whileHover={{ scale: 1.02, x: -1 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onBack}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-orange-500/15 hover:bg-orange-500/25 active:bg-orange-500/30 text-orange-400 border border-orange-500/30 text-xs font-black transition-all touch-btn shadow-sm shrink-0"
+              className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-orange-500/10 hover:bg-orange-500/20 active:bg-orange-500/25 text-orange-400 border border-orange-500/25 transition-all touch-btn shadow-sm shrink-0 min-w-0"
               title={backLabel || t('nav.back')}
             >
-              <ArrowLeft className="w-4 h-4 stroke-[2.5]" />
-              <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-extrabold">
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5] shrink-0" />
+              <span className="text-[10px] sm:text-xs uppercase tracking-wider font-extrabold truncate max-w-[85px] xs:max-w-[130px] sm:max-w-none">
                 {backLabel || t('nav.back')}
               </span>
             </motion.button>
           ) : (
             <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="flex items-center gap-2.5 cursor-pointer touch-btn min-w-0 group"
+              whileHover={{ scale: 1.01 }}
+              className="flex items-center gap-2 sm:gap-2.5 cursor-pointer touch-btn min-w-0 group"
               onClick={onProfileClick}
             >
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 text-orange-400 border border-orange-500/30 flex items-center justify-center font-bold text-xs shrink-0 shadow-sm group-hover:border-orange-500/50 group-hover:shadow-orange-500/10 transition-all">
-                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-orange-400" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-gradient-to-br from-orange-500/20 to-amber-500/10 text-orange-400 border border-orange-500/30 flex items-center justify-center font-bold text-xs shrink-0 shadow-sm group-hover:border-orange-500/50 transition-all">
+                <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
               </div>
               <div className="min-w-0 overflow-hidden">
                 <div className="text-[9px] sm:text-[10px] uppercase font-black text-orange-500 tracking-wider leading-none flex items-center gap-1.5 mb-0.5">
@@ -117,8 +117,8 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* Right Section Gamification Stats: Streak & XP & Language & Theme Toggle */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        {/* Right Section Gamification Stats: Streak, XP, Language & Theme */}
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0 flex-nowrap">
           {/* Elemento Streak Counter Diário */}
           <StreakCounter
             progress={progress}
@@ -128,53 +128,53 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Pontos de Experiência / XP */}
           <motion.div
-            whileHover={{ scale: 1.05 }}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-xs font-black shadow-sm"
+            whileHover={{ scale: 1.03 }}
+            className="flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-orange-500/10 border border-orange-500/25 text-orange-400 text-[11px] sm:text-xs font-black shadow-sm shrink-0"
             title={t('header.xpTitle')}
           >
-            <Zap className="w-3.5 h-3.5 fill-orange-400 text-orange-400 shrink-0" />
-            <span className="text-[11px] sm:text-xs">{progress.xp}</span>
+            <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-orange-400 text-orange-400 shrink-0" />
+            <span>{progress.xp}</span>
           </motion.div>
 
-          {/* Apresentação & Sobre o Projeto */}
+          {/* Apresentação & Sobre o Projeto (Exibido a partir de telas médias) */}
           {onOpenWelcome && (
             <motion.button
-              whileHover={{ scale: 1.1, rotate: 12 }}
-              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.08, rotate: 8 }}
+              whileTap={{ scale: 0.92 }}
               onClick={onOpenWelcome}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
+              className="hidden md:flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
               title={t('welcome.navAbout')}
             >
-              <Sparkles className="w-4 h-4 text-orange-400" />
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
             </motion.button>
           )}
 
           {/* Quick Language Toggle */}
           <motion.button
-            whileHover={{ scale: 1.06 }}
-            whileTap={{ scale: 0.92 }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.94 }}
             onClick={toggleLanguage}
-            className="flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-bold text-[var(--text-primary)] transition-all touch-btn shadow-sm"
+            className="flex items-center gap-1 px-1.5 sm:px-2 py-1 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-[10px] sm:text-xs font-extrabold text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
             title={language === 'pt' ? 'Switch to English' : 'Mudar para Português'}
           >
-            <Globe className="w-3.5 h-3.5 text-orange-400 shrink-0" />
-            <span className="text-[10px] font-black uppercase tracking-wider">
+            <Globe className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-orange-400 shrink-0" />
+            <span className="font-black uppercase tracking-wider text-[10px]">
               {language === 'pt' ? 'PT' : 'EN'}
             </span>
           </motion.button>
 
           {/* Theme Toggle Button */}
           <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.92 }}
             onClick={onToggleTheme}
-            className="flex items-center justify-center w-8 h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
+            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--bg-surface)] hover:bg-[var(--border-strong)] border border-[var(--border-subtle)] text-xs font-medium text-[var(--text-primary)] transition-all touch-btn shadow-sm shrink-0"
             title={isDark ? t('header.themeDarkActive') : t('header.themeLightActive')}
           >
             {isDark ? (
-              <Moon className="w-4 h-4 text-orange-400 fill-orange-400" />
+              <Moon className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
             ) : (
-              <Sun className="w-4 h-4 text-orange-500 fill-orange-500" />
+              <Sun className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
             )}
           </motion.button>
         </div>
