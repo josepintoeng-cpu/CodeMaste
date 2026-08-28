@@ -1,9 +1,9 @@
 {
   "id": "/",
   "scope": "/",
-  "name": "CodeMaster — Guia Prático de Programação",
+  "name": "CodeMaster - Plataforma de Programação",
   "short_name": "CodeMaster",
-  "description": "Guia completo de programação mobile-first com cursos de HTML, CSS, JavaScript, React e Python.",
+  "description": "Plataforma profissional de capacitação em engenharia de software e desenvolvimento de jogos com 31 trilhas tecnológicas, ambiente de execução interativo e exames oficiais.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",

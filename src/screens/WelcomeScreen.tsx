@@ -417,12 +417,12 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
           </div>
         </section>
 
-        {/* SECTION 5: 21 TECNOLOGIAS DA PLATAFORMA */}
+        {/* SECTION 5: 31 TECNOLOGIAS DA PLATAFORMA */}
         <section id="tecnologias" className="space-y-6">
           <div className="text-center space-y-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--bg-surface)] text-orange-500 text-[10px] font-black uppercase tracking-widest border border-[var(--border-subtle)]">
               <Cpu className="w-3.5 h-3.5 text-orange-500" />
-              <span>21 TRILHAS DISPONÍVEIS</span>
+              <span>{TECHNOLOGIES.length} TRILHAS DISPONÍVEIS</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[var(--text-primary)]">
               Grade Tecnológica Abrangente
