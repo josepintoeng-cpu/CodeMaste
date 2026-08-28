@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, CheckCircle2, Lock, Play, HelpCircle, Clock, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Lock, Play, HelpCircle, Clock, Zap, AlertTriangle, ArrowRight } from 'lucide-react';
 import { TechId, LevelId, UserProgress } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { getLessonsForTechAndLevel } from '../content';
+import { getTechUnlockState } from '../utils/unlockProgression';
 import { FooterStamp } from '../components/FooterStamp';
 import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
 import { useI18n } from '../i18n';
@@ -15,6 +16,7 @@ interface TechDetailScreenProps {
   onBack: () => void;
   onStartLesson: (lessonId: string, levelId: LevelId) => void;
   onStartQuiz: (levelId: LevelId) => void;
+  onSelectTech?: (techId: TechId) => void;
 }
 
 export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
@@ -24,11 +26,13 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
   onBack,
   onStartLesson,
   onStartQuiz,
+  onSelectTech,
 }) => {
   const { t, language } = useI18n();
   const [activeLevel, setActiveLevel] = useState<LevelId>(initialLevelId);
 
   const tech = TECHNOLOGIES.find(t => t.id === techId) || TECHNOLOGIES[0];
+  const unlockState = getTechUnlockState(techId, progress);
 
   const levels: { id: LevelId; title: string; label: string }[] = [
     { id: 'iniciante', title: language === 'pt' ? '01. INICIANTE' : '01. BEGINNER', label: t('techDetail.levelIniciante') },
@@ -72,6 +76,40 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
           </div>
         </div>
       </motion.div>
+
+      {/* Banner de Bloqueio se a tecnologia for bloqueada */}
+      {!unlockState.isUnlocked && unlockState.prevTech && (
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md"
+        >
+          <div className="flex items-start gap-3">
+            <div className="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 border border-amber-500/30 mt-0.5 sm:mt-0">
+              <Lock className="w-4 h-4" />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold text-amber-300">
+                {t('unlock.techLockedModalTitle')}
+              </h4>
+              <p className="text-[11px] sm:text-xs text-[var(--text-muted)] mt-0.5">
+                {t('unlock.completePrevFirst', { prevTech: unlockState.prevTech.name, currentTech: tech.name })}
+              </p>
+            </div>
+          </div>
+
+          {onSelectTech && (
+            <button
+              onClick={() => onSelectTech(unlockState.prevTech!.id)}
+              className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all shadow-sm shrink-0 touch-btn"
+            >
+              <span>{t('unlock.goToPrevTech', { prevTech: unlockState.prevTech.name })}</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </motion.div>
+      )}
 
       {/* Submenu Tabs de Níveis */}
       <motion.div

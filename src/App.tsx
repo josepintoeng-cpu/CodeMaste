@@ -297,6 +297,7 @@ export default function App() {
                 onBack={() => setSelectedTechId(null)}
                 onStartLesson={handleStartLesson}
                 onStartQuiz={handleStartQuiz}
+                onSelectTech={handleSelectTech}
               />
             </motion.div>
           ) : (

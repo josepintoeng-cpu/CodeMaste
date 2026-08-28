@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion } from 'motion/react';
 import {
   Play,
@@ -26,11 +26,19 @@ import {
   BookMarked,
   Gamepad2,
   Box,
+  Lock,
+  CheckCircle2,
 } from 'lucide-react';
 import { UserProgress, TechId, LevelId } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { FooterStamp } from '../components/FooterStamp';
 import { StreakCounter } from '../components/StreakCounter';
+import { LockedTechModal } from '../components/LockedTechModal';
+import {
+  getAllTechUnlockStates,
+  getNextRecommendedLesson,
+  TechUnlockState,
+} from '../utils/unlockProgression';
 import { fadeInUp, staggerContainer, cardVariant, floatingVariant } from '../utils/animations';
 import { useI18n } from '../i18n';
 
@@ -46,6 +54,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onNavigateTab,
 }) => {
   const { t, language } = useI18n();
+  const [selectedLockedTech, setSelectedLockedTech] = useState<TechUnlockState | null>(null);
 
   // Mapeamento de ícones do lucide-react para os cards
   const getTechIcon = (iconName: string) => {
@@ -120,18 +129,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const completedToday = (progress.lessonDates || []).includes(todayKey);
   const streak = progress.streak || 0;
 
-  const getTechProgress = (techId: TechId) => {
-    const completedForTech = Object.keys(progress.completedLessons).filter(id =>
-      id.startsWith(techId)
-    ).length;
-    // Base de 20 aulas por tecnologia
-    const pct = Math.min(Math.round((completedForTech / 20) * 100), 100);
-    return { count: completedForTech, pct };
+  // Estados de desbloqueio sequencial
+  const unlockStates = useMemo(() => getAllTechUnlockStates(progress), [progress]);
+  const nextLessonData = useMemo(() => getNextRecommendedLesson(progress), [progress]);
+
+  const unlockedCount = useMemo(() => {
+    let count = 0;
+    unlockStates.forEach(s => {
+      if (s.isUnlocked) count++;
+    });
+    return count;
+  }, [unlockStates]);
+
+  const handleTechClick = (techId: TechId) => {
+    const state = unlockStates.get(techId);
+    if (state && !state.isUnlocked) {
+      setSelectedLockedTech(state);
+    } else {
+      onSelectTech(techId);
+    }
   };
 
   return (
     <div className="relative pb-28 pt-4 px-3.5 sm:px-6 md:px-8 max-w-7xl mx-auto space-y-6 overflow-hidden">
-      {/* Ambient Floating Glow Elements (Responds to Scroll & Float) */}
+      {/* Ambient Floating Glow Elements */}
       <div className="absolute top-10 left-1/4 w-72 sm:w-96 h-72 sm:h-96 bg-orange-500/8 rounded-full blur-3xl pointer-events-none -z-10 animate-float-slow" />
       <div className="absolute top-1/2 right-10 w-64 sm:w-80 h-64 sm:h-80 bg-amber-500/6 rounded-full blur-3xl pointer-events-none -z-10 animate-float-dynamic" />
 
@@ -173,14 +194,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         <StreakCounter
           progress={progress}
           variant="card"
-          onNavigateToStudy={() => onSelectTech('python', 'iniciante')}
+          onNavigateToStudy={() => {
+            if (nextLessonData) {
+              onSelectTech(nextLessonData.tech.id, nextLessonData.levelId);
+            } else {
+              onSelectTech('python', 'iniciante');
+            }
+          }}
         />
 
-        {/* Quick Resume Card with Floating Hover */}
+        {/* Quick Resume Card Dinâmico com a Próxima Aula Sequencial */}
         <motion.button
           whileHover={{ y: -3, scale: 1.005 }}
           whileTap={{ scale: 0.98 }}
-          onClick={() => onSelectTech('python', 'iniciante')}
+          onClick={() => {
+            if (nextLessonData) {
+              onSelectTech(nextLessonData.tech.id, nextLessonData.levelId);
+            } else {
+              onSelectTech('python', 'iniciante');
+            }
+          }}
           className="w-full bg-[var(--bg-surface)] hover:bg-[var(--bg-card)] text-[var(--text-primary)] p-4 sm:p-5 rounded-2xl flex items-center justify-between border border-[var(--border-subtle)] hover:border-orange-500/30 transition-all shadow-sm group"
         >
           <div className="flex items-center gap-3.5">
@@ -192,7 +225,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 {t('home.continueLearning')}
               </span>
               <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)] block">
-                Python: 1. {language === 'pt' ? 'Olá Mundo e Variáveis' : 'Hello World & Variables'}
+                {nextLessonData ? (
+                  `${nextLessonData.tech.name}: ${nextLessonData.lesson.title}`
+                ) : (
+                  `Python: 1. ${language === 'pt' ? 'Olá Mundo e Variáveis' : 'Hello World & Variables'}`
+                )}
               </span>
             </div>
           </div>
@@ -204,11 +241,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-xs sm:text-sm uppercase tracking-widest text-[var(--text-muted)] font-bold">
-              {t('home.technologies')}
-            </h3>
-            <p className="text-[11px] sm:text-xs text-[var(--text-muted)]">
-              {t('home.techSubtitle')}
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs sm:text-sm uppercase tracking-widest text-[var(--text-muted)] font-bold">
+                {t('home.technologies')}
+              </h3>
+              <span className="text-[10px] font-bold text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-full">
+                {unlockedCount} / {TECHNOLOGIES.length} {t('unlock.unlocked')}
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-[var(--text-muted)] mt-0.5">
+              {t('unlock.journeySubtitle')}
             </p>
           </div>
           <button
@@ -227,33 +269,64 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"
         >
           {TECHNOLOGIES.map(tech => {
-            const Icon = getTechIcon(tech.iconName);
             const abbrev = getTechAbbrev(tech.id);
-            const { count, pct } = getTechProgress(tech.id);
+            const unlockState = unlockStates.get(tech.id);
+            const isUnlocked = unlockState?.isUnlocked ?? false;
+            const isCompleted = unlockState?.isCompleted ?? false;
+            const count = unlockState?.completedLessons ?? 0;
+            const pct = unlockState?.progressPct ?? 0;
 
             return (
               <motion.div
                 key={tech.id}
                 variants={cardVariant}
-                whileHover={{ y: -4, scale: 1.02, transition: { duration: 0.2 } }}
+                whileHover={isUnlocked ? { y: -4, scale: 1.02, transition: { duration: 0.2 } } : { scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => onSelectTech(tech.id)}
-                className="bg-[var(--bg-card)] hover:bg-[var(--bg-surface)] p-4 sm:p-5 rounded-2xl border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all cursor-pointer relative overflow-hidden group shadow-md"
+                onClick={() => handleTechClick(tech.id)}
+                className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer relative overflow-hidden group shadow-md ${
+                  !isUnlocked
+                    ? 'bg-[var(--bg-surface)]/60 border-white/5 opacity-70 hover:opacity-90 hover:border-amber-500/40'
+                    : isCompleted
+                    ? 'bg-[var(--bg-card)] border-emerald-500/40 hover:border-emerald-500/60'
+                    : 'bg-[var(--bg-card)] hover:bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
+                }`}
               >
                 {/* Tech Header Icon + Badge */}
                 <div className="flex justify-between items-start mb-3">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black shadow-inner"
-                    style={{ backgroundColor: `${tech.color}20`, color: tech.color, border: `1px solid ${tech.color}40` }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-xs font-black shadow-inner relative"
+                    style={{
+                      backgroundColor: isUnlocked ? `${tech.color}20` : 'rgba(255,255,255,0.05)',
+                      color: isUnlocked ? tech.color : 'var(--text-muted)',
+                      border: `1px solid ${isUnlocked ? `${tech.color}40` : 'rgba(255,255,255,0.1)'}`,
+                    }}
                   >
                     {abbrev}
+                    {!isUnlocked && (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500/90 text-black flex items-center justify-center shadow-sm">
+                        <Lock className="w-2.5 h-2.5" />
+                      </div>
+                    )}
                   </div>
-                  <span
-                    className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
-                    style={{ backgroundColor: `${tech.color}15`, color: tech.color, border: `1px solid ${tech.color}30` }}
-                  >
-                    {tech.badge}
-                  </span>
+
+                  {isCompleted ? (
+                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      {t('unlock.completed')}
+                    </span>
+                  ) : !isUnlocked ? (
+                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      {t('unlock.locked')}
+                    </span>
+                  ) : (
+                    <span
+                      className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                      style={{ backgroundColor: `${tech.color}15`, color: tech.color, border: `1px solid ${tech.color}30` }}
+                    >
+                      {tech.badge}
+                    </span>
+                  )}
                 </div>
 
                 <div className="text-xs sm:text-sm font-bold text-[var(--text-primary)] mb-0.5">{tech.name}</div>
@@ -263,12 +336,17 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mt-3">
                   <div
                     className="h-full rounded-full transition-all duration-500"
-                    style={{ width: `${pct}%`, backgroundColor: tech.color }}
+                    style={{
+                      width: `${pct}%`,
+                      backgroundColor: isUnlocked ? (isCompleted ? '#10B981' : tech.color) : 'rgba(255,255,255,0.2)',
+                    }}
                   />
                 </div>
                 <div className="flex justify-between items-center text-[9px] sm:text-[10px] text-[var(--text-muted)] mt-1.5 font-medium">
                   <span>{count}/20 {t('home.lessonsCount')}</span>
-                  <span style={{ color: tech.color }} className="font-bold">{pct}%</span>
+                  <span style={{ color: isUnlocked ? (isCompleted ? '#10B981' : tech.color) : 'var(--text-muted)' }} className="font-bold">
+                    {pct}%
+                  </span>
                 </div>
               </motion.div>
             );
@@ -298,6 +376,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[var(--text-muted)] mt-1">{t('home.streakStat')}</div>
         </div>
       </motion.div>
+
+      {/* Modal de Tecnologia Bloqueada */}
+      <LockedTechModal
+        unlockState={selectedLockedTech}
+        onClose={() => setSelectedLockedTech(null)}
+        onGoToTech={(techId) => {
+          setSelectedLockedTech(null);
+          onSelectTech(techId);
+        }}
+      />
 
       {/* Signature Stamp */}
       <FooterStamp />

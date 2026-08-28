@@ -1,10 +1,12 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Search, ChevronRight, Award, Trophy, BookOpen, Sparkles, Filter } from 'lucide-react';
+import { Search, ChevronRight, Award, Trophy, BookOpen, Sparkles, Filter, Lock, CheckCircle2 } from 'lucide-react';
 import { TECHNOLOGIES } from '../content/technologies';
 import { TechId, UserProgress } from '../types';
 import { calculateTechMastery, calculateOverallCatalogMastery } from '../utils/mastery';
 import { TechMasteryIndicator } from '../components/TechMasteryIndicator';
+import { LockedTechModal } from '../components/LockedTechModal';
+import { getAllTechUnlockStates, TechUnlockState } from '../utils/unlockProgression';
 import { FooterStamp } from '../components/FooterStamp';
 import { fadeInUp, staggerContainer, cardVariant } from '../utils/animations';
 import { useI18n } from '../i18n';
@@ -18,7 +20,8 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
   const { t, language } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'in_progress' | 'mastered' | 'unstarted'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'unlocked' | 'locked' | 'in_progress' | 'mastered' | 'unstarted'>('all');
+  const [selectedLockedTech, setSelectedLockedTech] = useState<TechUnlockState | null>(null);
 
   const categoryOptions = [
     { key: 'all', label: t('courses.catAll'), rawCat: 'Todos' },
@@ -73,6 +76,17 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
     }
   };
 
+  // Estados de desbloqueio sequencial
+  const unlockStates = useMemo(() => getAllTechUnlockStates(progress), [progress]);
+
+  const unlockedCount = useMemo(() => {
+    let count = 0;
+    unlockStates.forEach(s => {
+      if (s.isUnlocked) count++;
+    });
+    return count;
+  }, [unlockStates]);
+
   // Calcula o panorama global de domínio
   const catalogStats = useMemo(() => {
     return calculateOverallCatalogMastery(progress);
@@ -97,18 +111,33 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
 
     const mastery = techMasteryMap.get(tech.id);
     const pct = mastery?.percentage || 0;
+    const unlockState = unlockStates.get(tech.id);
+    const isUnlocked = unlockState?.isUnlocked ?? false;
 
     let matchesStatus = true;
-    if (statusFilter === 'in_progress') {
-      matchesStatus = pct > 0 && pct < 100;
+    if (statusFilter === 'unlocked') {
+      matchesStatus = isUnlocked;
+    } else if (statusFilter === 'locked') {
+      matchesStatus = !isUnlocked;
+    } else if (statusFilter === 'in_progress') {
+      matchesStatus = isUnlocked && pct > 0 && pct < 100;
     } else if (statusFilter === 'mastered') {
-      matchesStatus = pct === 100;
+      matchesStatus = isUnlocked && pct === 100;
     } else if (statusFilter === 'unstarted') {
-      matchesStatus = pct === 0;
+      matchesStatus = isUnlocked && pct === 0;
     }
 
     return matchesSearch && matchesCat && matchesStatus;
   });
+
+  const handleTechClick = (techId: TechId) => {
+    const unlockState = unlockStates.get(techId);
+    if (unlockState && !unlockState.isUnlocked) {
+      setSelectedLockedTech(unlockState);
+    } else {
+      onSelectTech(techId);
+    }
+  };
 
   return (
     <div className="relative pb-28 pt-4 px-3.5 sm:px-6 md:px-8 max-w-7xl mx-auto space-y-6 overflow-hidden">
@@ -232,6 +261,28 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
           </button>
 
           <button
+            onClick={() => setStatusFilter('unlocked')}
+            className={`px-2.5 py-1 rounded-lg font-bold transition-all whitespace-nowrap touch-btn ${
+              statusFilter === 'unlocked'
+                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-subtle)]'
+            }`}
+          >
+            {t('unlock.unlocked')} ({unlockedCount})
+          </button>
+
+          <button
+            onClick={() => setStatusFilter('locked')}
+            className={`px-2.5 py-1 rounded-lg font-bold transition-all whitespace-nowrap touch-btn ${
+              statusFilter === 'locked'
+                ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] bg-[var(--bg-surface)] border border-[var(--border-subtle)]'
+            }`}
+          >
+            {t('unlock.locked')} ({TECHNOLOGIES.length - unlockedCount})
+          </button>
+
+          <button
             onClick={() => setStatusFilter('in_progress')}
             className={`px-2.5 py-1 rounded-lg font-bold transition-all whitespace-nowrap touch-btn ${
               statusFilter === 'in_progress'
@@ -295,6 +346,8 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
           {filteredTechs.map(tech => {
             const abbrev = getTechAbbrev(tech.id);
             const mastery = techMasteryMap.get(tech.id) || calculateTechMastery(tech.id, progress);
+            const unlockState = unlockStates.get(tech.id);
+            const isUnlocked = unlockState?.isUnlocked ?? false;
 
             return (
               <motion.div
@@ -304,23 +357,32 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                 initial="initial"
                 animate="animate"
                 exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-                whileHover={{ y: -2, transition: { duration: 0.15 } }}
+                whileHover={isUnlocked ? { y: -2, transition: { duration: 0.15 } } : { scale: 1.005 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => onSelectTech(tech.id)}
-                className="p-4 rounded-2xl bg-[var(--bg-card)] hover:bg-[var(--bg-surface)] border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-all cursor-pointer shadow-md relative overflow-hidden"
+                onClick={() => handleTechClick(tech.id)}
+                className={`p-4 rounded-2xl border transition-all cursor-pointer shadow-md relative overflow-hidden ${
+                  !isUnlocked
+                    ? 'bg-[var(--bg-surface)]/60 border-white/5 opacity-75 hover:opacity-90 hover:border-amber-500/40'
+                    : 'bg-[var(--bg-card)] hover:bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-strong)]'
+                }`}
               >
                 {/* Linha Principal: Ícone, Título, Badge de Categoria e Indicador Circular */}
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 shadow-inner"
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 shadow-inner relative"
                       style={{
-                        backgroundColor: `${tech.color}18`,
-                        color: tech.color,
-                        border: `1.5px solid ${tech.color}40`,
+                        backgroundColor: isUnlocked ? `${tech.color}18` : 'rgba(255,255,255,0.05)',
+                        color: isUnlocked ? tech.color : 'var(--text-muted)',
+                        border: `1.5px solid ${isUnlocked ? `${tech.color}40` : 'rgba(255,255,255,0.1)'}`,
                       }}
                     >
                       {abbrev}
+                      {!isUnlocked && (
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-500/90 text-black flex items-center justify-center shadow-sm">
+                          <Lock className="w-2.5 h-2.5" />
+                        </div>
+                      )}
                     </div>
 
                     <div className="min-w-0">
@@ -328,19 +390,32 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                         <h3 className="text-sm font-extrabold text-[var(--text-primary)] truncate">
                           {tech.name}
                         </h3>
-                        <span
-                          className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0"
-                          style={{
-                            backgroundColor: `${tech.color}15`,
-                            color: tech.color,
-                            border: `1px solid ${tech.color}30`,
-                          }}
-                        >
-                          {tech.category}
-                        </span>
+                        {!isUnlocked ? (
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center gap-1 shrink-0">
+                            <Lock className="w-2.5 h-2.5" />
+                            {t('unlock.locked')}
+                          </span>
+                        ) : (
+                          <span
+                            className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0"
+                            style={{
+                              backgroundColor: `${tech.color}15`,
+                              color: tech.color,
+                              border: `1px solid ${tech.color}30`,
+                            }}
+                          >
+                            {tech.category}
+                          </span>
+                        )}
                       </div>
                       <p className="text-xs text-[var(--text-muted)] line-clamp-1 mt-0.5">
-                        {tech.description}
+                        {!isUnlocked && unlockState?.prevTech ? (
+                          <span className="text-amber-400/90 font-medium">
+                            {t('unlock.completePrevFirst', { prevTech: unlockState.prevTech.name, currentTech: tech.name })}
+                          </span>
+                        ) : (
+                          tech.description
+                        )}
                       </p>
                     </div>
                   </div>
@@ -349,7 +424,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                   <div className="flex items-center gap-2 shrink-0">
                     <TechMasteryIndicator
                       mastery={mastery}
-                      color={tech.color}
+                      color={isUnlocked ? tech.color : '#71717A'}
                       variant="circular"
                     />
                     <ChevronRight className="w-5 h-5 text-[var(--text-muted)] shrink-0" />
@@ -359,7 +434,7 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                 {/* Representação Visual Detalhada de Domínio (Mastery Bar, Tier, Aulas e Quizzes) */}
                 <TechMasteryIndicator
                   mastery={mastery}
-                  color={tech.color}
+                  color={isUnlocked ? tech.color : '#71717A'}
                   variant="card"
                 />
               </motion.div>
@@ -381,6 +456,16 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
           </motion.div>
         )}
       </motion.div>
+
+      {/* Modal de Tecnologia Bloqueada */}
+      <LockedTechModal
+        unlockState={selectedLockedTech}
+        onClose={() => setSelectedLockedTech(null)}
+        onGoToTech={(techId) => {
+          setSelectedLockedTech(null);
+          onSelectTech(techId);
+        }}
+      />
 
       <FooterStamp />
     </div>
