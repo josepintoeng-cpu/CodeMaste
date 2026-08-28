@@ -12,6 +12,12 @@ export interface TechUnlockState {
   completedLessons: number;
   totalLessons: number;
   progressPct: number;
+  isExamUnlocked: boolean;
+  examPassed: boolean;
+  examScore: number; // 0 a 20 valores
+  isExamUnderReview: boolean;
+  examResultsReleaseAt?: string;
+  examAttemptsCount: number;
   prevTech?: Technology;
   nextTech?: Technology;
   orderNumber: number; // 1-indexed (e.g. 1 to 31)
@@ -48,19 +54,53 @@ export function getTechLessonCount(
 }
 
 /**
+ * Retorna os dados de exame para uma tecnologia.
+ */
+export function getTechExamStatus(techId: TechId, progress: UserProgress) {
+  const examInfo = progress.courseExams?.[techId];
+  const passed = examInfo?.passed === true && examInfo?.highestScore === 20;
+  const score = examInfo?.highestScore || 0;
+  const attempts = examInfo?.attemptsCount || 0;
+  const lastAttempt = examInfo?.lastAttempt;
+  
+  // Verifica se está sob embargo de 30 minutos
+  let isUnderReview = false;
+  let releaseAt: string | undefined = undefined;
+
+  if (lastAttempt && lastAttempt.status === 'under_review' && lastAttempt.resultsReleaseAt) {
+    const releaseTime = new Date(lastAttempt.resultsReleaseAt).getTime();
+    if (Date.now() < releaseTime) {
+      isUnderReview = true;
+      releaseAt = lastAttempt.resultsReleaseAt;
+    }
+  }
+
+  return {
+    passed,
+    score,
+    attempts,
+    lastAttempt,
+    isUnderReview,
+    releaseAt,
+  };
+}
+
+/**
  * Verifica se uma tecnologia específica está desbloqueada para o usuário.
  * Regra: A primeira tecnologia (índice 0) está sempre desbloqueada.
  * Cada tecnologia subsequente só desbloqueia quando a imediatamente anterior
- * tiver 100% de suas aulas concluídas.
+ * tiver 100% de suas aulas concluídas E tiver sido APROVADA no Exame de Passagem
+ * com nota máxima de 20 de 20 valores.
  */
 export function isTechUnlocked(techId: TechId, progress: UserProgress): boolean {
   const index = TECHNOLOGIES.findIndex(t => t.id === techId);
   if (index <= 0) return true; // Primeira tecnologia (Python) sempre liberada
 
-  // Verifica se todas as anteriores estão completas (ou pelo menos a imediatamente anterior)
   const prevTech = TECHNOLOGIES[index - 1];
   const { isCompleted } = getTechLessonCount(prevTech.id, progress);
-  return isCompleted;
+  const { passed } = getTechExamStatus(prevTech.id, progress);
+
+  return isCompleted && passed;
 }
 
 /**
@@ -74,16 +114,18 @@ export function getTechUnlockState(techId: TechId, progress: UserProgress): Tech
 
   const { completed, total, isCompleted } = getTechLessonCount(tech.id, progress);
   const progressPct = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
+  const examStatus = getTechExamStatus(tech.id, progress);
 
   // A primeira está sempre desbloqueada.
-  // As seguintes dependem da conclusão da anterior.
+  // As seguintes dependem da conclusão E aprovação no exame (20/20) da anterior.
   let isUnlocked = safeIndex === 0;
   let prevTech: Technology | undefined = undefined;
 
   if (safeIndex > 0) {
     prevTech = TECHNOLOGIES[safeIndex - 1];
     const prevCount = getTechLessonCount(prevTech.id, progress);
-    isUnlocked = prevCount.isCompleted;
+    const prevExam = getTechExamStatus(prevTech.id, progress);
+    isUnlocked = prevCount.isCompleted && prevExam.passed;
   }
 
   const nextTech = safeIndex < totalTechs - 1 ? TECHNOLOGIES[safeIndex + 1] : undefined;
@@ -96,6 +138,12 @@ export function getTechUnlockState(techId: TechId, progress: UserProgress): Tech
     completedLessons: completed,
     totalLessons: total,
     progressPct,
+    isExamUnlocked: isCompleted,
+    examPassed: examStatus.passed,
+    examScore: examStatus.score,
+    isExamUnderReview: examStatus.isUnderReview,
+    examResultsReleaseAt: examStatus.releaseAt,
+    examAttemptsCount: examStatus.attempts,
     prevTech,
     nextTech,
     orderNumber: safeIndex + 1,
@@ -108,12 +156,14 @@ export function getTechUnlockState(techId: TechId, progress: UserProgress): Tech
  */
 export function getAllTechUnlockStates(progress: UserProgress): Map<TechId, TechUnlockState> {
   const map = new Map<TechId, TechUnlockState>();
-  let previousTechWasCompleted = true; // Para o índice 0
+  let previousTechWasCompletedAndPassed = true; // Para o índice 0
 
   TECHNOLOGIES.forEach((tech, index) => {
     const { completed, total, isCompleted } = getTechLessonCount(tech.id, progress);
     const progressPct = total > 0 ? Math.min(100, Math.round((completed / total) * 100)) : 0;
-    const isUnlocked = index === 0 || previousTechWasCompleted;
+    const examStatus = getTechExamStatus(tech.id, progress);
+
+    const isUnlocked = index === 0 || previousTechWasCompletedAndPassed;
     const prevTech = index > 0 ? TECHNOLOGIES[index - 1] : undefined;
     const nextTech = index < TECHNOLOGIES.length - 1 ? TECHNOLOGIES[index + 1] : undefined;
 
@@ -125,14 +175,20 @@ export function getAllTechUnlockStates(progress: UserProgress): Map<TechId, Tech
       completedLessons: completed,
       totalLessons: total,
       progressPct,
+      isExamUnlocked: isCompleted,
+      examPassed: examStatus.passed,
+      examScore: examStatus.score,
+      isExamUnderReview: examStatus.isUnderReview,
+      examResultsReleaseAt: examStatus.releaseAt,
+      examAttemptsCount: examStatus.attempts,
       prevTech,
       nextTech,
       orderNumber: index + 1,
       totalTechs: TECHNOLOGIES.length,
     });
 
-    // A próxima só desbloqueia se esta estiver concluída
-    previousTechWasCompleted = isCompleted;
+    // A próxima só desbloqueia se esta estiver concluída COM NOTA 20 NO EXAME DE PASSAGEM
+    previousTechWasCompletedAndPassed = isCompleted && examStatus.passed;
   });
 
   return map;

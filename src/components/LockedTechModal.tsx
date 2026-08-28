@@ -86,7 +86,7 @@ export const LockedTechModal: React.FC<LockedTechModalProps> = ({
               {prevTech ? (
                 <span>
                   Para desbloquear <strong>{technology.name}</strong>, você precisa primeiro concluir todas as 20 lições de{' '}
-                  <strong className="text-orange-400">{prevTech.name}</strong>.
+                  <strong className="text-orange-400">{prevTech.name}</strong> e ser aprovado no <strong>Exame Oficial de Passagem com Nota Máxima de 20 / 20 Valores</strong>.
                 </span>
               ) : (
                 <span>Esta tecnologia faz parte da trilha sequencial de aprendizado.</span>
@@ -101,7 +101,7 @@ export const LockedTechModal: React.FC<LockedTechModalProps> = ({
                     Requisito: {prevTech.name}
                   </span>
                   <span className="text-[10px] font-mono text-orange-400 font-bold">
-                    {t('unlock.unlockCondition')}
+                    20 Aulas + Exame 20/20
                   </span>
                 </div>
               </div>

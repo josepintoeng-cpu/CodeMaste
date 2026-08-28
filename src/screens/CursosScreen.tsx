@@ -395,6 +395,23 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
                             <Lock className="w-2.5 h-2.5" />
                             {t('unlock.locked')}
                           </span>
+                        ) : unlockState?.examPassed ? (
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shrink-0">
+                            <Award className="w-2.5 h-2.5 text-amber-400" />
+                            Exame 20/20 Aprovado
+                          </span>
+                        ) : unlockState?.isExamUnderReview ? (
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1 shrink-0 animate-pulse">
+                            ⏳ Prova em Correção (30m)
+                          </span>
+                        ) : unlockState?.isExamUnlocked && unlockState?.examAttemptsCount > 0 ? (
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-300 border border-rose-500/30 flex items-center gap-1 shrink-0">
+                            Exame: {unlockState.examScore.toFixed(1)}/20 (Repetir)
+                          </span>
+                        ) : unlockState?.isExamUnlocked ? (
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center gap-1 shrink-0">
+                            ⚡ Exame de Passagem Pronto
+                          </span>
                         ) : (
                           <span
                             className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shrink-0"

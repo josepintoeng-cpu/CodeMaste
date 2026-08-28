@@ -120,6 +120,56 @@ export interface Quiz {
   xpReward: number;
 }
 
+// --- EXAME DE PASSAGEM DE CURSO (120 MINUTOS, 60 TEÓRICAS + 20 PRÁTICAS, NOTA 20/20) ---
+export type ExamQuestionType = 'theory' | 'practical';
+
+export interface ExamQuestion {
+  id: string;
+  number: number; // 1 a 80
+  type: ExamQuestionType;
+  question: string;
+  topic: string;
+  options?: string[]; // Para teóricas (4 opções)
+  correctIndex?: number; // Para teóricas (0 a 3)
+  initialCode?: string; // Para práticas
+  expectedKeywords?: string[]; // Palavras-chave necessárias
+  correctSnippet?: string; // Código de referência correto
+  hint?: string;
+  explanation: string;
+}
+
+export interface CourseExam {
+  id: string;
+  techId: TechId;
+  title: string;
+  description: string;
+  totalQuestions: number; // 80
+  theoryCount: number; // 60
+  practicalCount: number; // 20
+  durationMinutes: number; // 120
+  maxScore: number; // 20 valores
+  passingScore: number; // 20 valores estritos
+  questions: ExamQuestion[];
+}
+
+export interface ExamAttempt {
+  id: string;
+  techId: TechId;
+  startedAt: string; // ISO string
+  submittedAt?: string; // ISO string
+  resultsReleaseAt?: string; // ISO string (submittedAt + 30 min)
+  timeSpentSeconds: number;
+  timeRemainingSeconds: number;
+  timedOut: boolean;
+  answers: Record<string, string | number>; // questionId -> index ou código digitado
+  theoryCorrect: number; // de 60
+  practicalCorrect: number; // de 20
+  totalCorrect: number; // de 80
+  scoreOutOf20: number; // de 0 a 20 valores com precisão decimal
+  passed: boolean; // estritamente scoreOutOf20 === 20
+  status: 'in_progress' | 'under_review' | 'released';
+}
+
 export interface Technology {
   id: TechId;
   name: string;
@@ -141,7 +191,7 @@ export interface SyncStatus {
 
 export interface SyncQueueItem {
   id: string;
-  type: 'COMPLETE_LESSON' | 'COMPLETE_QUIZ' | 'UPDATE_PROFILE' | 'THEME_CHANGE' | 'RESET_PROGRESS';
+  type: 'COMPLETE_LESSON' | 'COMPLETE_QUIZ' | 'SUBMIT_EXAM' | 'RELEASE_EXAM' | 'UPDATE_PROFILE' | 'THEME_CHANGE' | 'RESET_PROGRESS';
   payload: Record<string, unknown>;
   timestamp: string;
 }
@@ -151,6 +201,14 @@ export interface UserProgress {
   userName: string;
   completedLessons: Record<string, boolean>; // lessonId -> true
   completedQuizzes: Record<string, { score: number; passed: boolean }>; // quizId -> stats
+  courseExams: Record<string, {
+    passed: boolean;
+    highestScore: number; // 0 a 20 valores
+    attemptsCount: number;
+    lastAttempt?: ExamAttempt;
+    passedAt?: string;
+  }>;
+  activeExamAttempt?: ExamAttempt | null;
   xp: number;
   streak: number;
   longestStreak?: number;

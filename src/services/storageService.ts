@@ -1,4 +1,4 @@
-import { UserProgress, TechId, SyncStatus, SyncQueueItem } from '../types';
+import { UserProgress, TechId, SyncStatus, SyncQueueItem, ExamAttempt } from '../types';
 
 const STORAGE_KEY = 'codemaster_user_progress_v1';
 const SYNC_QUEUE_KEY = 'codemaster_sync_queue_v1';
@@ -12,6 +12,8 @@ const INITIAL_PROGRESS: UserProgress = {
   userName: 'Dev Aprendiz',
   completedLessons: {},
   completedQuizzes: {},
+  courseExams: {},
+  activeExamAttempt: null,
   xp: 0,
   streak: 0,
   longestStreak: 0,
@@ -372,6 +374,113 @@ class StorageEngine {
       this.addToSyncQueue('COMPLETE_QUIZ', { quizId, score, passed, xpReward });
     }
 
+    return progress;
+  }
+
+  /**
+   * Registra a submissão de um Exame de Passagem de Curso (Entra no período de 30 minutos de embargo).
+   */
+  public submitExamAttempt(attempt: ExamAttempt): UserProgress {
+    const progress = this.getUserProgress();
+    const techId = attempt.techId;
+    progress.courseExams = progress.courseExams || {};
+
+    const existing = progress.courseExams[techId] || {
+      passed: false,
+      highestScore: 0,
+      attemptsCount: 0,
+    };
+
+    const updatedAttemptsCount = (existing.attemptsCount || 0) + 1;
+
+    progress.courseExams[techId] = {
+      ...existing,
+      attemptsCount: updatedAttemptsCount,
+      lastAttempt: attempt,
+    };
+
+    progress.activeExamAttempt = attempt;
+    this.saveUserProgress(progress);
+    this.addToSyncQueue('SUBMIT_EXAM', {
+      techId,
+      attemptId: attempt.id,
+      score: attempt.scoreOutOf20,
+      submittedAt: attempt.submittedAt,
+    });
+
+    return progress;
+  }
+
+  /**
+   * Divulga oficialmente as notas do Exame de Passagem de Curso após os 30 minutos (ou avanço rápido).
+   * Se a nota for 20.0 (perfeita), concede bônus de 500 XP e aprovação oficial.
+   */
+  public releaseExamResults(techId: TechId): UserProgress {
+    const progress = this.getUserProgress();
+    progress.courseExams = progress.courseExams || {};
+    const record = progress.courseExams[techId];
+
+    if (record && record.lastAttempt) {
+      const attempt = record.lastAttempt;
+      attempt.status = 'released';
+
+      // Aprovação exige estritamente 20 valores (80/80) e não ter estourado o tempo
+      const isPerfectScore = !attempt.timedOut && attempt.totalCorrect === 80 && attempt.scoreOutOf20 === 20;
+
+      const highestScore = Math.max(record.highestScore || 0, attempt.scoreOutOf20);
+      const passed = record.passed || isPerfectScore;
+
+      if (isPerfectScore && !record.passed) {
+        // Concede 500 XP de distinção máxima
+        progress.xp += 500;
+        const todayKey = getTodayKey();
+        progress.dailyXpHistory = progress.dailyXpHistory || {};
+        progress.dailyXpHistory[todayKey] = (progress.dailyXpHistory[todayKey] || 0) + 500;
+        record.passedAt = new Date().toISOString();
+      }
+
+      record.passed = passed;
+      record.highestScore = highestScore;
+      record.lastAttempt = attempt;
+      progress.activeExamAttempt = null;
+
+      // Avalia novas medalhas
+      progress.unlockedBadges = this.evaluateBadges(progress);
+
+      this.saveUserProgress(progress);
+      this.addToSyncQueue('RELEASE_EXAM', {
+        techId,
+        score: attempt.scoreOutOf20,
+        passed,
+      });
+    }
+
+    return progress;
+  }
+
+  /**
+   * Reseta o exame de uma tecnologia para que o usuário possa refazê-lo.
+   */
+  public resetCourseExam(techId: TechId): UserProgress {
+    const progress = this.getUserProgress();
+    if (progress.courseExams && progress.courseExams[techId]) {
+      const current = progress.courseExams[techId];
+      if (!current.passed) {
+        delete progress.courseExams[techId];
+      }
+    }
+    progress.activeExamAttempt = null;
+    this.saveUserProgress(progress);
+    return progress;
+  }
+
+  /**
+   * Salva o estado atual do exame em andamento (timer e respostas temporárias).
+   */
+  public saveActiveExamAttempt(attempt: ExamAttempt | null): UserProgress {
+    const progress = this.getUserProgress();
+    progress.activeExamAttempt = attempt;
+    this.saveUserProgress(progress);
     return progress;
   }
 

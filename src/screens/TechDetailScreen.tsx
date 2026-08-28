@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowLeft, CheckCircle2, Lock, Play, HelpCircle, Clock, Zap, AlertTriangle, ArrowRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Lock, Play, HelpCircle, Clock, Zap, AlertTriangle, ArrowRight, Award, Sparkles, RotateCcw, FileText, Send, ShieldCheck, Check } from 'lucide-react';
 import { TechId, LevelId, UserProgress } from '../types';
 import { TECHNOLOGIES } from '../content/technologies';
 import { getLessonsForTechAndLevel } from '../content';
@@ -17,6 +17,9 @@ interface TechDetailScreenProps {
   onStartLesson: (lessonId: string, levelId: LevelId) => void;
   onStartQuiz: (levelId: LevelId) => void;
   onSelectTech?: (techId: TechId) => void;
+  onStartExam?: (techId: TechId) => void;
+  onViewExamResults?: (techId: TechId) => void;
+  onViewExamEmbargo?: (techId: TechId) => void;
 }
 
 export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
@@ -27,6 +30,9 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
   onStartLesson,
   onStartQuiz,
   onSelectTech,
+  onStartExam,
+  onViewExamResults,
+  onViewExamEmbargo,
 }) => {
   const { t, language } = useI18n();
   const [activeLevel, setActiveLevel] = useState<LevelId>(initialLevelId);
@@ -110,6 +116,158 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
           )}
         </motion.div>
       )}
+
+      {/* Banner Oficial do Exame de Passagem de Curso */}
+      <motion.div
+        variants={fadeInUp}
+        initial="initial"
+        animate="animate"
+        className={`p-4 sm:p-6 rounded-3xl border shadow-lg relative overflow-hidden transition-all ${
+          unlockState.examPassed
+            ? 'bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border-emerald-500/40'
+            : unlockState.isExamUnderReview
+            ? 'bg-gradient-to-r from-amber-950/50 via-slate-900 to-slate-900 border-amber-500/50 animate-pulse'
+            : unlockState.isExamUnlocked
+            ? unlockState.examAttemptsCount > 0
+              ? 'bg-gradient-to-r from-rose-950/40 via-slate-900 to-slate-900 border-rose-500/40'
+              : 'bg-gradient-to-r from-amber-500/15 via-[var(--bg-card)] to-[var(--bg-card)] border-amber-500/40'
+            : 'bg-[var(--bg-card)] border-[var(--border-subtle)] opacity-80'
+        }`}
+      >
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-start gap-3.5">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 font-bold text-sm shadow-md border ${
+              unlockState.examPassed
+                ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                : unlockState.isExamUnderReview
+                ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                : unlockState.isExamUnlocked
+                ? 'bg-amber-500 text-black border-amber-400'
+                : 'bg-white/5 text-white/40 border-white/10'
+            }`}>
+              {unlockState.examPassed ? (
+                <ShieldCheck className="w-6 h-6 text-emerald-400" />
+              ) : unlockState.isExamUnderReview ? (
+                <Clock className="w-6 h-6 text-amber-400 animate-spin" />
+              ) : unlockState.isExamUnlocked ? (
+                <Award className="w-6 h-6 text-black" />
+              ) : (
+                <Lock className="w-5 h-5" />
+              )}
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-amber-400">
+                  Exame Oficial de Passagem de Curso
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-mono">
+                  120 min • 60 Teo + 20 Prát • 20 Val
+                </span>
+              </div>
+
+              <h3 className="text-sm sm:text-base font-bold text-[var(--text-primary)]">
+                {unlockState.examPassed ? (
+                  <span className="text-emerald-400 flex items-center gap-1.5">
+                    <CheckCircle2 className="w-4 h-4" /> Aprovado com Distinção (Nota 20 / 20 Valores)
+                  </span>
+                ) : unlockState.isExamUnderReview ? (
+                  <span className="text-amber-400 flex items-center gap-1.5">
+                    <Clock className="w-4 h-4" /> Prova em Auditoria • Divulgação Oficial de Notas em 30 min
+                  </span>
+                ) : unlockState.isExamUnlocked ? (
+                  unlockState.examAttemptsCount > 0 ? (
+                    <span className="text-rose-400 flex items-center gap-1.5">
+                      <AlertTriangle className="w-4 h-4" /> Última Nota: {unlockState.examScore.toFixed(1)}/20 (Reprovado) — Repita o Exame
+                    </span>
+                  ) : (
+                    <span>Exame de Passagem Liberado! Comprove Maestria para Avançar</span>
+                  )
+                ) : (
+                  <span>Exame Bloqueado: Conclua as 20 Aulas Deste Curso ({unlockState.completedLessons}/20)</span>
+                )}
+              </h3>
+
+              <p className="text-[11px] sm:text-xs text-[var(--text-muted)] leading-relaxed max-w-2xl">
+                {unlockState.examPassed ? (
+                  <span>Você concluiu com perfeição todas as 20 aulas e conquistou nota 20 no exame de passagem. A tecnologia seguinte {unlockState.nextTech ? `(${unlockState.nextTech.name})` : ''} está liberada para estudo!</span>
+                ) : unlockState.isExamUnderReview ? (
+                  <span>Sua submissão de 80 questões foi gravada com sucesso. Conforme o regulamento, as notas oficiais serão homologadas e divulgadas após 30 minutos.</span>
+                ) : unlockState.isExamUnlocked ? (
+                  <span>Para desbloquear o próximo curso {unlockState.nextTech ? `(${unlockState.nextTech.name})` : ''}, é obrigatório obter a <strong>nota máxima de 20 de 20 valores</strong> no exame rigoroso (60 questões teóricas e 20 desafios práticos).</span>
+                ) : (
+                  <span>Complete as 20 lições de {tech.name} para desbloquear o Exame Oficial de Passagem. Reprovações exigem repetição de estudo até obter nota 20/20.</span>
+                )}
+              </p>
+            </div>
+          </div>
+
+          {/* Botões de Ação do Exame */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            {unlockState.examPassed && onViewExamResults && (
+              <button
+                id="btn-view-passed-exam-results"
+                onClick={() => onViewExamResults(techId)}
+                className="px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold flex items-center gap-2 transition-all"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Ver Boletim Oficial</span>
+              </button>
+            )}
+
+            {unlockState.isExamUnderReview && onViewExamEmbargo && (
+              <button
+                id="btn-view-exam-embargo"
+                onClick={() => onViewExamEmbargo(techId)}
+                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-95"
+              >
+                <Clock className="w-4 h-4" />
+                <span>Acessar Câmara de Notas</span>
+              </button>
+            )}
+
+            {unlockState.isExamUnlocked && !unlockState.isExamUnderReview && onStartExam && (
+              <button
+                id="btn-start-course-exam"
+                onClick={() => onStartExam(techId)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-md active:scale-95 ${
+                  unlockState.examPassed
+                    ? 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                    : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+                }`}
+              >
+                {unlockState.examPassed ? (
+                  <>
+                    <RotateCcw className="w-4 h-4" />
+                    <span>Refazer Exame (Treino)</span>
+                  </>
+                ) : unlockState.examAttemptsCount > 0 ? (
+                  <>
+                    <RotateCcw className="w-4 h-4" />
+                    <span>Refazer Exame de Passagem</span>
+                  </>
+                ) : (
+                  <>
+                    <Award className="w-4 h-4" />
+                    <span>Iniciar Exame de Passagem (120 min)</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            {unlockState.examAttemptsCount > 0 && !unlockState.isExamUnderReview && onViewExamResults && (
+              <button
+                id="btn-view-previous-exam-results"
+                onClick={() => onViewExamResults(techId)}
+                className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>Gabarito</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </motion.div>
 
       {/* Submenu Tabs de Níveis */}
       <motion.div
