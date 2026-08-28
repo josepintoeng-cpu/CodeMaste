@@ -32,22 +32,40 @@ import { useI18n } from '../i18n';
 interface ExamScreenProps {
   techId: TechId;
   progress: UserProgress;
-  onFinishExam: (attempt: ExamAttempt) => void;
+  onSubmit: (attempt: ExamAttempt) => void;
   onExit: () => void;
 }
 
 export const ExamScreen: React.FC<ExamScreenProps> = ({
   techId,
   progress,
-  onFinishExam,
+  onSubmit,
   onExit,
 }) => {
   const { t } = useI18n();
   const tech = useMemo(() => TECHNOLOGIES.find(t => t.id === techId) || TECHNOLOGIES[0], [techId]);
-  const exam: CourseExam = useMemo(() => generateCourseExam(techId), [techId]);
 
   // Carrega respostas salvas ou inicia novo exame
   const existingActive = progress.activeExamAttempt?.techId === techId ? progress.activeExamAttempt : null;
+
+  const exam: CourseExam = useMemo(() => {
+    if (existingActive?.questions && existingActive.questions.length === 80) {
+      return {
+        id: `exam-${techId}-${existingActive.id}`,
+        techId,
+        title: `Exame Oficial de Passagem de Curso — ${tech.name}`,
+        description: `Exame final obrigatório de alta exigência. 60 questões teóricas e 20 exercícios práticos. Nota 20/20 valores exigida.`,
+        totalQuestions: 80,
+        theoryCount: 60,
+        practicalCount: 20,
+        durationMinutes: 120,
+        maxScore: 20,
+        passingScore: 20,
+        questions: existingActive.questions,
+      };
+    }
+    return generateCourseExam(techId, { randomize: true });
+  }, [techId, existingActive?.id]);
 
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<Record<string, string | number>>(
@@ -99,6 +117,7 @@ export const ExamScreen: React.FC<ExamScreenProps> = ({
       timeRemainingSeconds: timeRemaining,
       timedOut: isTimedOut,
       answers,
+      questions: exam.questions,
       theoryCorrect: 0,
       practicalCorrect: 0,
       totalCorrect: 0,
@@ -107,7 +126,7 @@ export const ExamScreen: React.FC<ExamScreenProps> = ({
       status: 'in_progress',
     };
     storageService.saveActiveExamAttempt(currentAttempt);
-  }, [answers, timeRemaining, isTimedOut, techId]);
+  }, [answers, timeRemaining, isTimedOut, techId, exam.questions]);
 
   const currentQuestion: ExamQuestion | undefined = exam.questions[currentIndex];
 
@@ -186,14 +205,14 @@ export const ExamScreen: React.FC<ExamScreenProps> = ({
     const timeSpent = INITIAL_SECONDS;
     const { attempt } = evaluateExamSubmission(exam, answers, timeSpent, true);
     storageService.submitExamAttempt(attempt);
-    onFinishExam(attempt);
+    onSubmit(attempt);
   };
 
   const handleManualSubmit = () => {
     const timeSpent = INITIAL_SECONDS - timeRemaining;
     const { attempt } = evaluateExamSubmission(exam, answers, timeSpent, false);
     storageService.submitExamAttempt(attempt);
-    onFinishExam(attempt);
+    onSubmit(attempt);
   };
 
   const isCurrentAnswered = currentQuestion ? answers[currentQuestion.id] !== undefined && answers[currentQuestion.id] !== '' : false;

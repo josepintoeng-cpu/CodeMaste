@@ -42,7 +42,14 @@ export const ExamResultScreen: React.FC<ExamResultScreenProps> = ({
   onBackToCourse,
 }) => {
   const tech = useMemo(() => TECHNOLOGIES.find(t => t.id === techId) || TECHNOLOGIES[0], [techId]);
-  const exam = useMemo(() => generateCourseExam(techId), [techId]);
+  
+  const examQuestions = useMemo(() => {
+    if (attempt.questions && attempt.questions.length > 0) {
+      return attempt.questions;
+    }
+    return generateCourseExam(techId).questions;
+  }, [techId, attempt.questions]);
+
   const unlockState = useMemo(() => getTechUnlockState(techId, progress), [techId, progress]);
   const nextTech = unlockState.nextTech;
 
@@ -81,7 +88,7 @@ export const ExamResultScreen: React.FC<ExamResultScreenProps> = ({
   };
 
   const filteredQuestions = useMemo(() => {
-    return exam.questions.filter(q => {
+    return examQuestions.filter(q => {
       const isCorrect = getQuestionStatus(q.id, q.type, q.correctIndex, q.expectedKeywords);
       if (filter === 'wrong') return !isCorrect;
       if (filter === 'correct') return isCorrect;
@@ -89,7 +96,7 @@ export const ExamResultScreen: React.FC<ExamResultScreenProps> = ({
       if (filter === 'practical') return q.type === 'practical';
       return true;
     });
-  }, [exam.questions, filter, attempt]);
+  }, [examQuestions, filter, attempt]);
 
   const handleRetake = () => {
     storageService.resetCourseExam(techId);

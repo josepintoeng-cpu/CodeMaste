@@ -162,6 +162,7 @@ export interface ExamAttempt {
   timeRemainingSeconds: number;
   timedOut: boolean;
   answers: Record<string, string | number>; // questionId -> index ou código digitado
+  questions?: ExamQuestion[]; // Questões geradas aleatoriamente específicas desta tentativa
   theoryCorrect: number; // de 60
   practicalCorrect: number; // de 20
   totalCorrect: number; // de 80
