@@ -1,4 +1,4 @@
-import { Lesson, Quiz, TechId, LevelId } from '../types';
+import { Lesson, Quiz, QuizQuestion, TechId, LevelId } from '../types';
 import { TECHNOLOGIES } from './technologies';
 import { TECH_CURRICULUM } from './techCurriculum';
 import { pythonInicianteLessons, pythonInicianteQuiz } from './python/iniciante';
@@ -72,38 +72,84 @@ export function getQuizForTechAndLevel(techId: TechId, levelId: LevelId): Quiz {
     return pythonInicianteQuiz;
   }
 
+  const dynamicQuizQuestions: Record<LevelId, QuizQuestion[]> = {
+    iniciante: [
+      {
+        id: `dq-${techId}-ini-1`,
+        question: `Em ${techName}, qual é o primeiro passo essencial para garantir estabilidade e previsibilidade de execução?`,
+        options: [
+          `Declarar e tipar variáveis/estruturas de dados de acordo com os padrões e sintaxe de ${techName}`,
+          'Executar o código sem declarar dependências',
+          'Deletar os arquivos de configuração do projeto',
+          'Ignorar o tratamento de parâmetros',
+        ],
+        correctIndex: 0,
+        explanation: `Respeitar as convenções de inicialização e sintaxe de ${techName} evita erros de runtime em produção.`,
+      },
+      {
+        id: `dq-${techId}-ini-2`,
+        question: `Qual a melhor abordagem para modularizar a lógica no nível inicial de ${techName}?`,
+        options: [
+          'Dividir o código em funções ou componentes com responsabilidade única',
+          'Colocar todo o sistema em uma única linha',
+          'Não utilizar variáveis',
+          'Duplicar blocos de código em vários arquivos',
+        ],
+        correctIndex: 0,
+        explanation: 'Funções de responsabilidade única facilitam manutenção, testes e reaproveitamento.',
+      },
+    ],
+    intermediario: [
+      {
+        id: `dq-${techId}-int-1`,
+        question: `No desenvolvimento intermediário em ${techName}, como deve ser estruturado o tratamento de erros e exceções?`,
+        options: [
+          'Capturar exceções específicas, registrar logs informativos e fornecer recuperação graciosa',
+          'Ocultar todos os erros com blocos vazios',
+          'Encerrar o sistema abruptamente sem aviso',
+          'Desativar o coletor de erros',
+        ],
+        correctIndex: 0,
+        explanation: 'O tratamento refinado de erros isola falhas locais e preserva a integridade do restante da aplicação.',
+      },
+    ],
+    avancado: [
+      {
+        id: `dq-${techId}-av-1`,
+        question: `Para atingir alta performance e escalabilidade em ${techName}, qual prática arquitetural é recomendada?`,
+        options: [
+          'Utilizar processamento assíncrono/não-bloqueante, cache inteligente e profiling de recursos',
+          'Aumentar o número de loops aninhados',
+          'Armazenar todo o estado em variáveis globais mutáveis',
+          'Desabilitar índices e compressão',
+        ],
+        correctIndex: 0,
+        explanation: 'Arquiteturas assíncronas aliadas a profiling e caching garantem throughput elevado e baixa latência.',
+      },
+    ],
+    projetos: [
+      {
+        id: `dq-${techId}-prj-1`,
+        question: `Ao finalizar a arquitetura de um projeto completo em ${techName}, qual a etapa final antes do deploy?`,
+        options: [
+          'Executar a suíte de testes automatizados, build de produção otimizado e validação de segurança',
+          'Enviar o código fonte sem compilar',
+          'Remover as variáveis de ambiente',
+          'Desativar os logs de auditoria',
+        ],
+        correctIndex: 0,
+        explanation: 'O pipeline de testes e build de produção assegura que apenas código validado entre em produção.',
+      },
+    ],
+  };
+
   return {
     id: `quiz-${techId}-${levelId}`,
     techId,
     levelId,
     title: `Quiz Avaliativo: ${techName} (${levelId.toUpperCase()})`,
     xpReward: 50,
-    questions: [
-      {
-        id: 'fq1',
-        question: `Qual é o principal conceito abordado no nível ${levelId} de ${techName}?`,
-        options: [
-          'Fundamentos e sintaxe essencial',
-          'Apenas regras de estilo',
-          'Hardware e placa mãe',
-          'Nenhuma das respostas'
-        ],
-        correctIndex: 0,
-        explanation: 'O foco do curso é estruturar os conceitos de sintaxe e boas práticas da tecnologia.',
-      },
-      {
-        id: 'fq2',
-        question: `Como garantimos um código limpo e legível em ${techName}?`,
-        options: [
-          'Escrevendo tudo numa única linha',
-          'Seguindo padrões de nomenclatura e boas práticas',
-          'Evitando colocar comentários',
-          'Usando nomes de variáveis com uma letra'
-        ],
-        correctIndex: 1,
-        explanation: 'A clareza do código e padronização facilitam a manutenção por equipes.',
-      },
-    ],
+    questions: dynamicQuizQuestions[levelId] || dynamicQuizQuestions.iniciante,
   };
 }
 
@@ -298,21 +344,91 @@ function generateFallbackLessons(techId: TechId, levelId: LevelId): Lesson[] {
       defaultOutput: t.output,
       description: `Ambiente de simulação para ${tech.name}.`,
     },
-    exercise: {
-      id: `ex-${techId}-${levelId}-${idx + 1}`,
-      prompt: `Verifique o código de ${tech.name} abaixo e identifique a estrutura correta:`,
-      type: 'multiple_choice',
-      options: [
-        `Usar a sintaxe padrão de ${tech.name}`,
-        `Escrever sem pontuação nem formatação`,
-        `Omitir definições de variáveis`,
-        `Ignorar o retorno da função`
-      ],
-      correctAnswer: `Usar a sintaxe padrão de ${tech.name}`,
-      hint: `Pense nas boas práticas recomendadas para ${tech.name}.`,
-      explanation: `Seguir as convenções e a sintaxe recomendada é indispensável para evitar erros em ${tech.name}.`,
-    },
+    exercise: generateDynamicExercise(techId, tech.name, levelId, idx, t.title, t.code),
   }));
+}
+
+function generateDynamicExercise(
+  techId: TechId,
+  techName: string,
+  levelId: LevelId,
+  idx: number,
+  topicTitle: string,
+  sampleCode: string
+) {
+  const exercisesByIndex = [
+    {
+      prompt: `Na aula "${topicTitle}", qual instrução executa a inicialização ou declaração de acordo com as boas práticas de ${techName}?`,
+      options: [
+        `Declarar variáveis/módulos seguindo as convenções oficiais de nomenclatura e escopo de ${techName}`,
+        `Ignorar as tipagens e usar escopo global para tudo`,
+        `Omitir parâmetros obrigatórios na assinatura`,
+        `Executar código sem inicialização prévia`,
+      ],
+      correctAnswer: `Declarar variáveis/módulos seguindo as convenções oficiais de nomenclatura e escopo de ${techName}`,
+      hint: `Pense na convenção de escopo e clareza de ${techName}.`,
+      explanation: `Em ${techName}, a correta inicialização com escopo delimitado evita vazamento de memória e inconsistências de estado.`,
+    },
+    {
+      prompt: `Em relação à manipulação de dados e operadores em ${techName}, qual a garantia necessária ao processar dados de entrada?`,
+      options: [
+        `Validar e sanitizar tipos para evitar exceções de runtime e inconsistências`,
+        `Presumir que todas as entradas estão sempre formatadas corretamente`,
+        `Desativar checagens condicionais`,
+        `Converter todos os dados para texto sem tratamento`,
+      ],
+      correctAnswer: `Validar e sanitizar tipos para evitar exceções de runtime e inconsistências`,
+      hint: `Validação de tipos e dados antes do processamento.`,
+      explanation: `A sanitização e checagem defensiva de tipos assegura resiliência no pipeline de execução.`,
+    },
+    {
+      prompt: `Para estruturar o controle de fluxo e condições nesta etapa de ${techName}, qual é a abordagem recomendada?`,
+      options: [
+        `Utilizar condicionais explícitas com cláusulas de escape prévio (Guard Clauses)`,
+        `Aninhar dezenas de blocos if/else sem limite de profundidade`,
+        `Suprimir todos os retornos de erro`,
+        `Executar fluxos alternativos sem checagem de precondições`,
+      ],
+      correctAnswer: `Utilizar condicionais explícitas com cláusulas de escape prévio (Guard Clauses)`,
+      hint: `Guard Clauses simplificam o fluxo linear do código.`,
+      explanation: `Guard Clauses reduzem a complexidade ciclomática e tornam o código mais legível e fácil de testar.`,
+    },
+    {
+      prompt: `Ao lidar com iterações, loops ou processamento assíncrono em ${techName}, qual o cuidado fundamental com a performance?`,
+      options: [
+        `Garantir condições de parada seguras e evitar operações bloqueantes de I/O dentro de laços críticos`,
+        `Criar loops infinitos sem critério de término`,
+        `Multiplicar alocações de memória a cada iteração`,
+        `Ignorar o encerramento de conexões abertas`,
+      ],
+      correctAnswer: `Garantir condições de parada seguras e evitar operações bloqueantes de I/O dentro de laços críticos`,
+      hint: `Evitar I/O síncrono e laços sem condição clara de saída.`,
+      explanation: `Condições de parada claras e isolamento de I/O em loops evitam consumo excessivo de CPU e travamento de threads.`,
+    },
+    {
+      prompt: `Para finalizar o módulo "${topicTitle}", como você valida a integridade da entrega em ${techName}?`,
+      options: [
+        `Executar a suíte de testes e validar a compilação/saída sem erros ou warnings`,
+        `Publicar o código sem checar a saída do terminal`,
+        `Desativar as mensagens de erro do compilador`,
+        `Remover os testes unitários antes do deploy`,
+      ],
+      correctAnswer: `Executar a suíte de testes e validar a compilação/saída sem erros ou warnings`,
+      hint: `Validação através de testes e saída de compilação limpa.`,
+      explanation: `A compilação com zero warnings e testes cobrindo os casos limite atesta a prontidão para produção.`,
+    },
+  ];
+
+  const selected = exercisesByIndex[idx % exercisesByIndex.length];
+  return {
+    id: `ex-${techId}-${levelId}-${idx + 1}`,
+    prompt: selected.prompt,
+    type: 'multiple_choice' as const,
+    options: selected.options,
+    correctAnswer: selected.correctAnswer,
+    hint: selected.hint,
+    explanation: selected.explanation,
+  };
 }
 
 function getLanguageKey(techId: TechId): string {

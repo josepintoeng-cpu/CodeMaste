@@ -10,6 +10,8 @@ import { GAME_DEV_CURRICULUM } from './data/gameDevCurriculum';
 import { GAME_3D_UNREAL_CURRICULUM } from './data/game3dUnrealCurriculum';
 import { GAME_ENGINES_MULTIPLAYER_CURRICULUM } from './data/gameEnginesMultiplayerCurriculum';
 import { GAME_SPECIALIZATION_CURRICULUM } from './data/gameSpecializationCurriculum';
+import { HTML_CSS_CURRICULUM } from './data/htmlCssCurriculum';
+import { ENTERPRISE_MOBILE_CURRICULUM } from './data/enterpriseAndMobileCurriculum';
 
 export interface TechCurriculumData {
   topicsByLevel: Record<
@@ -59,6 +61,15 @@ export const TECH_CURRICULUM: Partial<Record<TechId, TechCurriculumData>> = {
   // Base Web & Systems
   javascript: BASE_WEB_CURRICULUM.javascript,
   nodejs: BASE_WEB_CURRICULUM.nodejs,
+  // HTML5 & CSS3
+  html: HTML_CSS_CURRICULUM.html,
+  css: HTML_CSS_CURRICULUM.css,
+  // Python, Java, PHP, Flutter, MySQL
+  python: ENTERPRISE_MOBILE_CURRICULUM.python,
+  java: ENTERPRISE_MOBILE_CURRICULUM.java,
+  php: ENTERPRISE_MOBILE_CURRICULUM.php,
+  flutter: ENTERPRISE_MOBILE_CURRICULUM.flutter,
+  mysql: ENTERPRISE_MOBILE_CURRICULUM.mysql,
   // ==========================================
   // REACT
   // ==========================================

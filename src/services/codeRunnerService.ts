@@ -42,12 +42,16 @@ export const codeRunnerService = {
         return await this.runPythonPyodide(code, simulation.defaultOutput, startTime);
       }
 
-      if (simulation.type === 'sql_mock' || language === 'mysql') {
+      if (simulation.type === 'sql_mock' || language === 'mysql' || language === 'sql') {
         return this.runMockSql(code, startTime);
       }
 
-      // Para linguagens sem runtime web direto (Java, PHP, Flutter, Node.js):
-      return this.runSimulatedCode(code, simulation.defaultOutput || 'Execução concluída com sucesso!', startTime);
+      if (language === 'bash' || language === 'sh' || simulation.type === 'simulated' && (code.startsWith('git ') || code.startsWith('docker ') || code.startsWith('npm ') || code.startsWith('sudo ') || code.startsWith('cargo ') || code.startsWith('curl '))) {
+        return this.runTerminalCommand(code, startTime);
+      }
+
+      // Para linguagens compiladas e interpretadas (Java, PHP, Flutter, C, C++, Go, Rust, C#):
+      return this.runSimulatedCode(code, simulation.defaultOutput || this.generateIntelligentOutput(code, language), startTime);
     } catch (err: any) {
       return {
         output: '',
@@ -56,6 +60,63 @@ export const codeRunnerService = {
         isSimulated: false,
       };
     }
+  },
+
+  /**
+   * Simula comandos de terminal com realismo
+   */
+  runTerminalCommand(cmd: string, startTime: number): ExecutionResult {
+    const trimmed = cmd.trim();
+    let out = '';
+
+    if (trimmed.startsWith('git init')) {
+      out = `Initialized empty Git repository in /workspace/projeto/.git/`;
+    } else if (trimmed.startsWith('git status')) {
+      out = `On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges to be committed:\n  (use "git restore --staged <file>..." to unstage)\n\tmodified:   src/App.tsx\n\tnew file:   src/services/auth.ts`;
+    } else if (trimmed.startsWith('git commit')) {
+      out = `[main 7f2a1b9] ${trimmed.replace(/git commit -m\s*['"]?/, '').replace(/['"]$/, '') || 'feat: atualização de código'}\n 2 files changed, 45 insertions(+), 3 deletions(-)`;
+    } else if (trimmed.startsWith('git branch')) {
+      out = `* main\n  feature/auth-oauth\n  hotfix/patch-1.0`;
+    } else if (trimmed.startsWith('git push')) {
+      out = `Enumerating objects: 5, done.\nCounting objects: 100% (5/5), done.\nWriting objects: 100% (3/3), 1.25 KiB | 1.25 MiB/s, done.\nTotal 3 (delta 1), reused 0 (delta 0)\nTo github.com:org/repo.git\n   e81a3d9..7f2a1b9  main -> main`;
+    } else if (trimmed.startsWith('docker build') || trimmed.startsWith('docker run')) {
+      out = `[+] Building 2.4s (10/10) FINISHED\n => [internal] load build definition from Dockerfile\n => => naming to docker.io/library/app:latest\nContainer app-instance started on port 3000 (0.0.0.0:3000).`;
+    } else if (trimmed.startsWith('npm ') || trimmed.startsWith('yarn ') || trimmed.startsWith('pnpm ')) {
+      out = `added 42 packages, and audited 180 packages in 1.2s\nfound 0 vulnerabilities\nBuild ready at /dist.`;
+    } else if (trimmed.startsWith('pytest') || trimmed.startsWith('cargo test') || trimmed.startsWith('npm test')) {
+      out = `============================= test session starts ==============================\nrootdir: /workspace\ncollected 8 items\n\ntests/test_core.py ........                                              [100%]\n\n============================== 8 passed in 0.42s ===============================`;
+    } else {
+      out = `$ ${trimmed}\n[Comando executado com sucesso: Código de saída 0]`;
+    }
+
+    return {
+      output: out,
+      executionTimeMs: Math.round(performance.now() - startTime) + 35,
+      isSimulated: true,
+    };
+  },
+
+  /**
+   * Gera saída contextual inteligente para qualquer linguagem
+   */
+  generateIntelligentOutput(code: string, language: string): string {
+    if (code.includes('System.out.println')) {
+      const match = code.match(/System\.out\.println\s*\(\s*["']?(.*?)["']?\s*\);/);
+      if (match && match[1]) return match[1].replace(/["']\s*\+\s*["']/g, '');
+    }
+    if (code.includes('echo ')) {
+      const match = code.match(/echo\s+["']?(.*?)["']?;/);
+      if (match && match[1]) return match[1];
+    }
+    if (code.includes('std::cout')) {
+      const match = code.match(/std::cout\s*<<\s*["']?(.*?)["']?\s*<</);
+      if (match && match[1]) return match[1];
+    }
+    if (code.includes('println!')) {
+      const match = code.match(/println!\s*\(\s*["']?(.*?)["']?\s*\);/);
+      if (match && match[1]) return match[1];
+    }
+    return `[${language.toUpperCase()} Runtime]: Compilado e executado com sucesso (Exit code: 0).`;
   },
 
   /**

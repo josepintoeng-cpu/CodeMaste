@@ -24,7 +24,8 @@ import { CodeSimulator } from '../components/CodeSimulator';
 import { ConfettiEffect } from '../components/ConfettiEffect';
 import { FooterStamp } from '../components/FooterStamp';
 import { validationService } from '../services/validationService';
-import { codeRunnerService } from '../services/codeRunnerService';
+import { codeRunnerService, ExecutionResult } from '../services/codeRunnerService';
+import { ExerciseOutputConsole } from '../components/ExerciseOutputConsole';
 import { fadeInUp } from '../utils/animations';
 import { useI18n } from '../i18n';
 
@@ -52,6 +53,10 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+
+  // Estado de Compilação & Execução do Exercício
+  const [exerciseResult, setExerciseResult] = useState<ExecutionResult | null>(null);
+  const [isExerciseRunning, setIsExerciseRunning] = useState(false);
 
   // Estado do Modo Zen (Distraction-Free Focus Mode)
   const [isZenMode, setIsZenMode] = useState(false);
@@ -92,22 +97,34 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
 
   const handleCheckAnswer = async () => {
     setIsValidating(true);
+    setIsExerciseRunning(true);
     setAttempts(prev => prev + 1);
 
     let actualOutput = '';
-    if (lesson.exercise.type !== 'multiple_choice') {
-      try {
-        const execResult = await codeRunnerService.runCode(
-          userAnswer,
-          lesson.simulation,
-          exerciseLanguage
-        );
-        if (!execResult.error && execResult.output) {
-          actualOutput = execResult.output;
+    let execRes: ExecutionResult | null = null;
+
+    try {
+      const codeToRun = userAnswer.trim() || lesson.exercise.initialCode || '';
+      execRes = await codeRunnerService.runCode(
+        codeToRun,
+        lesson.simulation,
+        exerciseLanguage
+      );
+      if (execRes) {
+        if (!execRes.error && execRes.output) {
+          actualOutput = execRes.output;
         }
-      } catch {
-        // Ignored
+        setExerciseResult(execRes);
       }
+    } catch (err: any) {
+      execRes = {
+        output: '',
+        error: err?.message || 'Erro durante a execução do código.',
+        isSimulated: false,
+      };
+      setExerciseResult(execRes);
+    } finally {
+      setIsExerciseRunning(false);
     }
 
     const result = validationService.validateExercise(
@@ -124,6 +141,21 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
       setIsCompleted(true);
       setShowConfetti(true);
       onComplete(lesson.xpReward);
+    }
+  };
+
+  const handleReRunExercise = async () => {
+    if (!userAnswer) return;
+    setIsExerciseRunning(true);
+    try {
+      const res = await codeRunnerService.runCode(
+        userAnswer,
+        lesson.simulation,
+        exerciseLanguage
+      );
+      setExerciseResult(res);
+    } finally {
+      setIsExerciseRunning(false);
     }
   };
 
@@ -317,7 +349,7 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
                   disabled={isCompleted || isValidating}
                   className="w-full py-4 bg-orange-500 hover:bg-orange-400 active:bg-orange-600 disabled:opacity-60 text-black font-black text-sm uppercase tracking-wider rounded-xl transition-colors shadow-lg flex items-center justify-center gap-2 min-h-[50px] touch-btn"
                 >
-                  {isValidating ? (
+                  {isValidating || isExerciseRunning ? (
                     <>
                       <RefreshCw className="w-4 h-4 text-black animate-spin" />
                       <span>{t('lesson.checking')}</span>
@@ -329,6 +361,16 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
                     </>
                   )}
                 </motion.button>
+
+                {/* Console de Compilação e Execução do Exercício (Modo Zen) */}
+                <ExerciseOutputConsole
+                  codeOrCommand={userAnswer}
+                  result={exerciseResult}
+                  isLoading={isExerciseRunning}
+                  language={exerciseLanguage}
+                  simulationType={lesson.simulation?.type}
+                  onReRun={handleReRunExercise}
+                />
               </div>
 
               {/* Feedback and Progress */}
@@ -602,18 +644,28 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
                 disabled={isCompleted || isValidating}
                 className="w-full py-3.5 bg-orange-500 hover:bg-orange-400 active:bg-orange-600 disabled:opacity-60 text-black font-extrabold text-xs sm:text-sm uppercase tracking-wider rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 min-h-[48px] touch-btn"
               >
-                {isValidating ? (
+                {isValidating || isExerciseRunning ? (
                   <>
                     <RefreshCw className="w-4 h-4 text-black animate-spin" />
                     <span>{t('lesson.checking') || 'Verificando...'}</span>
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4 text-black" />
+                    <CheckCircle2 className="w-5 h-5 text-black" />
                     <span>{isCompleted ? t('lesson.lessonCompleted') : t('lesson.checkAnswer')}</span>
                   </>
                 )}
               </motion.button>
+
+              {/* Console de Compilação e Execução do Exercício */}
+              <ExerciseOutputConsole
+                codeOrCommand={userAnswer}
+                result={exerciseResult}
+                isLoading={isExerciseRunning}
+                language={exerciseLanguage}
+                simulationType={lesson.simulation?.type}
+                onReRun={handleReRunExercise}
+              />
             </div>
           </motion.section>
 
