@@ -4,6 +4,9 @@ const STORAGE_KEY = 'codemaster_user_progress_v1';
 const SYNC_QUEUE_KEY = 'codemaster_sync_queue_v1';
 const REMOTE_SNAPSHOT_KEY = 'codemaster_remote_cloud_snapshot_v1';
 const INTRO_SEEN_KEY = 'codemaster_has_seen_intro_v1';
+export const CURRICULUM_VERSION = '2026.03.2-audited-anti-cheat';
+const CURRICULUM_VERSION_KEY = 'codemaster_curriculum_version_v1';
+const UPDATE_NOTICE_KEY = 'codemaster_curriculum_update_notice_seen';
 
 const getTodayKey = () => new Date().toISOString().split('T')[0];
 
@@ -287,10 +290,12 @@ class StorageEngine {
   }
 
   /**
-   * Obtém os dados do usuário, recalculando o streak baseado no histórico de lições
+   * Obtém os dados do usuário, garantindo a sincronização e reset de integridade quando o currículo é atualizado
    */
   public getUserProgress(): UserProgress {
     try {
+      this.checkAndApplyCurriculumVersionIntegrity();
+
       const data = localStorage.getItem(STORAGE_KEY);
       if (!data) {
         this.saveUserProgress(INITIAL_PROGRESS);
@@ -304,6 +309,103 @@ class StorageEngine {
       console.error('Erro ao ler localStorage:', e);
       return INITIAL_PROGRESS;
     }
+  }
+
+  /**
+   * Verifica se a versão do currículo/projeto foi alterada.
+   * Se houver alteração, reinicia as aulas do zero (anti-trapaça e garantia de mentoria atualizada).
+   */
+  public checkAndApplyCurriculumVersionIntegrity(): boolean {
+    if (typeof window === 'undefined') return false;
+
+    try {
+      const storedVersion = localStorage.getItem(CURRICULUM_VERSION_KEY);
+      if (storedVersion !== CURRICULUM_VERSION) {
+        console.warn(`[Auditoria] Alteração detectada no currículo (${storedVersion || 'nenhuma'} -> ${CURRICULUM_VERSION}). Reiniciando aulas do zero para integridade.`);
+        
+        // Recupera o progresso atual
+        const currentData = localStorage.getItem(STORAGE_KEY);
+        let currentProgress: UserProgress = INITIAL_PROGRESS;
+        if (currentData) {
+          try {
+            currentProgress = JSON.parse(currentData);
+          } catch {
+            currentProgress = { ...INITIAL_PROGRESS };
+          }
+        }
+
+        // Reinicia aulas e quizzes concluídos desde o zero para formação 100% atualizada
+        const resetProgress: UserProgress = {
+          ...currentProgress,
+          completedLessons: {},
+          completedQuizzes: {},
+          courseExams: {},
+          activeExamAttempt: null,
+          lastAccess: new Date().toISOString(),
+          lastSyncedAt: new Date().toISOString(),
+        };
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(resetProgress));
+        localStorage.setItem(REMOTE_SNAPSHOT_KEY, JSON.stringify(resetProgress));
+        localStorage.setItem(CURRICULUM_VERSION_KEY, CURRICULUM_VERSION);
+        localStorage.removeItem(UPDATE_NOTICE_KEY); // Ativa notificação no UI
+
+        this.notifyProgress(resetProgress);
+        return true;
+      }
+    } catch (err) {
+      console.error('Erro ao checar integridade de versão:', err);
+    }
+    return false;
+  }
+
+  /**
+   * Retorna se há aviso de atualização de currículo pendente para exibição ao usuário
+   */
+  public hasPendingCurriculumUpdateNotice(): boolean {
+    try {
+      return localStorage.getItem(UPDATE_NOTICE_KEY) !== 'seen';
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Marca o aviso de atualização como visualizado
+   */
+  public dismissCurriculumUpdateNotice(): void {
+    try {
+      localStorage.setItem(UPDATE_NOTICE_KEY, 'seen');
+    } catch {
+      // ignore
+    }
+  }
+
+  /**
+   * Reinicia manualmente as aulas e quizzes desde o zero (Reset de Integridade e Mentoria)
+   */
+  public resetAllLessonsAndQuizzes(): UserProgress {
+    const current = this.getUserProgress();
+    const cleanProgress: UserProgress = {
+      ...current,
+      completedLessons: {},
+      completedQuizzes: {},
+      courseExams: {},
+      activeExamAttempt: null,
+      xp: 0,
+      streak: 0,
+      lessonDates: [],
+      dailyXpHistory: {},
+      lastSyncedAt: new Date().toISOString(),
+    };
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanProgress));
+    localStorage.setItem(REMOTE_SNAPSHOT_KEY, JSON.stringify(cleanProgress));
+    localStorage.setItem(CURRICULUM_VERSION_KEY, CURRICULUM_VERSION);
+    this.savePendingQueue([]);
+
+    this.notifyProgress(cleanProgress);
+    return cleanProgress;
   }
 
   public saveUserProgress(progress: UserProgress): void {

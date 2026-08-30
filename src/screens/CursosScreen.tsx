@@ -14,9 +14,10 @@ import { useI18n } from '../i18n';
 interface CursosScreenProps {
   progress: UserProgress;
   onSelectTech: (techId: TechId) => void;
+  onOpenAudit?: () => void;
 }
 
-export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTech }) => {
+export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTech, onOpenAudit }) => {
   const { t, language } = useI18n();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategoryKey, setSelectedCategoryKey] = useState<string>('all');
@@ -230,6 +231,43 @@ export const CursosScreen: React.FC<CursosScreenProps> = ({ progress, onSelectTe
           </div>
         </div>
       </motion.div>
+
+      {/* Banner de Acesso Rápido ao Checklist de Aulas & Auditoria Oficial */}
+      {onOpenAudit && (
+        <motion.div
+          variants={fadeInUp}
+          initial="initial"
+          animate="animate"
+          onClick={onOpenAudit}
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.99 }}
+          className="p-4 rounded-2xl bg-gradient-to-r from-emerald-950/40 via-[var(--bg-card)] to-[var(--bg-card)] border border-emerald-500/30 cursor-pointer flex items-center justify-between gap-3 shadow-md group transition-all"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-black text-[var(--text-primary)] group-hover:text-emerald-400 transition-colors">
+                  Checklist Completo de Aulas & Auditoria
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300">
+                  0 Repetições
+                </span>
+              </div>
+              <p className="text-[11px] text-[var(--text-muted)] truncate mt-0.5">
+                Consulte todas as 278 aulas das 31 tecnologias, seus tópicos, simulações e status.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold shrink-0">
+            <span>Ver Checklist</span>
+            <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          </div>
+        </motion.div>
+      )}
 
       {/* Barra de Busca & Filtros */}
       <motion.div variants={fadeInUp} initial="initial" animate="animate" className="space-y-2.5">

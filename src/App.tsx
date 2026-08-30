@@ -21,6 +21,8 @@ import { ExamResultScreen } from './screens/ExamResultScreen';
 import { ProgressScreen } from './screens/ProgressScreen';
 import { ProfileScreen } from './screens/ProfileScreen';
 import { WelcomeScreen } from './screens/WelcomeScreen';
+import { CurriculumAuditScreen } from './screens/CurriculumAuditScreen';
+import { CurriculumUpdateModal } from './components/CurriculumUpdateModal';
 import { FloatingScrollControls } from './components/FloatingScrollControls';
 import { getLessonsForTechAndLevel, getQuizForTechAndLevel } from './content';
 import { fadeInUp } from './utils/animations';
@@ -67,6 +69,10 @@ export default function App() {
   const [activeExamTechId, setActiveExamTechId] = useState<TechId | null>(null);
   const [activeEmbargoTechId, setActiveEmbargoTechId] = useState<TechId | null>(null);
   const [activeResultTechId, setActiveResultTechId] = useState<TechId | null>(null);
+  const [showAuditScreen, setShowAuditScreen] = useState<boolean>(false);
+  const [showCurriculumUpdateModal, setShowCurriculumUpdateModal] = useState<boolean>(() =>
+    storageService.hasPendingCurriculumUpdateNotice()
+  );
 
   // Aplica classe Dark ou Light no body / root HTML conforme preferência do usuário
   useEffect(() => {
@@ -239,6 +245,12 @@ export default function App() {
 
   // Compute Header Back Button action and label dynamically
   const { headerBackAction, headerBackLabel } = useMemo(() => {
+    if (showAuditScreen) {
+      return {
+        headerBackAction: () => setShowAuditScreen(false),
+        headerBackLabel: 'Voltar',
+      };
+    }
     if (activeExamTechId) {
       return {
         headerBackAction: () => {
@@ -288,6 +300,7 @@ export default function App() {
           setActiveExamTechId(null);
           setActiveEmbargoTechId(null);
           setActiveResultTechId(null);
+          setShowAuditScreen(false);
           setActiveTab('home');
         },
         headerBackLabel: t('nav.home') || 'Início',
@@ -297,7 +310,7 @@ export default function App() {
       headerBackAction: undefined,
       headerBackLabel: undefined,
     };
-  }, [activeExamTechId, activeEmbargoTechId, activeResultTechId, activeLesson, activeQuizLevel, selectedTechId, activeTab, t]);
+  }, [showAuditScreen, activeExamTechId, activeEmbargoTechId, activeResultTechId, activeLesson, activeQuizLevel, selectedTechId, activeTab, t]);
 
   // Se a tela de boas-vindas / introdução estiver ativa, exibe a página de introdução
   if (showWelcome) {
@@ -323,16 +336,24 @@ export default function App() {
         onBack={headerBackAction}
         backLabel={headerBackLabel}
         onOpenWelcome={() => setShowWelcome(true)}
+        onOpenAudit={() => {
+          setSelectedTechId(null);
+          setActiveLesson(null);
+          setActiveQuizLevel(null);
+          setShowAuditScreen(true);
+        }}
         onProfileClick={() => {
           setSelectedTechId(null);
           setActiveLesson(null);
           setActiveQuizLevel(null);
+          setShowAuditScreen(false);
           setActiveTab('profile');
         }}
         onNavigateToStudy={() => {
           setSelectedTechId(null);
           setActiveLesson(null);
           setActiveQuizLevel(null);
+          setShowAuditScreen(false);
           setActiveTab('courses');
         }}
       />
@@ -340,8 +361,31 @@ export default function App() {
       {/* Renderização de Conteúdo Principal / Telas com Animação Suave */}
       <main>
         <AnimatePresence mode="wait">
-          {/* Se um exame estiver ativo */}
-          {activeExamTechId ? (
+          {/* Se a tela de auditoria/checklist completo estiver aberta */}
+          {showAuditScreen ? (
+            <motion.div
+              key="audit-screen"
+              variants={fadeInUp}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <CurriculumAuditScreen
+                progress={progress}
+                onSelectLesson={(techId, levelId, lessonId) => {
+                  setSelectedTechId(techId);
+                  setSelectedLevelId(levelId);
+                  setShowAuditScreen(false);
+                  const lessons = getLessonsForTechAndLevel(techId, levelId);
+                  const found = lessons.find(l => l.id === lessonId);
+                  if (found) {
+                    setActiveLesson(found);
+                  }
+                }}
+                onBack={() => setShowAuditScreen(false)}
+              />
+            </motion.div>
+          ) : activeExamTechId ? (
             <motion.div
               key={`exam-${activeExamTechId}`}
               variants={fadeInUp}
@@ -471,6 +515,12 @@ export default function App() {
                 <CursosScreen
                   progress={progress}
                   onSelectTech={handleSelectTech}
+                  onOpenAudit={() => {
+                    setSelectedTechId(null);
+                    setActiveLesson(null);
+                    setActiveQuizLevel(null);
+                    setShowAuditScreen(true);
+                  }}
                 />
               )}
 
@@ -507,15 +557,33 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation Fixo (Início, Cursos, Progresso, Perfil) */}
-      {!activeLesson && !activeQuizLevel && !activeExamTechId && !activeEmbargoTechId && !activeResultTechId && (
+      {!activeLesson && !activeQuizLevel && !activeExamTechId && !activeEmbargoTechId && !activeResultTechId && !showAuditScreen && (
         <BottomNav
           activeTab={activeTab}
           onSelectTab={tab => {
             setSelectedTechId(null);
+            setShowAuditScreen(false);
             setActiveTab(tab);
           }}
         />
       )}
+
+      {/* Modal de Atualização de Currículo & Notificação de Integridade das Aulas */}
+      <CurriculumUpdateModal
+        isOpen={showCurriculumUpdateModal}
+        onClose={() => {
+          storageService.dismissCurriculumUpdateNotice();
+          setShowCurriculumUpdateModal(false);
+        }}
+        onOpenAudit={() => {
+          storageService.dismissCurriculumUpdateNotice();
+          setShowCurriculumUpdateModal(false);
+          setSelectedTechId(null);
+          setActiveLesson(null);
+          setActiveQuizLevel(null);
+          setShowAuditScreen(true);
+        }}
+      />
     </div>
   );
 }

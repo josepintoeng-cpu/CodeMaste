@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Zap, Moon, Sun, ShieldCheck, Cloud, CloudOff, RefreshCw, Globe, Sparkles } from 'lucide-react';
+import { ArrowLeft, Zap, Moon, Sun, ShieldCheck, Cloud, CloudOff, RefreshCw, Globe, Sparkles, BookOpen } from 'lucide-react';
 import { motion } from 'motion/react';
 import { UserProgress, SyncStatus } from '../types';
 import { StreakCounter } from './StreakCounter';
@@ -12,6 +12,7 @@ interface HeaderProps {
   onToggleTheme: () => void;
   onProfileClick: () => void;
   onOpenWelcome?: () => void;
+  onOpenAudit?: () => void;
   onNavigateToStudy?: () => void;
   onBack?: () => void;
   backLabel?: string;
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleTheme,
   onProfileClick,
   onOpenWelcome,
+  onOpenAudit,
   onNavigateToStudy,
   onBack,
   backLabel,
@@ -135,6 +137,20 @@ export const Header: React.FC<HeaderProps> = ({
             <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-orange-400 text-orange-400 shrink-0" />
             <span>{progress.xp}</span>
           </motion.div>
+
+          {/* Checklist Completo de Aulas & Mentoria (Auditoria) */}
+          {onOpenAudit && (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={onOpenAudit}
+              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/25 text-emerald-400 text-[10px] sm:text-xs font-bold transition-all touch-btn shadow-sm shrink-0"
+              title="Checklist Completo de Aulas & Auditoria de Integridade (0 Repetições)"
+            >
+              <BookOpen className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-400 shrink-0" />
+              <span className="hidden lg:inline">Checklist Aulas</span>
+            </motion.button>
+          )}
 
           {/* Apresentação & Sobre o Projeto (Exibido a partir de telas médias) */}
           {onOpenWelcome && (
