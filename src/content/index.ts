@@ -1,13 +1,79 @@
 import { Lesson, Quiz, QuizQuestion, TechId, LevelId } from '../types';
 import { TECHNOLOGIES } from './technologies';
 import { TECH_CURRICULUM } from './techCurriculum';
-import { pythonInicianteLessons, pythonInicianteQuiz } from './python/iniciante';
+import { FIRST_CONTACT_LESSONS } from './firstContactLessons';
+import { pythonInicianteQuiz } from './python/iniciante';
 
 /**
  * Retorna as aulas para uma dada tecnologia e nível.
+ * Garante que em TODOS os cursos a primeira aula seja sempre de Introdução & Primeiros Contactos
+ * imersiva, inovadora e superior ao ensino tradicional.
  */
 export function getLessonsForTechAndLevel(techId: TechId, levelId: LevelId): Lesson[] {
-  // Se houver currículo rico estruturado no TECH_CURRICULUM
+  const firstContact = FIRST_CONTACT_LESSONS[techId];
+
+  // Se for nível iniciante, montamos a lista garantindo a Aula Inaugural no índice 0
+  if (levelId === 'iniciante' && firstContact) {
+    const inauguralLesson: Lesson = {
+      id: `${techId}-iniciante-1`,
+      techId,
+      levelId: 'iniciante',
+      order: 1,
+      title: firstContact.title,
+      description: firstContact.description,
+      estimatedMinutes: firstContact.estimatedMinutes,
+      xpReward: firstContact.xpReward,
+      theory: firstContact.theory,
+      codeExample: firstContact.codeExample,
+      simulation: firstContact.simulation,
+      exercise: firstContact.exercise,
+    };
+
+    const curriculum = TECH_CURRICULUM[techId];
+    if (curriculum && curriculum.topicsByLevel && curriculum.topicsByLevel.iniciante) {
+      const curriculumTopics = curriculum.topicsByLevel.iniciante;
+      const remainingTopics = curriculumTopics.length > 1 ? curriculumTopics.slice(1) : [];
+
+      const remainingLessons: Lesson[] = remainingTopics.map((t, idx) => ({
+        id: `${techId}-iniciante-${idx + 2}`,
+        techId,
+        levelId: 'iniciante',
+        order: idx + 2,
+        title: t.title.replace(/^\d+\.\s*/, `${idx + 2}. `),
+        description: t.desc,
+        estimatedMinutes: 10 + (idx + 1) * 2,
+        xpReward: 25 + (idx + 1) * 5,
+        theory: t.theory,
+        codeExample: {
+          language: t.lang,
+          code: t.code,
+          explanation: `Exemplo prático de código para ${t.title}`,
+        },
+        simulation: {
+          type: getSimulationType(techId),
+          defaultOutput: t.output,
+          description: `Simulador e executor de ambiente para ${techId}`,
+        },
+        exercise: t.exercise,
+      }));
+
+      return [inauguralLesson, ...remainingLessons];
+    }
+
+    // Se não houver tópicos específicos no currículo, gera fallback estruturado para as aulas 2 a 5
+    const fallbackLessons = generateFallbackLessons(techId, 'iniciante');
+    return [
+      inauguralLesson,
+      ...fallbackLessons.slice(1).map((l, idx) => ({
+        ...l,
+        order: idx + 2,
+        id: `${techId}-iniciante-${idx + 2}`,
+        title: l.title.replace(/^\d+\.\s*/, `${idx + 2}. `),
+      })),
+    ];
+  }
+
+  // Se houver currículo rico estruturado no TECH_CURRICULUM para outros níveis
   const curriculum = TECH_CURRICULUM[techId];
   if (curriculum && curriculum.topicsByLevel && curriculum.topicsByLevel[levelId]) {
     const topics = curriculum.topicsByLevel[levelId];
@@ -35,10 +101,6 @@ export function getLessonsForTechAndLevel(techId: TechId, levelId: LevelId): Les
         exercise: t.exercise,
       }));
     }
-  }
-
-  if (techId === 'python' && levelId === 'iniciante') {
-    return pythonInicianteLessons;
   }
 
   // Gerador dinâmico de aulas fallback de alta qualidade para preenchimento progressivo

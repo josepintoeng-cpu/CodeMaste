@@ -181,10 +181,16 @@ export const LessonScreen: React.FC<LessonScreenProps> = ({
           </button>
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-[9px] sm:text-[10px] uppercase font-black text-orange-500 tracking-widest bg-orange-500/10 px-2.5 py-0.5 rounded-md border border-orange-500/20">
                 {lesson.techId.toUpperCase()} • {lesson.levelId}
               </span>
+              {lesson.order === 1 && lesson.levelId === 'iniciante' && (
+                <span className="text-[9px] sm:text-[10px] uppercase font-black text-emerald-400 tracking-widest bg-emerald-500/15 px-2.5 py-0.5 rounded-md border border-emerald-500/30 flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-emerald-400" />
+                  <span>Aula Inaugural • Primeiro Contato</span>
+                </span>
+              )}
             </div>
             <h2 className="text-base sm:text-xl font-bold text-[var(--text-primary)] truncate mt-1 tracking-tight">
               {lesson.title}

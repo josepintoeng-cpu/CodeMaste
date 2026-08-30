@@ -410,6 +410,12 @@ export const TechDetailScreen: React.FC<TechDetailScreenProps> = ({
                     </div>
 
                     <div className="min-w-0 flex-1">
+                      {index === 0 && activeLevel === 'iniciante' && (
+                        <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[9px] font-black uppercase tracking-wider mb-1">
+                          <Sparkles className="w-2.5 h-2.5" />
+                          <span>Aula Inaugural • Primeiro Contato</span>
+                        </div>
+                      )}
                       <h4 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] truncate">
                         {lesson.title}
                       </h4>
